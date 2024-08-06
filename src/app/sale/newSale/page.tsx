@@ -12,6 +12,7 @@ import ItemsProducts from '@/components/products/ItemsProducts';
 import Input from '@/components/Input';
 import ItemLineaVenta from '@/components/sale/ItemLineaVenta';
 import Button from '@/components/Button';
+import { useRouter } from 'next/navigation';
 
 export default function NewSale() {
 
@@ -28,6 +29,7 @@ export default function NewSale() {
     const [lineaVenta, setLineaVenta] = useState<any>([])
     const [cliente, setCliente] = useState('')
     const [total, setTotal] = useState(0)
+    const router = useRouter()
 
     const user = useSelector(getUser)
     const dispatch = useAppDispatch();
@@ -35,6 +37,9 @@ export default function NewSale() {
     useEffect(() => {
       if (!user && valueStorage) {
         dispatch(setUser(valueStorage))
+      }
+      if (!valueStorage) {
+        router.push('/')
       }
     }, [valueStorage, user, dispatch])
 

@@ -8,18 +8,24 @@ import Logo from '@/components/Logo';
 import styled from 'styled-components';
 import Link from 'next/link';
 import { UserWithToken } from '@/interfaces/auth.interface';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
 
   const user = useSelector(getUser)
   const [valueStorage , setValue] = useLocalStorage("user", "")
   const dispatch = useAppDispatch();
+  const router = useRouter()
 
   useEffect(() => {
     if (!user && valueStorage) {
       dispatch(setUser(valueStorage))
     }
+    if (!valueStorage) {
+      router.push('/')
+    }
   }, [valueStorage, user, dispatch])
+  
   return (
     <div style={{display: 'flex', flexDirection: 'column'}} >
       {/* <Logo/>

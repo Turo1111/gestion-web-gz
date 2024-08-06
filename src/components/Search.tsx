@@ -24,7 +24,7 @@ export default function Search({ type, value, onChange, name, placeHolder }: {
           </IconWrapper>
           <Input 
             placeholder={placeHolder}
-            focused={isFocused} 
+            focused={isFocused ? 1:0}
             name={name}
             type={type}
             value={value}
@@ -46,7 +46,7 @@ const InputWrapper = styled.div `
     padding: 0 15px;
 `
 
-const Input = styled.input<{ focused?: boolean; }> `
+const Input = styled.input<{ focused?: any; }> `
   height: 35px;
   padding: 10px 25px;
   font-size: 16px;

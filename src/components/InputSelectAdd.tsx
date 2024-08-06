@@ -44,7 +44,7 @@ const InputLabel = styled.label<InputLabelProps>`
 
 interface InputFieldProps {
   color: string;
-  focused: boolean;
+  focused: any;
 }
 
 const InputField = styled.input<InputFieldProps>`
@@ -251,7 +251,7 @@ const InputSelectAdd = ({type = 'text', label, value, onChange, name, edit = fal
         name={name}
         onFocus={handleInputFocus}
         onBlur={handleInputBlur}    
-        focused={isFocused}
+        focused={isFocused ? 1:0}
       />
       {
         inputValue === '' ?  

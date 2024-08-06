@@ -2,13 +2,22 @@
 
 import Button from '@/components/Button'
 import Search from '@/components/Search'
+import useLocalStorage from '@/hooks/useLocalStorage'
+import { useAppDispatch } from '@/redux/hook'
+import { getUser, setUser } from '@/redux/userSlice'
 import apiClient from '@/utils/client'
+import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
+import { useSelector } from 'react-redux'
 
 export default function Sale() {
 
     const [search, setSearch] = useState('')
     const [data, setData] = useState([])
+    const user = useSelector(getUser)
+    const [valueStorage , setValue] = useLocalStorage("user", "")
+    const dispatch = useAppDispatch();
+    const router = useRouter()
 
     const getSale = async () => {
         apiClient.get('/sale')
@@ -21,6 +30,15 @@ export default function Sale() {
     useEffect(()=>{
         getSale()
     },[data])
+
+    useEffect(() => {
+        if (!user && valueStorage) {
+          dispatch(setUser(valueStorage))
+        }
+        if (!valueStorage) {
+            router.push('/')
+          }
+      }, [valueStorage, user, dispatch])
 
   return (
     <main>

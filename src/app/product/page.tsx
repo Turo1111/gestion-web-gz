@@ -8,6 +8,7 @@ import useLocalStorage from '@/hooks/useLocalStorage';
 import { useAppDispatch } from '@/redux/hook';
 import { getUser, setUser } from '@/redux/userSlice';
 import apiClient from '@/utils/client';
+import { useRouter } from 'next/navigation';
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { MdEdit, MdInfo } from 'react-icons/md';
 import { useSelector } from 'react-redux';
@@ -26,9 +27,19 @@ export default function Product() {
     const observer = useRef<IntersectionObserver | null>(null);
     const [loading, setLoading] = useState(false)
     const [openNewProduct, setOpenNewProduct] = useState(false)
+    const router = useRouter()
 
     const user = useSelector(getUser)
     const dispatch = useAppDispatch();
+
+    useEffect(() => {
+      if (!user && valueStorage) {
+        dispatch(setUser(valueStorage))
+      }
+      if (!valueStorage) {
+        router.push('/')
+      }
+    }, [valueStorage, user, dispatch])
 
     useEffect(() => {
       if (!user && valueStorage) {
