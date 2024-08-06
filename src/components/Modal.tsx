@@ -178,30 +178,11 @@ const ModalContent = styled.div`
   }
 `;
 
-const ModalButton = styled.div`
-  display: ${props => (props.modalButton ? "flex" : "none")};
-  justify-content: end;
-  position: absolute;
-  bottom: 0;
-  width: 94%;
-  margin-bottom: 5px;
-`;
+interface ModalHeaderProps {
+  title?: string;
+}
 
-const Button = styled.button`
-  padding: 10px 30px;
-  font-size: 12px;
-  color: #ff7878;
-  border: 1px solid #ff7878;
-  background: transparent;
-  border-radius: 10px;
-  margin: 5px;
-  :hover {
-    background-color: #ff7878;
-    color: white;
-  }
-`;
-
-const ModalHeader = styled.div`
+const ModalHeader = styled.div<ModalHeaderProps>`
   display: ${props => (props.title ? "flex" : "none")};
   justify-content: space-between;
   padding: 10px;
