@@ -10,7 +10,6 @@ import useLocalStorage from '@/hooks/useLocalStorage';
 import styled from 'styled-components';
 import ItemsProducts from '@/components/products/ItemsProducts';
 import Input from '@/components/Input';
-import { Filter } from '../../../../../gzapi/src/services/product';
 import ItemLineaVenta from '@/components/sale/ItemLineaVenta';
 import Button from '@/components/Button';
 
@@ -96,6 +95,10 @@ export default function NewSale() {
     },[search]) 
 
     useEffect(()=>{
+      if (!process.env.NEXT_PUBLIC_DB_HOST) {
+        console.log('env')
+        return
+      }
       const socket = io(process.env.NEXT_PUBLIC_DB_HOST)
       socket.on(`product`, (socket:any) => {
         console.log("escucho socket", socket);
