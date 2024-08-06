@@ -104,7 +104,13 @@ const Container = styled.div`
   align-items: center;
 `;
 
-const Content = styled.div`
+interface ContentProps {
+  borderRadius?: boolean;
+  width?: string;
+  height?: string;
+}
+
+const Content = styled.div<ContentProps>`
   background-color: white;
   border: 1px solid #888;
   width: ${props => props.width && props.width};
