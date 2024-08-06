@@ -93,6 +93,10 @@ export default function Product() {
     },[search]) 
 
     useEffect(()=>{
+      if (!process.env.NEXT_PUBLIC_DB_HOST) {
+        console.log('env')
+        return
+      }
       const socket = io(process.env.NEXT_PUBLIC_DB_HOST)
       socket.on(`product`, (socket:any) => {
         console.log("escucho socket", socket);
