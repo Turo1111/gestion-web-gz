@@ -43,7 +43,7 @@ export default function Sale() {
       if (valueStorage) {
         getSale()
       }
-    },[valueStorage.token])
+    },[user])
 
     useEffect(() => {
         if (!user && valueStorage) {
