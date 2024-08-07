@@ -13,6 +13,8 @@ import Input from '@/components/Input';
 import ItemLineaVenta from '@/components/sale/ItemLineaVenta';
 import Button from '@/components/Button';
 import { useRouter } from 'next/navigation';
+import { getLoading, setLoading } from '@/redux/loadingSlice';
+import { setAlert } from '@/redux/alertSlice';
 
 export default function NewSale() {
 
@@ -21,15 +23,14 @@ export default function NewSale() {
     const [valueStorage , setValue] = useLocalStorage("user", "")
     const [dataSearch, setDataSearch] = useState([])
     const [query, setQuery] = useState({skip: 0, limit: 25})
-    const [selectProduct, setSelectProduct] = useState(undefined)
-    const [openModalProduct, setOpenModalProduct] = useState(false)
     const observer = useRef<IntersectionObserver | null>(null);
-    const [loading, setLoading] = useState(false)
-    const [openNewProduct, setOpenNewProduct] = useState(false)
     const [lineaVenta, setLineaVenta] = useState<any>([])
     const [cliente, setCliente] = useState('')
     const [total, setTotal] = useState(0)
     const router = useRouter()
+    const loading = useSelector(getLoading)
+    
+    const [longArray, setLongArray] = useState(0)
 
     const user = useSelector(getUser)
     const dispatch = useAppDispatch();
@@ -48,7 +49,7 @@ export default function NewSale() {
     }
 
     const getProduct = async (skip: number, limit: number) => {
-      setLoading(true);
+      dispatch(setLoading(true))
       try {
           const response = await apiClient.post(`/product/skip`, { skip, limit },
               {
@@ -60,23 +61,24 @@ export default function NewSale() {
               console.log("data query", response.data);
   
               if (prevData.length === 0) {
-                  return response.data;
+                  return response.data.array;
               }
-              const newData = response.data.filter((element: any) => {
+              const newData = response.data.array.filter((element: any) => {
                   return prevData.findIndex((item: any) => item._id === element._id) === -1;
               });
   
               return [...prevData, ...newData];
           });
+          setLongArray(prevData=>response.data.longitud)
       } catch (e) {
           console.log("error", e);
       } finally {
-          setLoading(false);
+        dispatch(setLoading(false))
       }
   }
 
   const getProductSearch = async (input: string) => {
-    setLoading(true);
+    dispatch(setLoading(true))
     try {
         const response = await apiClient.post(`/product/search`, { input });
         console.log("data", response.data);
@@ -84,7 +86,7 @@ export default function NewSale() {
     } catch (e) {
         console.log("error", e);
     } finally {
-        setLoading(false);
+      dispatch(setLoading(false))
     }
 }
 
@@ -133,10 +135,10 @@ export default function NewSale() {
           if (observer.current) observer.current.disconnect();
           observer.current = new IntersectionObserver(entries => {
               if (entries[0].isIntersecting) {
-                  console.log('final', search)
                   if (search === '') {
-                      console.log('entre 2', search)
+                    if (data.length < longArray) {
                       setQuery(prevData => ({ skip: prevData.skip + 25, limit: prevData.limit }));
+                    }
                   }
               }
           });
@@ -198,7 +200,7 @@ export default function NewSale() {
         </div>
         <div style={{width: '50%', display: 'flex', flex: 1, flexDirection: 'column'}}>
             <div style={{display: 'flex', flex: 1, flexDirection: 'column', padding: 15}}>
-                <h2>Linea de venta</h2>
+                <h2 style={{fontSize: 18}} >Linea de venta</h2>
                 <ListProduct style={{ display: 'flex', flexDirection: 'column', padding: 15, maxHeight: '65vh'}}>
                     { 
                         lineaVenta.length === 0 ? 'No se selecciono productos' :
@@ -235,15 +237,25 @@ export default function NewSale() {
             </div>
             <div style={{height: '30%', padding: '0 15px'}}>
                 <Input label='Cliente' name='cliente' value={cliente} onChange={(e:any)=>setCliente(e.target.value)} type='text' />
-                <h2>Total: $ {total} </h2>
+                <h2 style={{fontSize: 18}} >Total: $ {total} </h2>
                 <Button text='Crear' onClick={()=>{
+                  dispatch(setLoading(true))
                   apiClient.post('/sale', {itemsSale: lineaVenta, cliente: cliente, total: total, estado: 'Entregado'},{
                     headers: {
                       Authorization: `Bearer ${valueStorage.token}` 
                     }
                   })
-                  .then((r)=>console.log(r.data))
-                  .catch((e)=>console.log(e))
+                  .then((r)=>{
+                    dispatch(setLoading(false))
+                    dispatch(setAlert({
+                      message: `Venta creada correctamente`,
+                      type: 'success'
+                    }))
+                  })
+                  .catch((e)=>dispatch(setAlert({
+                    message: `${e.response.data.error}`,
+                    type: 'error'
+                  })))
                 }} />
             </div>
         </div>

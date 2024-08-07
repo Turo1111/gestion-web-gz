@@ -6,9 +6,15 @@ import Button from '../Button'
 import { useFormik } from 'formik'
 import apiClient from '@/utils/client'
 import useLocalStorage from '@/hooks/useLocalStorage'
+import { useSelector } from 'react-redux'
+import { getLoading, setLoading } from '@/redux/loadingSlice'
+import { useAppDispatch } from '@/redux/hook'
+import { setAlert } from '@/redux/alertSlice'
 
 export default function NewProduct({open, handleClose}:{open: boolean, handleClose: any}) {
     const [valueStorage , setValue] = useLocalStorage("user", "")
+    const loading = useSelector(getLoading)
+    const dispatch = useAppDispatch();
 
     const formik = useFormik({
       initialValues: {
@@ -22,7 +28,7 @@ export default function NewProduct({open, handleClose}:{open: boolean, handleClo
         bulto: '',
       },
       onSubmit: (formValue:any) => {
-        console.log(formValue)
+        dispatch(setLoading(true))
         if (formValue.descripcion === '' || formValue.stock <= 0 || formValue.precioUnitario <= 0){
           console.log('error')
           return
@@ -38,10 +44,19 @@ export default function NewProduct({open, handleClose}:{open: boolean, handleClo
           }
         })
         .then(async (r)=>{
+          dispatch(setLoading(false))
+          dispatch(setAlert({
+            message: `Producto creado correctamente`,
+            type: 'success'
+          }))
           handleClose()
         })
         .catch(e=>{
             console.log('error', e);
+            dispatch(setAlert({
+              message: `${e.response.data.error}`,
+              type: 'error'
+            }))
         })
       }
     }) 

@@ -6,15 +6,21 @@ import Input from '../Input'
 import InputSelectAdd from '../InputSelectAdd'
 import useLocalStorage from '@/hooks/useLocalStorage'
 import apiClient from '@/utils/client'
+import { useSelector } from 'react-redux'
+import { getLoading, setLoading } from '@/redux/loadingSlice'
+import { useAppDispatch } from '@/redux/hook'
+import { setAlert } from '@/redux/alertSlice'
 
 export default function ModalProduct({open, handleClose, product}:{open: boolean, handleClose: any, product: any}) {
 
   const [valueStorage , setValue] = useLocalStorage("user", "")
+  const loading = useSelector(getLoading)
+  const dispatch = useAppDispatch();
 
   const formik = useFormik({
     initialValues: product,
     onSubmit: (formValue:any) => {
-      console.log(formValue)
+      dispatch(setLoading(true))
       if (formValue.descripcion === '' || formValue.stock <= 0 || formValue.precioUnitario <= 0){
         console.log('error')
         return
@@ -30,9 +36,19 @@ export default function ModalProduct({open, handleClose, product}:{open: boolean
         }
       })
       .then(async (r)=>{
+        dispatch(setLoading(false))
+        dispatch(setAlert({
+          message: `Producto modificado correctamente`,
+          type: 'success'
+        }))
         handleClose()
       })
       .catch(e=>{
+          dispatch(setLoading(false))
+          dispatch(setAlert({
+            message: `${e.response.data.error}`,
+            type: 'error'
+          }))
           console.log('error', e);
       })
     }

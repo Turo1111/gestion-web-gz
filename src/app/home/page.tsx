@@ -9,6 +9,7 @@ import styled from 'styled-components';
 import Link from 'next/link';
 import { UserWithToken } from '@/interfaces/auth.interface';
 import { useRouter } from 'next/navigation';
+import Loading from '@/components/Loading';
 
 export default function Home() {
 
@@ -28,14 +29,7 @@ export default function Home() {
   
   return (
     <div style={{display: 'flex', flexDirection: 'column'}} >
-      {/* <Logo/>
-      <div style={{display: 'flex', alignItems: 'end', justifyContent: 'center', margin: '15px 0'}} >
-        <h2 style={{fontWeight: 500, fontSize: 20}} >Bienvenido {valueStorage ? valueStorage.user : 'no registrado'}</h2>
-        <LogOut>Cerrar Sesion</LogOut>
-      </div>
-      <Lista>
-        <ItemLista><Link href={'/product'} >Productos</Link></ItemLista>
-      </Lista> */}
+      <Loading/>
     </div>
   )
 }

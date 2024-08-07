@@ -1,11 +1,13 @@
 'use client'
 import Button from '@/components/Button';
+import Loading from '@/components/Loading';
 import ItemsProducts from '@/components/products/ItemsProducts';
 import ModalProduct from '@/components/products/ModalProduct';
 import NewProduct from '@/components/products/NewProduct';
 import Search from '@/components/Search';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import { useAppDispatch } from '@/redux/hook';
+import { getLoading, setLoading } from '@/redux/loadingSlice';
 import { getUser, setUser } from '@/redux/userSlice';
 import apiClient from '@/utils/client';
 import { useRouter } from 'next/navigation';
@@ -25,9 +27,10 @@ export default function Product() {
     const [selectProduct, setSelectProduct] = useState(undefined)
     const [openModalProduct, setOpenModalProduct] = useState(false)
     const observer = useRef<IntersectionObserver | null>(null);
-    const [loading, setLoading] = useState(false)
+    const loading = useSelector(getLoading)
     const [openNewProduct, setOpenNewProduct] = useState(false)
     const router = useRouter()
+    const [longArray, setLongArray] = useState(0)
 
     const user = useSelector(getUser)
     const dispatch = useAppDispatch();
@@ -52,7 +55,8 @@ export default function Product() {
     }
 
     const getProduct = async (skip: number, limit: number) => {
-      setLoading(true);
+      dispatch(setLoading(true))
+      
       try {
           const response = await apiClient.post(`/product/skip`, { skip, limit },
               {
@@ -61,40 +65,41 @@ export default function Product() {
                   },
               });
           setData(prevData => {
-              console.log("data query", response.data);
   
               if (prevData.length === 0) {
-                  return response.data;
+                  return response.data.array;
               }
-              const newData = response.data.filter((element: any) => {
+              const newData = response.data.array.filter((element: any) => {
                   return prevData.findIndex((item: any) => item._id === element._id) === -1;
               });
   
               return [...prevData, ...newData];
           });
+          setLongArray(prevData=>response.data.longitud)
       } catch (e) {
           console.log("error", e);
       } finally {
-          setLoading(false);
+        dispatch(setLoading(false));
       }
   }
 
   const getProductSearch = async (input: string) => {
-    setLoading(true);
+    dispatch(setLoading(true))
     try {
         const response = await apiClient.post(`/product/search`, { input });
-        console.log("data", response.data);
         setDataSearch(response.data);
     } catch (e) {
         console.log("error", e);
     } finally {
-        setLoading(false);
+      dispatch(setLoading(false))
     }
 }
 
     useEffect(()=>{
       console.log('cambio query', query)
+      
       getProduct(query.skip, query.limit)
+      
     },[query]) 
 
     useEffect(()=>{
@@ -110,7 +115,6 @@ export default function Product() {
       }
       const socket = io(process.env.NEXT_PUBLIC_DB_HOST)
       socket.on(`product`, (socket:any) => {
-        console.log("escucho socket", socket);
         refreshProducts()
         setData((prevData: any)=>{
           const exist = prevData.find((elem: any) => elem._id === socket.data._id )
@@ -137,10 +141,10 @@ export default function Product() {
           if (observer.current) observer.current.disconnect();
           observer.current = new IntersectionObserver(entries => {
               if (entries[0].isIntersecting) {
-                  console.log('final', search)
                   if (search === '') {
-                      console.log('entre 2', search)
-                      setQuery(prevData => ({ skip: prevData.skip + 25, limit: prevData.limit }));
+                      if (data.length < longArray) {
+                        setQuery(prevData => ({ skip: prevData.skip + 25, limit: prevData.limit }));
+                      }
                   }
               }
           });
@@ -149,41 +153,43 @@ export default function Product() {
       [loading, search]
   );
 
-    useEffect(()=>console.log("cantidad de data con query",data.length),[data])
-
   return (
-    <main>
-        <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1}} >
-            <div style={{display: 'flex', justifyContent: 'space-between', width: '100%', padding: '0px 15px'}}>
-              <Search name='search' placeHolder={'Buscar productos'} type='text' value={search} onChange={searchProduct} />
-              <Button text='Nuevo' onClick={()=>setOpenNewProduct(true)}/>
-            </div>
-            <ListProduct>
-                {
-                  search !== '' ?
-                    dataSearch.length !== 0 ? 
-                      dataSearch.map((item: any, index: any)=>{
+    <main style={{display: 'flex', flexDirection: 'column', flex: 1}}>
+      {
+        <>
+          <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1}} >
+              <div style={{display: 'flex', justifyContent: 'space-between', width: '100%', padding: '0px 15px'}}>
+                <Search name='search' placeHolder={'Buscar productos'} type='text' value={search} onChange={searchProduct} />
+                <Button text='Nuevo' onClick={()=>setOpenNewProduct(true)}/>
+              </div>
+              <ListProduct>
+                  {
+                    search !== '' ?
+                      dataSearch.length !== 0 ? 
+                        dataSearch.map((item: any, index: any)=>{
+                          return <ItemsProducts  key={index} item={item} onClick={()=>{setSelectProduct(item);setOpenModalProduct(true)}}/>
+                        })
+                        : 'NO HAY PRODUCTOS'
+                    :
+                      data.length !== 0 ? 
+                      data.map((item: any, index: any)=>{
                         return <ItemsProducts  key={index} item={item} onClick={()=>{setSelectProduct(item);setOpenModalProduct(true)}}/>
                       })
                       : 'NO HAY PRODUCTOS'
-                  :
-                    data.length !== 0 ? 
-                    data.map((item: any, index: any)=>{
-                      return <ItemsProducts  key={index} item={item} onClick={()=>{setSelectProduct(item);setOpenModalProduct(true)}}/>
-                    })
-                    : 'NO HAY PRODUCTOS'
-                }
-                <li style={{listStyle: 'none', padding: 0, margin: 0}} ref={lastElementRef}></li>;
-            </ListProduct>
-        </div>
-        {
-          openModalProduct &&
-          <ModalProduct open={openModalProduct} handleClose={()=>setOpenModalProduct(false)} product={selectProduct} ></ModalProduct>
-        }
-        {
-          openNewProduct &&
-          <NewProduct open={openNewProduct} handleClose={()=>setOpenNewProduct(false)} ></NewProduct>
-        }
+                  }
+                    <li style={{listStyle: 'none', padding: 0, margin: 0}} ref={lastElementRef}></li>
+              </ListProduct>
+          </div>
+          {
+            openModalProduct &&
+            <ModalProduct open={openModalProduct} handleClose={()=>setOpenModalProduct(false)} product={selectProduct} ></ModalProduct>
+          }
+          {
+            openNewProduct &&
+            <NewProduct open={openNewProduct} handleClose={()=>setOpenNewProduct(false)} ></NewProduct>
+          }
+        </>
+      }
     </main>
   )
 }
