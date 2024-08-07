@@ -40,7 +40,9 @@ export default function Sale() {
     }
 
     useEffect(()=>{
+      if (valueStorage) {
         getSale()
+      }
     },[valueStorage.token])
 
     useEffect(() => {
