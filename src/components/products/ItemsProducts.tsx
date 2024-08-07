@@ -57,7 +57,7 @@ const ItemProduct = styled.li `
   display: flex;
   flex: 1;
   flex-direction: column;
-  
+  max-height: 80px;
 `
 
 const IconWrapper = styled.div`

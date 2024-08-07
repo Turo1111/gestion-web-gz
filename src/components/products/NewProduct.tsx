@@ -53,6 +53,7 @@ export default function NewProduct({open, handleClose}:{open: boolean, handleClo
         })
         .catch(e=>{
             console.log('error', e);
+            dispatch(setLoading(false))
             dispatch(setAlert({
               message: `${e.response.data.error}`,
               type: 'error'

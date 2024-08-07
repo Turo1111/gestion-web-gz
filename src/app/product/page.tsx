@@ -27,7 +27,7 @@ export default function Product() {
     const [selectProduct, setSelectProduct] = useState(undefined)
     const [openModalProduct, setOpenModalProduct] = useState(false)
     const observer = useRef<IntersectionObserver | null>(null);
-    const loading = useSelector(getLoading)
+    const {open: loading} = useSelector(getLoading)
     const [openNewProduct, setOpenNewProduct] = useState(false)
     const router = useRouter()
     const [longArray, setLongArray] = useState(0)
@@ -76,8 +76,10 @@ export default function Product() {
               return [...prevData, ...newData];
           });
           setLongArray(prevData=>response.data.longitud)
+          dispatch(setLoading(false));
       } catch (e) {
           console.log("error", e);
+          dispatch(setLoading(false));
       } finally {
         dispatch(setLoading(false));
       }
@@ -88,15 +90,16 @@ export default function Product() {
     try {
         const response = await apiClient.post(`/product/search`, { input });
         setDataSearch(response.data);
+        dispatch(setLoading(false));
     } catch (e) {
         console.log("error", e);
+        dispatch(setLoading(false));
     } finally {
       dispatch(setLoading(false))
     }
 }
 
     useEffect(()=>{
-      console.log('cambio query', query)
       
       getProduct(query.skip, query.limit)
       
@@ -109,6 +112,7 @@ export default function Product() {
     },[search]) 
 
     useEffect(()=>{
+      console.log(data.length, dataSearch.length)
       if (!process.env.NEXT_PUBLIC_DB_HOST) {
         console.log('env')
         return
@@ -129,7 +133,7 @@ export default function Product() {
       return () => {
         socket.disconnect();
       }; 
-    },[data])
+    },[data,dataSearch])
 
     const refreshProducts = () => {
       setSearch(prevData=>'')
@@ -137,12 +141,18 @@ export default function Product() {
 
     const lastElementRef = useCallback(
       (node: HTMLLIElement | null) => {
-          if (loading) return;
+          if (loading) {
+            return 
+          };
           if (observer.current) observer.current.disconnect();
           observer.current = new IntersectionObserver(entries => {
+            console.log('0')
               if (entries[0].isIntersecting) {
+                console.log('1')
                   if (search === '') {
+                    console.log('2', data.length, longArray)
                       if (data.length < longArray) {
+                        console.log('3')
                         setQuery(prevData => ({ skip: prevData.skip + 25, limit: prevData.limit }));
                       }
                   }
@@ -177,7 +187,7 @@ export default function Product() {
                       })
                       : 'NO HAY PRODUCTOS'
                   }
-                    <li style={{listStyle: 'none', padding: 0, margin: 0}} ref={lastElementRef}></li>
+                  <li style={{listStyle: 'none', padding: 0, margin: 0}} ref={lastElementRef}>FINAL</li>
               </ListProduct>
           </div>
           {
