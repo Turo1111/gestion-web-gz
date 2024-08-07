@@ -2,6 +2,7 @@
 import Button from "@/components/Button";
 import Input from "@/components/Input";
 import Loading from "@/components/Loading";
+import MiniLoading from "@/components/MiniLoading";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { Auth } from "@/interfaces/auth.interface";
 import { useAppDispatch } from "@/redux/hook";
@@ -62,7 +63,7 @@ export default function Home() {
           <div style={{display: 'flex', alignItems: 'center', justifyContent: 'end', width: '100%'}}>
             {
               loading ? 
-              <Loading/>
+              <MiniLoading/>
               :
               <div style={{display: "flex", alignItems: "center"}} >
                 {
