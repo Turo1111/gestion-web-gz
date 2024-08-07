@@ -43,6 +43,8 @@ export default function Home() {
     }
   }) 
 
+  useEffect(()=>router.push('/home'),[valueStorage])
+
   if (valueStorage) {
     router.push('/home')
   }
