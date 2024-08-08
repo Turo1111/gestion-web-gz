@@ -4,6 +4,7 @@ import Loading from '@/components/Loading';
 import ItemsProducts from '@/components/products/ItemsProducts';
 import ModalProduct from '@/components/products/ModalProduct';
 import NewProduct from '@/components/products/NewProduct';
+import UpdatePrice from '@/components/products/UpdatePrice';
 import Search from '@/components/Search';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import { useAppDispatch } from '@/redux/hook';
@@ -31,6 +32,7 @@ export default function Product() {
     const [openNewProduct, setOpenNewProduct] = useState(false)
     const router = useRouter()
     const [longArray, setLongArray] = useState(0)
+    const [openUpdatePrice, setOpenUpdatePrice] = useState(false)
 
     const user = useSelector(getUser)
     const dispatch = useAppDispatch();
@@ -137,6 +139,7 @@ export default function Product() {
 
     const refreshProducts = () => {
       setSearch(prevData=>'')
+      getProduct(query.skip, query.limit)
     };
 
     const lastElementRef = useCallback(
@@ -168,8 +171,9 @@ export default function Product() {
       {
         <>
           <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1}} >
-              <div style={{display: 'flex', justifyContent: 'space-between', width: '100%', padding: '0px 15px'}}>
+              <div style={{display: 'flex', width: '100%', padding: '0px 15px'}}>
                 <Search name='search' placeHolder={'Buscar productos'} type='text' value={search} onChange={searchProduct} />
+                <Button text='Actualizar' onClick={()=>setOpenUpdatePrice(true)}/>
                 <Button text='Nuevo' onClick={()=>setOpenNewProduct(true)}/>
               </div>
               <ListProduct>
@@ -197,6 +201,10 @@ export default function Product() {
           {
             openNewProduct &&
             <NewProduct open={openNewProduct} handleClose={()=>setOpenNewProduct(false)} ></NewProduct>
+          }
+          {
+            openUpdatePrice && 
+            <UpdatePrice open={openUpdatePrice} handleClose={()=>setOpenUpdatePrice(false)} updateQuery={()=>refreshProducts()} />
           }
         </>
       }

@@ -37,7 +37,7 @@ const Btn = styled.button <{ width?: string }>`
     font-size: 14px;
     font-weight: 600;
     width: ${props=>props.width ? props.width : 'auto'};
-    margin: 10px 0;
+    margin: 10px;
     cursor: pointer;
     :hover{
         background-color: #637195;

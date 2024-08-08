@@ -17,7 +17,7 @@ export default function Search({ type, value, onChange, name, placeHolder }: {
   };
 
   return (
-    <div style={{width: '100%', padding: '0 20%'}} >
+    <div style={{width: '100%'}} >
       <InputWrapper>
           <IconWrapper>
               <IoMdSearch/>
