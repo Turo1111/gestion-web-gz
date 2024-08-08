@@ -41,7 +41,6 @@ const Item = styled.li `
   display: flex;
   justify-content: space-between;
   cursor: pointer;
-  max-height: 80px;
 `
 
 const IconWrapper = styled.div`

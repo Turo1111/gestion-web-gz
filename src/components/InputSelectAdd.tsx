@@ -11,7 +11,7 @@ const io = require('socket.io-client')
 
 const InputWrapper = styled.div`
   position: relative;
-  margin: 25px 0;
+  margin: 15px 0;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -27,7 +27,7 @@ interface InputLabelProps {
 
 const InputLabel = styled.label<InputLabelProps>`
   position: absolute;
-  top: 15px;
+  top: 8px;
   left: 15px;
   font-size: 14px;
   color: ${props => props.color};

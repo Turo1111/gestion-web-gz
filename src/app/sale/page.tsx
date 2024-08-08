@@ -1,6 +1,7 @@
 'use client'
 
 import Button from '@/components/Button'
+import ModalPrintSale from '@/components/sale/ModalPrintSale'
 import Search from '@/components/Search'
 import useLocalStorage from '@/hooks/useLocalStorage'
 import { useAppDispatch } from '@/redux/hook'
@@ -21,6 +22,8 @@ export default function Sale() {
     const dispatch = useAppDispatch();
     const router = useRouter()
     const loading = useSelector(getLoading)
+    const [openPrintSale, setOpenPrintSale] = useState(false)
+    const [saleSelected, setSaleSelected] = useState(undefined)
 
     const getSale = async () => {
       dispatch(setLoading(true))
@@ -36,7 +39,7 @@ export default function Sale() {
               return r.data
             })
         })
-        .catch(e=>console.log("error getSale",e))
+        .catch(e=>{console.log("error getSale",e);dispatch(setLoading(false))})
     }
 
     useEffect(()=>{
@@ -63,7 +66,8 @@ export default function Sale() {
         <ul>
             {
                 data.length !== 0 ?
-                data.map((item:any, index:number)=><Item key={index}>
+                data.map((item:any, index:number)=>
+                <Item key={index} onClick={()=>{setOpenPrintSale(true);setSaleSelected(item._id)}}>
                         <h2 style={{fontSize: 18, color: '#252525'}}>{item.cliente}</h2>
                         <h2 style={{fontSize: 18, fontWeight: 600, color: '#FA9B50'}}>$ {item.total}</h2>
                 </Item>)
@@ -71,6 +75,10 @@ export default function Sale() {
                 'no hay ventas'
             }
         </ul>
+        {
+          openPrintSale && 
+          <ModalPrintSale open={openPrintSale} handleClose={()=>setOpenPrintSale(false)} id={saleSelected} />
+        }
     </main>
   )
 }

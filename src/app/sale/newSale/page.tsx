@@ -173,7 +173,7 @@ export default function NewSale() {
                                         elem._id === item._id ? {...item, cantidad: 1, total: item.precioUnitario} : elem
                                     )
                                 }
-                                return [...prevData, {...item, cantidad: 1, total: item.precioUnitario}]
+                                return [...prevData, {...item, cantidad: 1, total: item.precioUnitario, idProducto: item._id}]
                             })
                         }} select={false} />
                       })
@@ -251,6 +251,7 @@ export default function NewSale() {
                       message: `Venta creada correctamente`,
                       type: 'success'
                     }))
+                    router.back()
                   })
                   .catch((e)=>dispatch(setAlert({
                     message: `${e.response.data.error}`,

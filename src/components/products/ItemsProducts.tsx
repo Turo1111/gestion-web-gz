@@ -47,7 +47,6 @@ export default function ItemsProducts({item, onClick, select = true, onClickItem
   )
 }
 
-
 const ItemProduct = styled.li `
   list-style: none;
   padding: 15px;
@@ -55,9 +54,11 @@ const ItemProduct = styled.li `
   width: 100%;
   border-bottom: 1px solid #d1d1d1;
   display: flex;
-  flex: 1;
   flex-direction: column;
-  max-height: 80px;
+  flex-shrink: 0;  /* Evita que el item se encoja demasiado */
+  justify-content: center;  /* Centra el contenido verticalmente */
+  min-height: 60px;  /* Altura mínima para que no crezca mucho con pocos elementos */
+  height: auto;  /* Altura automática basada en el contenido */
 `
 
 const IconWrapper = styled.div`

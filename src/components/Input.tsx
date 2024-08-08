@@ -10,7 +10,7 @@ interface LabelProps extends LabelHTMLAttributes<HTMLLabelElement> {
 
 const InputWrapper = styled.div`
   position: relative;
-  margin: 25px 0;
+  margin: 15px 0;
   width: -webkit-fill-available;
   text-align: center;
   display: flex;

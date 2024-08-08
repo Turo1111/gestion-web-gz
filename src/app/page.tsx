@@ -6,17 +6,19 @@ import MiniLoading from "@/components/MiniLoading";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { Auth } from "@/interfaces/auth.interface";
 import { useAppDispatch } from "@/redux/hook";
+import { getLoading, setLoading } from "@/redux/loadingSlice";
 import { setUser } from "@/redux/userSlice";
 import apiClient from "@/utils/client";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import styled from "styled-components";
 import * as Yup from 'yup';
 
 export default function Home() {
 
-  const [loading, setLoading] = useState(false)
+  const loading = useSelector(getLoading)
   const [error, setError] = useState('')
   const [valueStorage, setValue] = useLocalStorage("user", "")
   const dispatch = useAppDispatch();
@@ -26,20 +28,20 @@ export default function Home() {
     initialValues: initialValues,
     validationSchema: SignupSchema,
     onSubmit: (formValue: Auth) => {
-      setLoading(true)
+      dispatch(setLoading(true))
       apiClient.post('/auth/login', formValue )
       .then((r)=>{
         if (r.data === 'NOT_FOUND_USER' || r.data === 'PASSWORD_INCORRECT') {
           setError(r.data)
-          setLoading(false)
+          dispatch(setLoading(false))
           return
         }
         setValue(r.data)
         dispatch(setUser(r.data))
         router.push('/home')
-        setLoading(false)
+        dispatch(setLoading(false))
       })
-      .catch(e=>console.log(e))
+      .catch(e=>{console.log(e);dispatch(setLoading(false))})
     }
   }) 
 
@@ -61,17 +63,12 @@ export default function Home() {
             <p>{formik.errors.password}</p>
           )}
           <div style={{display: 'flex', alignItems: 'center', justifyContent: 'end', width: '100%'}}>
-            {
-              loading ? 
-              <MiniLoading/>
-              :
-              <div style={{display: "flex", alignItems: "center"}} >
-                {
-                  error !== '' && <div style={{color: 'red', marginRight: 15}}>{error}</div>
-                }
-                <Button text={'INGRESAR'} onClick={formik.handleSubmit} type='submit'/>
-              </div>
-            }
+            <div style={{display: "flex", alignItems: "center"}} >
+              {
+                error !== '' && <div style={{color: 'red', marginRight: 15}}>{error}</div>
+              }
+              <Button text={'INGRESAR'} onClick={formik.handleSubmit} type='submit'/>
+            </div>
           </div>
         </div>
       </ContainerLogin>
