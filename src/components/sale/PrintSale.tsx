@@ -104,7 +104,6 @@ const ContainerPrint = styled.div`
   white-space: nowrap;
   text-overflow: ellipsis;
   font-size: 16px; /* Tamaño de fuente fijo */
-  /* Otros estilos fijos aquí */
 `;
 
 const Tag = styled.h5`

@@ -202,7 +202,11 @@ export default function Product() {
                       })
                       : 'NO HAY PRODUCTOS'
                   }
-                  <li style={{listStyle: 'none', padding: 0, margin: 0}} ref={lastElementRef}>FINAL</li>
+                  {
+                    search !== '' || activeBrand._id !== 1 || activeCategorie._id !== 1 || activeProvider._id !== 1 ?
+                    <></>:
+                    <li style={{listStyle: 'none', padding: 0, margin: 0}} ref={lastElementRef}></li>
+                  }
               </ListProduct>
           </div>
           {

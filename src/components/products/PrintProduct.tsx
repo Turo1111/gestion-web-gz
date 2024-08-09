@@ -78,53 +78,55 @@ export default function PrintProduct({open, handleClose}:{open: boolean, handleC
     <Modal open={open} eClose={handleClose} title='Imprimir productos' width='90%' height='90%' >
         {
             products.length !== 0 &&
-            <Container>
-            {[...Array(totalPartes)].map((_, index) => {
-                // Calcular el índice de inicio y fin para cada parte
-                const startIndex = index * elementosPorParte;
-                const endIndex = (index + 1) * elementosPorParte;
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+                  <Button text={'Imprimir'} onClick={generatePdf} />
+                  <Button text={'Aceptar'} onClick={handleClose} />
+              </div>
+              <Container>
+              {[...Array(totalPartes)].map((_, index) => {
+                  // Calcular el índice de inicio y fin para cada parte
+                  const startIndex = index * elementosPorParte;
+                  const endIndex = (index + 1) * elementosPorParte;
 
-                // Obtener los elementos de la parte actual
-                const parteActual = products.slice(startIndex, endIndex);
+                  // Obtener los elementos de la parte actual
+                  const parteActual = products.slice(startIndex, endIndex);
 
-                // Mantener un registro de la categoría ya impresa
-                let lastPrintedCategory = '';
+                  // Mantener un registro de la categoría ya impresa
+                  let lastPrintedCategory = '';
 
-                return (
-                <WrapperPrint key={index}>
-                    <ContainerPrint id={`print-${index}`}>
-                    <ListProduct>
-                        {
-                            parteActual.map((item: any, i: any, array: any) => {
-                                // Mostrar el nombre de la categoría solo si no ha sido impreso en la parte actual
-                                const showCategoryTitle = lastPrintedCategory !== item.NameCategoria;
+                  return (
+                  <WrapperPrint key={index}>
+                      <ContainerPrint id={`print-${index}`}>
+                      <ListProduct>
+                          {
+                              parteActual.map((item: any, i: any, array: any) => {
+                                  // Mostrar el nombre de la categoría solo si no ha sido impreso en la parte actual
+                                  const showCategoryTitle = lastPrintedCategory !== item.NameCategoria;
 
-                                if (showCategoryTitle) {
-                                  lastPrintedCategory = item.NameCategoria;
-                                }
+                                  if (showCategoryTitle) {
+                                    lastPrintedCategory = item.NameCategoria;
+                                  }
 
-                                return (
-                                  <React.Fragment key={i}>
-                                    {showCategoryTitle && (
-                                      <CategoryTitle>{item.NameCategoria}</CategoryTitle>
-                                    )}
-                                    <ItemsProducts key={item._id} item={item} select={false} line={false}/>
-                                  </React.Fragment>
-                                );
-                            })
-                        }
-                    </ListProduct>
-                    <Logo small={true} />
-                    </ContainerPrint>
-                </WrapperPrint>
-                );
-            })}
+                                  return (
+                                    <React.Fragment key={i}>
+                                      {showCategoryTitle && (
+                                        <CategoryTitle>{item.NameCategoria}</CategoryTitle>
+                                      )}
+                                      <ItemsProducts key={item._id} item={item} select={false} line={false}/>
+                                    </React.Fragment>
+                                  );
+                              })
+                          }
+                      </ListProduct>
+                      <Logo small={true} />
+                      </ContainerPrint>
+                  </WrapperPrint>
+                  );
+              })}
 
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Button text={'Imprimir'} onClick={generatePdf} />
-                <Button text={'Aceptar'} onClick={handleClose} />
+              </Container>
             </div>
-            </Container>
         }
     </Modal>
   );
