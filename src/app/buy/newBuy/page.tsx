@@ -16,7 +16,7 @@ import { useRouter } from 'next/navigation';
 import { getLoading, setLoading } from '@/redux/loadingSlice';
 import { setAlert } from '@/redux/alertSlice';
 
-export default function NewSale() {
+export default function NewBuy() {
 
     const [search, setSearch] = useState('')
     const [data, setData] = useState([])
@@ -24,8 +24,8 @@ export default function NewSale() {
     const [dataSearch, setDataSearch] = useState([])
     const [query, setQuery] = useState({skip: 0, limit: 25})
     const observer = useRef<IntersectionObserver | null>(null);
-    const [lineaCompra, setLineaCompra] = useState<any>([])
-    const [cliente, setCliente] = useState('')
+    const [lineaVenta, setLineaVenta] = useState<any>([])
+    const [proveedor, setProveedor] = useState('')
     const [total, setTotal] = useState(0)
     const router = useRouter()
     const loading = useSelector(getLoading)
@@ -148,13 +148,13 @@ export default function NewSale() {
   );
 
   useEffect(()=>{
-    console.log(lineaCompra)
-    const sumWithInitial = lineaCompra.reduce(
+    console.log(lineaVenta)
+    const sumWithInitial = lineaVenta.reduce(
         (accumulator:number, currentValue: any) => accumulator + currentValue.total,
         0,
     );
     setTotal(prevData=>sumWithInitial.toFixed(2))
-  },[lineaCompra])
+  },[lineaVenta])
 
   return (
     <div style={{display: 'flex', flex: 1}}>
@@ -166,7 +166,7 @@ export default function NewSale() {
                     dataSearch.length !== 0 ? 
                       dataSearch.map((item: any, index: any)=>{
                         return <ItemsProducts  key={index} item={item} onClickItem={()=>{
-                            setLineaCompra((prevData:any)=>{
+                            setLineaVenta((prevData:any)=>{
                                 const exist = prevData.find((elem:any)=>elem._id===item._id)
                                 if (exist) {
                                     return prevData.map((elem: any) =>
@@ -182,7 +182,7 @@ export default function NewSale() {
                     data.length !== 0 ? 
                     data.map((item: any, index: any)=>{
                       return <ItemsProducts  key={index} item={item} onClickItem={()=>{
-                        setLineaCompra((prevData:any)=>{
+                        setLineaVenta((prevData:any)=>{
                             const exist = prevData.find((elem:any)=>elem._id===item._id)
                             if (exist) {
                                 return prevData.map((elem: any) =>
@@ -200,17 +200,17 @@ export default function NewSale() {
         </div>
         <div style={{width: '50%', display: 'flex', flex: 1, flexDirection: 'column'}}>
             <div style={{display: 'flex', flex: 1, flexDirection: 'column', padding: 15}}>
-                <h2 style={{fontSize: 18}} >Linea de compra</h2>
+                <h2 style={{fontSize: 18}} >Linea de venta</h2>
                 <ListProduct style={{ display: 'flex', flexDirection: 'column', padding: 15, maxHeight: '65vh'}}>
                     { 
-                        lineaCompra.length === 0 ? 'No se selecciono productos' :
-                        lineaCompra.map((item:any, index:number)=><ItemLineaVenta key={index} elem={item}  onClick={()=>
-                          setLineaCompra((prevData:any)=>prevData.filter((elem:any)=>elem._id!==item._id))
+                        lineaVenta.length === 0 ? 'No se selecciono productos' :
+                        lineaVenta.map((item:any, index:number)=><ItemLineaVenta key={index} elem={item}  onClick={()=>
+                                setLineaVenta((prevData:any)=>prevData.filter((elem:any)=>elem._id!==item._id))
                             }
-                            upQTY={(id:any)=>setLineaCompra((prevData:any)=>prevData.map((elem:any)=>{
+                            upQTY={(id:any)=>setLineaVenta((prevData:any)=>prevData.map((elem:any)=>{
                               return elem._id===id ? {...elem, cantidad: elem.cantidad+1, total: elem.precioUnitario*(elem.cantidad+1)} : elem
                             }))}
-                            downQTY={(id:any)=>setLineaCompra((prevData:any)=>prevData.map((elem:any)=>{
+                            downQTY={(id:any)=>setLineaVenta((prevData:any)=>prevData.map((elem:any)=>{
                               if (elem._id===id) {
                                 if (elem.cantidad-1 > 1 ) {
                                   return {...elem, cantidad: elem.cantidad-1, total: elem.precioUnitario*(elem.cantidad-1)}
@@ -219,10 +219,10 @@ export default function NewSale() {
                               }
                               return elem
                             }))}
-                            upQTY10={(id:any)=>setLineaCompra((prevData:any)=>prevData.map((elem:any)=>{
+                            upQTY10={(id:any)=>setLineaVenta((prevData:any)=>prevData.map((elem:any)=>{
                               return elem._id===id ? {...elem, cantidad: elem.cantidad+10, total: elem.precioUnitario*(elem.cantidad+10)} : elem
                             }))}
-                            downQTY10={(id:any)=>setLineaCompra((prevData:any)=>prevData.map((elem:any)=>{
+                            downQTY10={(id:any)=>setLineaVenta((prevData:any)=>prevData.map((elem:any)=>{
                               if (elem._id===id) {
                                 if (elem.cantidad > 10 ) {
                                   return {...elem, cantidad: elem.cantidad-10, total: elem.precioUnitario*(elem.cantidad-10)}
@@ -236,11 +236,11 @@ export default function NewSale() {
                 </ListProduct>
             </div>
             <div style={{height: '30%', padding: '0 15px'}}>
-                <Input label='Cliente' name='cliente' value={cliente} onChange={(e:any)=>setCliente(e.target.value)} type='text' />
+                <Input label='Proveedor' name='proveedor' value={proveedor} onChange={(e:any)=>setProveedor(e.target.value)} type='text' />
                 <h2 style={{fontSize: 18}} >Total: $ {total} </h2>
                 <Button text='Crear' onClick={()=>{
                   dispatch(setLoading(true))
-                  apiClient.post('/sale', {itemsSale: lineaCompra, cliente: cliente, total: total, estado: 'Entregado'},{
+                  apiClient.post('/buy', {itemsBuy: lineaVenta, proveedor: proveedor, total: total, estado: 'Entregado'},{
                     headers: {
                       Authorization: `Bearer ${valueStorage.token}` 
                     }
@@ -248,7 +248,7 @@ export default function NewSale() {
                   .then((r)=>{
                     dispatch(setLoading(false))
                     dispatch(setAlert({
-                      message: `Compra creada correctamente`,
+                      message: `Venta creada correctamente`,
                       type: 'success'
                     }))
                     router.back()

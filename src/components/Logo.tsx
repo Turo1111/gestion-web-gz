@@ -1,17 +1,17 @@
 import React from 'react';
 import styled from 'styled-components';
 
-export default function Logo({ small = false }) {
+export default function Logo({ small = false }:{small?: boolean}) {
     return (
       <StyledButton onClick={() => { /* Handle navigation here */ }}>
         <Container>
           <Golozur>
-            <ColorBlue style={{ fontSize: 40, fontWeight: 'bold' }}>GOLO</ColorBlue>
-            <ColorOrange style={{ fontSize: 40, fontWeight: 'bold' }}>ZUR</ColorOrange>
+            <ColorBlue style={{ fontSize: `${small ? '25px' : '40px'}`, fontWeight: 'bold' }}>GOLO</ColorBlue>
+            <ColorOrange style={{ fontSize: `${small ? '25px' : '40px'}`, fontWeight: 'bold' }}>ZUR</ColorOrange>
           </Golozur>
-          <Distri>
-            <ColorBlue style={{ fontSize: 16, fontWeight: 'bold' }}>DISTRI</ColorBlue>
-            <ColorOrange style={{ fontSize: 16, fontWeight: 'bold' }}>BUIDORA</ColorOrange>
+          <Distri style={{ marginTop: `${small ? '-5px' : '-10px'}`}}>
+            <ColorBlue style={{ fontSize: `${small ? '8px' : '16px'}`, fontWeight: 'bold' }}>DISTRI</ColorBlue>
+            <ColorOrange style={{ fontSize: `${small ? '8px' : '16px'}`, fontWeight: 'bold' }}>BUIDORA</ColorOrange>
           </Distri>
         </Container>
       </StyledButton>
@@ -36,7 +36,6 @@ const Golozur = styled.div`
 const Distri = styled.div`
   display: flex;
   font-weight: bold;
-  margin-top: -10px;
 `;
 
 const ColorBlue = styled.span`

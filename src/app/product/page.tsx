@@ -1,9 +1,11 @@
 'use client'
 import Button from '@/components/Button';
 import Loading from '@/components/Loading';
+import FilterProduct from '@/components/products/FilterProduct';
 import ItemsProducts from '@/components/products/ItemsProducts';
 import ModalProduct from '@/components/products/ModalProduct';
 import NewProduct from '@/components/products/NewProduct';
+import PrintProduct from '@/components/products/PrintProduct';
 import UpdatePrice from '@/components/products/UpdatePrice';
 import Search from '@/components/Search';
 import useLocalStorage from '@/hooks/useLocalStorage';
@@ -33,6 +35,11 @@ export default function Product() {
     const router = useRouter()
     const [longArray, setLongArray] = useState(0)
     const [openUpdatePrice, setOpenUpdatePrice] = useState(false)
+    const [openPrintProduct, setOpenPrintProduct] = useState(false)
+    const [activeCategorie, setActiveCategorie] = useState({_id: 1 , descripcion: 'Todas'})
+    const [activeBrand, setActiveBrand] = useState({_id: 1 , descripcion: 'Todas'})
+    const [activeProvider, setActiveProvider] = useState({_id: 1 , descripcion: 'Todas'})
+    const [openModalFilter, setOpenModalFilter] = useState(false)
 
     const user = useSelector(getUser)
     const dispatch = useAppDispatch();
@@ -87,10 +94,11 @@ export default function Product() {
       }
   }
 
-  const getProductSearch = async (input: string) => {
+  const getProductSearch = async (input: string, categorie: any, brand: any, provider: any) => {
     dispatch(setLoading(true))
     try {
-        const response = await apiClient.post(`/product/search`, { input });
+        const response = await apiClient.post(`/product/search`, {input, categoria: categorie, marca: brand, proveedor: provider});
+        console.log(response.data)
         setDataSearch(response.data);
         dispatch(setLoading(false));
     } catch (e) {
@@ -108,10 +116,12 @@ export default function Product() {
     },[query]) 
 
     useEffect(()=>{
-      if (search) {
-        getProductSearch(search)
+      console.log('aca 1', search !== '' || activeBrand._id !== 1 || activeCategorie._id !== 1 || activeProvider._id !== 1)
+      if (search !== undefined) {
+        console.log('aca 2')
+        getProductSearch(search, activeCategorie._id, activeBrand._id, activeProvider._id)
       }
-    },[search]) 
+    },[search, activeBrand, activeCategorie, activeProvider]) 
 
     useEffect(()=>{
       console.log(data.length, dataSearch.length)
@@ -171,14 +181,15 @@ export default function Product() {
       {
         <>
           <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1}} >
-              <div style={{display: 'flex', width: '100%', padding: '0px 15px'}}>
-                <Search name='search' placeHolder={'Buscar productos'} type='text' value={search} onChange={searchProduct} />
+              <div style={{display: 'flex', width: '100%', padding: '0px 15px', alignItems: 'center'}}>
+                <Search name='search' placeHolder={'Buscar productos'} type='text' value={search} onChange={searchProduct} onClickFilter={()=>setOpenModalFilter(true)} />
+                <Button text='Imprimir' onClick={()=>setOpenPrintProduct(true)}/>
                 <Button text='Actualizar' onClick={()=>setOpenUpdatePrice(true)}/>
                 <Button text='Nuevo' onClick={()=>setOpenNewProduct(true)}/>
               </div>
               <ListProduct>
                   {
-                    search !== '' ?
+                    search !== '' || activeBrand._id !== 1 || activeCategorie._id !== 1 || activeProvider._id !== 1 ?
                       dataSearch.length !== 0 ? 
                         dataSearch.map((item: any, index: any)=>{
                           return <ItemsProducts  key={index} item={item} onClick={()=>{setSelectProduct(item);setOpenModalProduct(true)}}/>
@@ -205,6 +216,19 @@ export default function Product() {
           {
             openUpdatePrice && 
             <UpdatePrice open={openUpdatePrice} handleClose={()=>setOpenUpdatePrice(false)} updateQuery={()=>refreshProducts()} />
+          }
+          {
+            openPrintProduct && 
+            <PrintProduct open={openPrintProduct} handleClose={()=>setOpenPrintProduct(false)} />
+          }
+          {
+            openModalFilter &&
+            <FilterProduct open={openModalFilter} handleClose={()=>setOpenModalFilter(false)} 
+              activeBrand={activeBrand._id} activeCategorie={activeCategorie._id} activeProvider={activeProvider._id}
+              selectCategorie={(item: any)=>setActiveCategorie(prevData=>item)}
+              selectBrand={(item: any)=>setActiveBrand(prevData=>item)}
+              selectProvider={(item: any)=>setActiveProvider(prevData=>item)}
+            />
           }
         </>
       }

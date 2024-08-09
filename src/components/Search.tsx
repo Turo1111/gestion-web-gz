@@ -1,13 +1,15 @@
 import React, {useState} from 'react'
 import styled from 'styled-components'
 import { IoMdSearch } from "react-icons/io";
+import { IoOptionsOutline } from 'react-icons/io5';
 
-export default function Search({ type, value, onChange, name, placeHolder }: {
+export default function Search({ type, value, onChange, name, placeHolder, onClickFilter=undefined }: {
   type: string,
   value: any,
   onChange: any,
   name: string,
-  placeHolder: string
+  placeHolder: string,
+  onClickFilter?: any
 }) {
 
   const [isFocused, setIsFocused] = useState<boolean>(false)
@@ -19,7 +21,7 @@ export default function Search({ type, value, onChange, name, placeHolder }: {
   return (
     <div style={{width: '100%'}} >
       <InputWrapper>
-          <IconWrapper>
+          <IconWrapper style={{left: 25}}>
               <IoMdSearch/>
           </IconWrapper>
           <Input 
@@ -31,6 +33,12 @@ export default function Search({ type, value, onChange, name, placeHolder }: {
             onChange={onChange}
             onFocus={handleInputFocus}
           />
+          {
+            onClickFilter &&
+            <IconWrapper style={{right: 25, cursor: 'pointer'}} onClick={onClickFilter}>
+              <IoOptionsOutline />
+            </IconWrapper>
+          }
       </InputWrapper>
     </div>
   )
@@ -63,7 +71,6 @@ const Input = styled.input<{ focused?: any; }> `
 const IconWrapper = styled.div`
   position: absolute;
   top: 8px;
-  left: 25px;
   font-size: 20px;
   color: ${props => props.color};
   display: flex;

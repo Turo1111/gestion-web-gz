@@ -2,12 +2,12 @@ import React, { useState } from 'react'
 import { MdEdit, MdInfo } from 'react-icons/md';
 import styled from 'styled-components';
 
-export default function ItemsProducts({item, onClick, select = true, onClickItem}:{item: any, onClick?: any, select?:boolean, onClickItem?: any}) {
+export default function ItemsProducts({item, onClick, select = true, onClickItem, line = true}:{item: any, onClick?: any, select?:boolean, onClickItem?: any, line?:boolean}) {
 
     const [openInfo, setOpenInfo] = useState(false)
-
+    
   return (
-    <ItemProduct onClick={onClickItem} >
+    <ItemProduct onClick={onClickItem} line={line} >
         <div style={{display: 'flex', flex: 1}}>
             <div style={{display: 'flex', flex: 1, flexDirection: 'column', marginRight: 15}}>
                 <div style={{display: 'flex', justifyContent: 'space-between'}}>
@@ -47,12 +47,16 @@ export default function ItemsProducts({item, onClick, select = true, onClickItem
   )
 }
 
-const ItemProduct = styled.li `
+interface ItemProduct {
+    line?: boolean;
+}
+
+const ItemProduct = styled.li <ItemProduct> `
   list-style: none;
   padding: 15px;
   font-weight: 600;
   width: 100%;
-  border-bottom: 1px solid #d1d1d1;
+  border-bottom: ${({ line }) => (line ? '1px solid #d1d1d1' : 'none')};
   display: flex;
   flex-direction: column;
   flex-shrink: 0;  /* Evita que el item se encoja demasiado */

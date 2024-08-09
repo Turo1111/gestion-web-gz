@@ -10,7 +10,7 @@ import { useSelector } from 'react-redux';
 
 export default function Dashboard({children}: any) {
 
-    const itemsLi = ["Home", "Product", "Sale", "Buy"]
+    const itemsLi = ["HOME", "PRODUCT", "SALE", "BUY"]
     const pathname = usePathname()
     const [isClient, setIsClient] = useState(false)
 
@@ -37,12 +37,14 @@ export default function Dashboard({children}: any) {
                 <Logo/>
                 <ul>
                     {
-                        itemsLi.map((item, index)=>(
+                        itemsLi.map((item, index)=>{
+                            console.log(pathname, item, pathname === item)
+                            return(
                             <Link href={"/"+(item.toLowerCase().split(' ').join(''))} style={{textDecoration: 'none'}}  key={index}> 
-                                <ItemLi>{item}</ItemLi>
+                                <ItemLi isSelect={pathname === "/"+(item.toLowerCase().split(' ').join('')) ? true : false} >{item}</ItemLi>
                             </Link>
 
-                        ))
+                        )})
                     }
                 </ul>
             </LeftDash>
@@ -50,7 +52,7 @@ export default function Dashboard({children}: any) {
         <div style={{display: 'flex', flexDirection: 'column', flex: 1}}>
             {
                 pathname !== '/' &&
-                <div style={{display: 'flex', backgroundColor: '#f1f1f1', justifyContent: 'space-between', padding: 15, alignItems: 'center'}}>
+                <div style={{display: 'flex', backgroundColor: '#f1f1f1', justifyContent: 'space-between', padding: 15, alignItems: 'center', color: '#252525'}}>
                     <h2>{pathname}</h2>
                     {
                       isClient && (
@@ -87,14 +89,22 @@ const LeftDash = styled.div `
     padding: 5px 0px;
 `
 
-const ItemLi = styled.li `
+interface ItemLi {
+    isSelect: boolean
+}
+
+const ItemLi = styled.li<ItemLi> `
     list-style: none;
     font-weight: 600;
     font-size: 16px;
     margin: 15px 0;
     padding: 15px;
+    border-bottom: 1px solid white;
+    background-color: ${({ isSelect }) => (isSelect ? '#3764A0' : 'none')};
+    color: ${({ isSelect }) => (isSelect ? 'white' : '#252525')};
     cursor: pointer;
     &:hover{
-        background-color: white;
+        background-color: #3764A0;
+        color: white;
     }
 `

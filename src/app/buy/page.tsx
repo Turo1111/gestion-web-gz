@@ -1,6 +1,8 @@
 'use client'
+'use client'
 
 import Button from '@/components/Button'
+import InfoBuy from '@/components/buy/InfoBuy'
 import InfoSale from '@/components/sale/InfoSale'
 import ModalPrintSale from '@/components/sale/ModalPrintSale'
 import Search from '@/components/Search'
@@ -16,7 +18,7 @@ import { MdInfo } from 'react-icons/md'
 import { useSelector } from 'react-redux'
 import styled from 'styled-components'
 
-export default function Sale() {
+export default function Buy() {
 
     const [search, setSearch] = useState('')
     const [data, setData] = useState([])
@@ -25,13 +27,12 @@ export default function Sale() {
     const dispatch = useAppDispatch();
     const router = useRouter()
     const loading = useSelector(getLoading)
-    const [openPrintSale, setOpenPrintSale] = useState(false)
-    const [saleSelected, setSaleSelected] = useState(undefined)
-    const [openInfoSale, setOpenInfoSale] = useState(false)
+    const [buySelected, setBuySelected] = useState(undefined)
+    const [openInfoBuy, setOpenInfoBuy] = useState(false)
 
-    const getSale = async () => {
+    const getBuy = async () => {
       dispatch(setLoading(true))
-        apiClient.get('/sale',{
+        apiClient.get('/buy',{
           headers: {
             Authorization: `Bearer ${valueStorage.token}` 
           }
@@ -43,12 +44,12 @@ export default function Sale() {
               return r.data
             })
         })
-        .catch(e=>{console.log("error getSale",e);dispatch(setLoading(false))})
+        .catch(e=>{console.log("error getBuy",e);dispatch(setLoading(false))})
     }
 
     useEffect(()=>{
       if (valueStorage) {
-        getSale()
+        getBuy()
       }
     },[user])
 
@@ -64,38 +65,31 @@ export default function Sale() {
   return (
     <main>
         <div style={{display: 'flex', justifyContent: 'space-between', width: '100%', padding: '0px 15px', alignItems: 'center'}}>
-          <Search name='search' placeHolder={'Buscar ventas'} type='text' value={search} onChange={(e:any)=>setSearch(e.target.value)} />
-          <Button text='Nuevo' onClick={()=>console.log('nuevo')} to='/sale/newSale'/>
+          <Search name='search' placeHolder={'Buscar compras'} type='text' value={search} onChange={(e:any)=>setSearch(e.target.value)} />
+          <Button text='Nuevo' onClick={()=>console.log('nuevo')} to='/buy/newBuy'/>
         </div>
         <ul>
             {
                 data.length !== 0 ?
                 data.map((item:any, index:number)=>
-                <Item key={index} onClick={()=>setSaleSelected(item._id)} >
+                <Item key={index} onClick={()=>setBuySelected(item._id)} >
                   <div style={{display: 'flex', justifyContent: 'space-between', width : '100%', alignItems: 'center', marginRight: 15}}>
-                    <h2 style={{fontSize: 18, color: '#252525'}}>{item.cliente}</h2>
+                    <h2 style={{fontSize: 18, color: '#252525'}}>{item.proveedor}</h2>
                     <h2 style={{fontSize: 18, fontWeight: 600, color: '#FA9B50'}}>$ {item.total}</h2>
                   </div>
                   <div  style={{display: 'flex'}}>
-                    <IconWrapper style={{color: '#939185'}}  onClick={()=>{setOpenPrintSale(true)}}>
-                      <BsPrinterFill />
-                    </IconWrapper>
-                    <IconWrapper style={{color: '#6EACDA'}} onClick={()=>setOpenInfoSale(true)}>
+                    <IconWrapper style={{color: '#6EACDA'}} onClick={()=>setOpenInfoBuy(true)}>
                       <MdInfo />
                     </IconWrapper>
                 </div>
                 </Item>)
                 :
-                'no hay ventas'
+                'no hay compras'
             }
         </ul>
         {
-          openPrintSale && 
-          <ModalPrintSale open={openPrintSale} handleClose={()=>setOpenPrintSale(false)} id={saleSelected} />
-        }
-        {
-          openInfoSale && 
-          <InfoSale open={openInfoSale} handleClose={()=>setOpenInfoSale(false)} id={saleSelected} />
+          openInfoBuy && 
+          <InfoBuy open={openInfoBuy} handleClose={()=>setOpenInfoBuy(false)} id={buySelected} />
         }
     </main>
   )

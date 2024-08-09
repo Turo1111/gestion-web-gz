@@ -117,8 +117,8 @@ const Content = styled.div<ContentProps>`
   height: ${props => props.height && props.height};
   border-radius: ${props => (props.borderRadius ? "10px" : "0")};
   position: relative;
-  max-width: 1386px;
-  max-height: 766px;
+  max-width: 1240px;
+  max-height: 720px;
   border-radius: 15px;
   display: flex;
   flex-direction: column;

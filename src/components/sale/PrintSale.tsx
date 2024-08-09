@@ -55,20 +55,22 @@ export default function PrintSale({id}:{id: any}) {
         {
           sale && 
           <>
-          <Logo/>
-          <div>
-              <Tag>CLIENTE : {sale.r.cliente}</Tag>
-              <Tag>FECHA : {sale.r.createdAt.split("T")[0]}</Tag>
-            </div>
+            <Logo/>
+            <h2 style={{fontSize: 18, color: '#252525'}}>Presupuesto</h2>
             <div>
-              <Table
-                data={sale.itemsSale}
-                columns={columns}
-                maxHeight={false}
-                onClick={() => ''}
-              />
+                <Tag>CLIENTE : {sale.r.cliente}</Tag>
+                <Tag>FECHA : {sale.r.createdAt.split("T")[0]}</Tag>
+              </div>
+              <div>
+                <Table
+                  data={sale.itemsSale}
+                  columns={columns}
+                  maxHeight={false}
+                  onClick={() => ''}
+                />
             </div>
             <Tag style={{ textAlign: 'end' }}>TOTAL : $ {sale.r.total}</Tag> 
+            <p>*No valido como factura</p>
           </>
         }
         </ContainerPrint>
