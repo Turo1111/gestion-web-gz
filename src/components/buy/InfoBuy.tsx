@@ -17,17 +17,13 @@ export default function InfoBuy({open, handleClose, id}:{open:boolean, handleClo
           Authorization: `Bearer ${valueStorage.token}`
       },
   })
-    .then((r:any)=>{console.log(r.data);setBuy(r.data)})
+    .then((r:any)=>{setBuy(r.data)})
     .catch((e:any)=>console.log(e))
   }
 
   useEffect(()=> {
     getBuy()
   },[id])
-
-  useEffect(()=> {
-    console.log("buy",buy?.itemsBuy)
-  },[buy])
 
   return (
     <Modal open={open} title={'Info de la compra'} eClose={handleClose} height='auto' width='60%' >

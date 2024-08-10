@@ -58,7 +58,6 @@ export default function NewBuy() {
                   },
               });
           setData(prevData => {
-              console.log("data query", response.data);
   
               if (prevData.length === 0) {
                   return response.data.array;
@@ -81,7 +80,6 @@ export default function NewBuy() {
     dispatch(setLoading(true))
     try {
         const response = await apiClient.post(`/product/search`, { input });
-        console.log("data", response.data);
         setDataSearch(response.data);
     } catch (e) {
         console.log("error", e);
@@ -91,7 +89,6 @@ export default function NewBuy() {
 }
 
     useEffect(()=>{
-      console.log('cambio query', query)
       getProduct(query.skip, query.limit)
     },[query]) 
 
@@ -103,12 +100,10 @@ export default function NewBuy() {
 
     useEffect(()=>{
       if (!process.env.NEXT_PUBLIC_DB_HOST) {
-        console.log('env')
         return
       }
       const socket = io(process.env.NEXT_PUBLIC_DB_HOST)
       socket.on(`product`, (socket:any) => {
-        console.log("escucho socket", socket);
         refreshProducts()
         setData((prevData: any)=>{
           const exist = prevData.find((elem: any) => elem._id === socket.data._id )
@@ -148,7 +143,6 @@ export default function NewBuy() {
   );
 
   useEffect(()=>{
-    console.log(lineaVenta)
     const sumWithInitial = lineaVenta.reduce(
         (accumulator:number, currentValue: any) => accumulator + currentValue.total,
         0,

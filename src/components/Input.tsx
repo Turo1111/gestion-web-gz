@@ -17,7 +17,7 @@ const InputWrapper = styled.div`
   flex-direction: column;
 `;
 
-const InputLabel = styled.label<{ active?: boolean }>`
+const InputLabel = styled.label<{ $active?: boolean }>`
   position: absolute;
   top: 10px;
   left: 15px;
@@ -27,8 +27,8 @@ const InputLabel = styled.label<{ active?: boolean }>`
   transform-origin: top left;
   pointer-events: none;
   
-  ${({ active }) =>
-    active &&
+  ${({ $active }) =>
+    $active &&
     `
     transform: translateY(-25px) scale(0.8);
   `}
@@ -44,15 +44,15 @@ const Prefix = styled.div`
   align-items: center;
 `;
 
-const InputField = styled.input<{ focused?: any; hasPrefix?: boolean; }>`
+const InputField = styled.input<{ $focused?: any; $hasPrefix?: boolean; }>`
   height: 35px;
   padding: 5px 10px;
   font-size: 16px;
   color: ${props => props.color};
   border-radius: 10px;
-  border: ${({ focused }) => (focused ? '2px solid #7286D3' : '1px solid #d9d9d9')};
+  border: ${({ $focused }) => ($focused ? '2px solid #7286D3' : '1px solid #d9d9d9')};
   transition: border-color 0.2s ease-in-out;
-  padding-left: ${({ hasPrefix }) => (hasPrefix ? '30px' : '10px')};
+  padding-left: ${({ $hasPrefix }) => ($hasPrefix ? '30px' : '10px')};
 
   &:focus {
     outline: none;
@@ -94,8 +94,8 @@ const Input = ({ type, label, value, onChange, name, required, readOnly, prefix 
 
   return (
     <InputWrapper>
-      {prefix && <Prefix color={process.env.TEXT_COLOR}>{prefix}</Prefix>}
-      <InputLabel active={isActive} color={process.env.TEXT_COLOR}>
+      {prefix && <Prefix color={'#716A6A'}>{prefix}</Prefix>}
+      <InputLabel $active={isActive} color={process.env.TEXT_COLOR}>
         {label}
         {required && ' - Campo requerido'}
       </InputLabel>
@@ -107,9 +107,9 @@ const Input = ({ type, label, value, onChange, name, required, readOnly, prefix 
         onChange={onChange}
         onFocus={handleInputFocus}
         onBlur={handleInputBlur}
-        focused={isFocused ? 1:0}
+        $focused={isFocused ? 1:0}
         readOnly={readOnly}
-        hasPrefix={!prefix}
+        $hasPrefix={!prefix}
       />
     </InputWrapper>
   );

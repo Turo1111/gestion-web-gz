@@ -15,6 +15,7 @@ import Button from '@/components/Button';
 import { useRouter } from 'next/navigation';
 import { getLoading, setLoading } from '@/redux/loadingSlice';
 import { setAlert } from '@/redux/alertSlice';
+import FindProductSale from '@/components/sale/FindProductSale';
 
 export default function NewSale() {
 
@@ -24,11 +25,15 @@ export default function NewSale() {
     const [dataSearch, setDataSearch] = useState([])
     const [query, setQuery] = useState({skip: 0, limit: 25})
     const observer = useRef<IntersectionObserver | null>(null);
-    const [lineaCompra, setLineaCompra] = useState<any>([])
+    const [lineaVenta, setLineaVenta] = useState<any>([])
     const [cliente, setCliente] = useState('')
     const [total, setTotal] = useState(0)
     const router = useRouter()
     const loading = useSelector(getLoading)
+    const [activeCategorie, setActiveCategorie] = useState({_id: 1 , descripcion: 'Todas'})
+    const [activeBrand, setActiveBrand] = useState({_id: 1 , descripcion: 'Todas'})
+    const [activeProvider, setActiveProvider] = useState({_id: 1 , descripcion: 'Todas'})
+    const [openModalFilter, setOpenModalFilter] = useState(false)
     
     const [longArray, setLongArray] = useState(0)
 
@@ -44,12 +49,9 @@ export default function NewSale() {
       }
     }, [valueStorage, user, dispatch])
 
-    const searchProduct = (e: any) => {
-        setSearch(prevData=>e.target.value)
-    }
-
     const getProduct = async (skip: number, limit: number) => {
       dispatch(setLoading(true))
+      
       try {
           const response = await apiClient.post(`/product/skip`, { skip, limit },
               {
@@ -58,7 +60,6 @@ export default function NewSale() {
                   },
               });
           setData(prevData => {
-              console.log("data query", response.data);
   
               if (prevData.length === 0) {
                   return response.data.array;
@@ -70,45 +71,47 @@ export default function NewSale() {
               return [...prevData, ...newData];
           });
           setLongArray(prevData=>response.data.longitud)
+          dispatch(setLoading(false));
       } catch (e) {
           console.log("error", e);
+          dispatch(setLoading(false));
       } finally {
-        dispatch(setLoading(false))
+        dispatch(setLoading(false));
       }
   }
 
-  const getProductSearch = async (input: string) => {
+  const getProductSearch = async (input: string, categorie: any, brand: any, provider: any) => {
     dispatch(setLoading(true))
     try {
-        const response = await apiClient.post(`/product/search`, { input });
-        console.log("data", response.data);
+        const response = await apiClient.post(`/product/search`, {input, categoria: categorie, marca: brand, proveedor: provider});
         setDataSearch(response.data);
+        dispatch(setLoading(false));
     } catch (e) {
         console.log("error", e);
+        dispatch(setLoading(false));
     } finally {
       dispatch(setLoading(false))
     }
-}
+  }
+
+  useEffect(()=>{
+      
+    getProduct(query.skip, query.limit)
+  
+  },[query])  
 
     useEffect(()=>{
-      console.log('cambio query', query)
-      getProduct(query.skip, query.limit)
-    },[query]) 
-
-    useEffect(()=>{
-      if (search) {
-        getProductSearch(search)
+      if (search !== undefined ||  search !== '' || activeBrand._id !== 1 || activeCategorie._id !== 1 || activeProvider._id !== 1) {
+        getProductSearch(search, activeCategorie._id, activeBrand._id, activeProvider._id)
       }
-    },[search]) 
+    },[search, activeBrand, activeCategorie, activeProvider]) 
 
     useEffect(()=>{
       if (!process.env.NEXT_PUBLIC_DB_HOST) {
-        console.log('env')
         return
       }
       const socket = io(process.env.NEXT_PUBLIC_DB_HOST)
       socket.on(`product`, (socket:any) => {
-        console.log("escucho socket", socket);
         refreshProducts()
         setData((prevData: any)=>{
           const exist = prevData.find((elem: any) => elem._id === socket.data._id )
@@ -123,22 +126,25 @@ export default function NewSale() {
       return () => {
         socket.disconnect();
       }; 
-    },[data])
+    },[data, dataSearch])
 
     const refreshProducts = () => {
       setSearch(prevData=>'')
+      getProduct(query.skip, query.limit)
     };
 
     const lastElementRef = useCallback(
       (node: HTMLLIElement | null) => {
-          if (loading) return;
+          if (loading) {
+            return 
+          };
           if (observer.current) observer.current.disconnect();
           observer.current = new IntersectionObserver(entries => {
               if (entries[0].isIntersecting) {
                   if (search === '') {
-                    if (data.length < longArray) {
-                      setQuery(prevData => ({ skip: prevData.skip + 25, limit: prevData.limit }));
-                    }
+                      if (data.length < longArray) {
+                        setQuery(prevData => ({ skip: prevData.skip + 25, limit: prevData.limit }));
+                      }
                   }
               }
           });
@@ -148,69 +154,43 @@ export default function NewSale() {
   );
 
   useEffect(()=>{
-    console.log(lineaCompra)
-    const sumWithInitial = lineaCompra.reduce(
+    const sumWithInitial = lineaVenta.reduce(
         (accumulator:number, currentValue: any) => accumulator + currentValue.total,
         0,
     );
     setTotal(prevData=>sumWithInitial.toFixed(2))
-  },[lineaCompra])
+  },[lineaVenta])
 
   return (
-    <div style={{display: 'flex', flex: 1}}>
-        <div style={{width: '50%'}}>
-            <Search name='search' placeHolder={'Buscar productos'} type='text' value={search} onChange={(e:any)=>setSearch(e.target.value)} />
-            <ListProduct style={{maxHeight: '82vh'}}>
-                {
-                  search !== '' ?
-                    dataSearch.length !== 0 ? 
-                      dataSearch.map((item: any, index: any)=>{
-                        return <ItemsProducts  key={index} item={item} onClickItem={()=>{
-                            setLineaCompra((prevData:any)=>{
-                                const exist = prevData.find((elem:any)=>elem._id===item._id)
-                                if (exist) {
-                                    return prevData.map((elem: any) =>
-                                        elem._id === item._id ? {...item, cantidad: 1, total: item.precioUnitario} : elem
-                                    )
-                                }
-                                return [...prevData, {...item, cantidad: 1, total: item.precioUnitario, idProducto: item._id}]
-                            })
-                        }} select={false} />
-                      })
-                      : 'NO HAY PRODUCTOS'
-                  :
-                    data.length !== 0 ? 
-                    data.map((item: any, index: any)=>{
-                      return <ItemsProducts  key={index} item={item} onClickItem={()=>{
-                        setLineaCompra((prevData:any)=>{
-                            const exist = prevData.find((elem:any)=>elem._id===item._id)
-                            if (exist) {
-                                return prevData.map((elem: any) =>
-                                    elem._id === item._id ? {...item, cantidad: 1, total: item.precioUnitario} : elem
-                                )
-                            }
-                            return [...prevData, {...item, cantidad: 1, total: item.precioUnitario}]
-                        })
-                      }} select={false}/>
-                    })
-                    : 'NO HAY PRODUCTOS'
-                }
-                <li style={{listStyle: 'none', padding: 0, margin: 0}} ref={lastElementRef}></li>;
-            </ListProduct>
-        </div>
-        <div style={{width: '50%', display: 'flex', flex: 1, flexDirection: 'column'}}>
+    <Container>
+        <ContainerListProduct>
+          <FindProductSale
+            onClickItem={(item:any)=>{
+              setLineaVenta((prevData:any)=>{
+                  const exist = prevData.find((elem:any)=>elem._id===item._id)
+                  if (exist) {
+                      return prevData.map((elem: any) =>
+                          elem._id === item._id ? {...item, cantidad: 1, total: item.precioUnitario} : elem
+                      )
+                  }
+                  return [...prevData, {...item, cantidad: 1, total: item.precioUnitario, idProducto: item._id}]
+              })
+          } }
+          />
+        </ContainerListProduct>
+        <ContainerListLineaVenta>
             <div style={{display: 'flex', flex: 1, flexDirection: 'column', padding: 15}}>
-                <h2 style={{fontSize: 18}} >Linea de compra</h2>
+                <h2 style={{fontSize: 18}} >Linea de Venta</h2>
                 <ListProduct style={{ display: 'flex', flexDirection: 'column', padding: 15, maxHeight: '65vh'}}>
                     { 
-                        lineaCompra.length === 0 ? 'No se selecciono productos' :
-                        lineaCompra.map((item:any, index:number)=><ItemLineaVenta key={index} elem={item}  onClick={()=>
-                          setLineaCompra((prevData:any)=>prevData.filter((elem:any)=>elem._id!==item._id))
+                        lineaVenta.length === 0 ? 'No se selecciono productos' :
+                        lineaVenta.map((item:any, index:number)=><ItemLineaVenta key={index} elem={item}  onClick={()=>
+                          setLineaVenta((prevData:any)=>prevData.filter((elem:any)=>elem._id!==item._id))
                             }
-                            upQTY={(id:any)=>setLineaCompra((prevData:any)=>prevData.map((elem:any)=>{
+                            upQTY={(id:any)=>setLineaVenta((prevData:any)=>prevData.map((elem:any)=>{
                               return elem._id===id ? {...elem, cantidad: elem.cantidad+1, total: elem.precioUnitario*(elem.cantidad+1)} : elem
                             }))}
-                            downQTY={(id:any)=>setLineaCompra((prevData:any)=>prevData.map((elem:any)=>{
+                            downQTY={(id:any)=>setLineaVenta((prevData:any)=>prevData.map((elem:any)=>{
                               if (elem._id===id) {
                                 if (elem.cantidad-1 > 1 ) {
                                   return {...elem, cantidad: elem.cantidad-1, total: elem.precioUnitario*(elem.cantidad-1)}
@@ -219,10 +199,10 @@ export default function NewSale() {
                               }
                               return elem
                             }))}
-                            upQTY10={(id:any)=>setLineaCompra((prevData:any)=>prevData.map((elem:any)=>{
+                            upQTY10={(id:any)=>setLineaVenta((prevData:any)=>prevData.map((elem:any)=>{
                               return elem._id===id ? {...elem, cantidad: elem.cantidad+10, total: elem.precioUnitario*(elem.cantidad+10)} : elem
                             }))}
-                            downQTY10={(id:any)=>setLineaCompra((prevData:any)=>prevData.map((elem:any)=>{
+                            downQTY10={(id:any)=>setLineaVenta((prevData:any)=>prevData.map((elem:any)=>{
                               if (elem._id===id) {
                                 if (elem.cantidad > 10 ) {
                                   return {...elem, cantidad: elem.cantidad-10, total: elem.precioUnitario*(elem.cantidad-10)}
@@ -240,7 +220,7 @@ export default function NewSale() {
                 <h2 style={{fontSize: 18}} >Total: $ {total} </h2>
                 <Button text='Crear' onClick={()=>{
                   dispatch(setLoading(true))
-                  apiClient.post('/sale', {itemsSale: lineaCompra, cliente: cliente, total: total, estado: 'Entregado'},{
+                  apiClient.post('/sale', {itemsSale: lineaVenta, cliente: cliente, total: total, estado: 'Entregado'},{
                     headers: {
                       Authorization: `Bearer ${valueStorage.token}` 
                     }
@@ -248,7 +228,7 @@ export default function NewSale() {
                   .then((r)=>{
                     dispatch(setLoading(false))
                     dispatch(setAlert({
-                      message: `Compra creada correctamente`,
+                      message: `Venta creada correctamente`,
                       type: 'success'
                     }))
                     router.back()
@@ -259,10 +239,47 @@ export default function NewSale() {
                   })))
                 }} />
             </div>
-        </div>
-    </div>
+        </ContainerListLineaVenta>
+    </Container>
   )
 }
+
+const ContainerListProduct = styled.div `
+  width: 50%;
+  @media only screen and (max-width: 940px) {
+    width: 100%;
+  }
+`
+
+const ContainerListLineaVenta = styled.div`
+  display: flex;
+  flex: 1;
+  width: 50%;
+  flex-direction: column;
+  @media only screen and (max-width: 940px) {
+    width: 100%;
+  }
+`
+
+const Container = styled.div`
+  display: flex;
+  flex: 1;
+  @media only screen and (max-width: 940px) {
+    flex-direction: column;
+  }
+`
+const ListProduct1 = styled.ul `
+  display: flex;
+  flex: 1;
+  width: 100%;
+  flex-direction: column;
+  padding: 0 15px;
+  overflow-y: scroll;
+  max-height: 82vh;
+  @media only screen and (max-width: 940px) {
+    max-height: 55vh;
+  }
+`
 
 const ListProduct = styled.ul `
   display: flex;

@@ -20,7 +20,7 @@ import { useSelector } from 'react-redux';
 import { io } from 'socket.io-client';
 import styled from 'styled-components';
 
-export default function Product() {
+export default function FindProductSale({onClickItem}:{onClickItem:any}) {
 
     const [search, setSearch] = useState('')
     const [data, setData] = useState([])
@@ -174,22 +174,22 @@ export default function Product() {
           <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1}} >
               <div style={{display: 'flex', width: '100%', padding: '0px 15px', alignItems: 'center'}}>
                 <Search name='search' placeHolder={'Buscar productos'} type='text' value={search} onChange={searchProduct} onClickFilter={()=>setOpenModalFilter(true)} />
-                <Button text='Imprimir' onClick={()=>setOpenPrintProduct(true)}/>
-                <Button text='Actualizar' onClick={()=>setOpenUpdatePrice(true)}/>
-                <Button text='Nuevo' onClick={()=>setOpenNewProduct(true)}/>
               </div>
               <ListProduct>
                   {
                     search !== '' || activeBrand._id !== 1 || activeCategorie._id !== 1 || activeProvider._id !== 1 ?
                       dataSearch.length !== 0 ? 
                         dataSearch.map((item: any, index: any)=>{
-                          return <ItemsProducts  key={index} item={item} onClick={()=>{setSelectProduct(item);setOpenModalProduct(true)}}/>
+                          return <ItemsProducts  key={index} item={item} onClick={()=>{setSelectProduct(item);setOpenModalProduct(true)}} 
+                          onClickItem={()=>onClickItem(item)}
+                          select={false}/>
                         })
                         : 'NO HAY PRODUCTOS'
                     :
                       data.length !== 0 ? 
                       data.map((item: any, index: any)=>{
-                        return <ItemsProducts  key={index} item={item} onClick={()=>{setSelectProduct(item);setOpenModalProduct(true)}}/>
+                        return <ItemsProducts  key={index} item={item} onClick={()=>{setSelectProduct(item);setOpenModalProduct(true)}} 
+                        onClickItem={()=>onClickItem(item)} select={false}/>
                       })
                       : 'NO HAY PRODUCTOS'
                   }

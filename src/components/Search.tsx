@@ -26,7 +26,7 @@ export default function Search({ type, value, onChange, name, placeHolder, onCli
           </IconWrapper>
           <Input 
             placeholder={placeHolder}
-            focused={isFocused ? 1:0}
+            $focused={isFocused ? 1:0}
             name={name}
             type={type}
             value={value}
@@ -54,13 +54,13 @@ const InputWrapper = styled.div `
     padding: 0 15px;
 `
 
-const Input = styled.input<{ focused?: any; }> `
+const Input = styled.input<{ $focused?: any; }> `
   height: 35px;
   padding: 10px 25px;
   font-size: 16px;
   color: ${props => props.color};
   border-radius: 10px;
-  border: ${({ focused }) => (focused ? '2px solid #7286D3' : '1px solid #d9d9d9')};
+  border: ${({ $focused }) => ($focused ? '2px solid #7286D3' : '1px solid #d9d9d9')};
   transition: border-color 0.2s ease-in-out;
   padding-left: 50px;
   &:focus {

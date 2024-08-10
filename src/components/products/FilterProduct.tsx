@@ -14,7 +14,6 @@ export default function FilterProduct({open, handleClose, activeCategorie, activ
     const getCategorie = () => {
       apiClient.get(`/categorie`)
       .then(function(response){
-        console.log(response.data)
         setCategorie([ {_id: 1 , descripcion: 'Todas'}, ...response.data])
       })
       .catch(function(error){
@@ -58,7 +57,7 @@ export default function FilterProduct({open, handleClose, activeCategorie, activ
             {categorie.map((item: any) => (
                 <ItemListText
                 key={item._id}
-                isActive={activeCategorie === item._id}
+                $isActive={activeCategorie === item._id}
                 onClick={() => selectCategorie(item)}
                 >
                 {item.descripcion}
@@ -71,7 +70,7 @@ export default function FilterProduct({open, handleClose, activeCategorie, activ
             {brand.map((item: any) => (
                 <ItemListText
                 key={item._id}
-                isActive={activeBrand === item._id}
+                $isActive={activeBrand === item._id}
                 onClick={() => selectBrand(item)}
                 >
                 {item.descripcion}
@@ -84,7 +83,7 @@ export default function FilterProduct({open, handleClose, activeCategorie, activ
             {provider.map((item: any) => (
                 <ItemListText
                 key={item._id}
-                isActive={activeProvider === item._id}
+                $isActive={activeProvider === item._id}
                 onClick={() => selectProvider(item)}
                 >
                 {item.descripcion}
@@ -108,13 +107,13 @@ const TitleText = styled.h2`
   margin-bottom: 15px;
 `;
 
-const ItemListText = styled.li<{ isActive: boolean }>`
+const ItemListText = styled.li<{ $isActive: boolean }>`
   font-size: 14px;
   font-family: 'Cairo-Bold', sans-serif;
-  color: ${({ isActive }) => (isActive ? '#fff' : '#716A6A')};
-  background-color: ${({ isActive }) => (isActive ? '#3764A0' : 'none')};
-  border: ${({ isActive }) => (isActive ? '1px solid #d9d9d9' : 'none')};
-  border-radius: ${({ isActive }) => (isActive ? '15px' : 'none')};
+  color: ${({ $isActive }) => ($isActive ? '#fff' : '#716A6A')};
+  background-color: ${({ $isActive }) => ($isActive ? '#3764A0' : 'none')};
+  border: ${({ $isActive }) => ($isActive ? '1px solid #d9d9d9' : 'none')};
+  border-radius: ${({ $isActive }) => ($isActive ? '15px' : 'none')};
   margin-right: 10px;
   padding: 5px 15px;
   list-style:none;

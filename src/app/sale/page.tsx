@@ -37,7 +37,6 @@ export default function Sale() {
           }
         })
         .then(r=>{
-          console.log('loading false')
           dispatch(setLoading(false))
             setData(prevData=>{
               return r.data
@@ -65,7 +64,7 @@ export default function Sale() {
     <main>
         <div style={{display: 'flex', justifyContent: 'space-between', width: '100%', padding: '0px 15px', alignItems: 'center'}}>
           <Search name='search' placeHolder={'Buscar ventas'} type='text' value={search} onChange={(e:any)=>setSearch(e.target.value)} />
-          <Button text='Nuevo' onClick={()=>console.log('nuevo')} to='/sale/newSale'/>
+          <Button text='Nuevo' onClick={()=>{}} to='/sale/newSale'/>
         </div>
         <ul>
             {

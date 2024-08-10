@@ -38,7 +38,7 @@ const Modal = ({
     <CSSTransition in={open} timeout={300} classNames="modal-transition" unmountOnExit>
       <Container >
         <Content
-          borderRadius={borderRadius}
+          $borderRadius={borderRadius}
           width={width}
           height={height}
           ref={modalRef}
@@ -105,7 +105,7 @@ const Container = styled.div`
 `;
 
 interface ContentProps {
-  borderRadius?: boolean;
+  $borderRadius?: boolean;
   width?: string;
   height?: string;
 }
@@ -115,7 +115,7 @@ const Content = styled.div<ContentProps>`
   border: 1px solid #888;
   width: ${props => props.width && props.width};
   height: ${props => props.height && props.height};
-  border-radius: ${props => (props.borderRadius ? "10px" : "0")};
+  border-radius: ${props => (props.$borderRadius ? "10px" : "0")};
   position: relative;
   max-width: 1240px;
   max-height: 720px;

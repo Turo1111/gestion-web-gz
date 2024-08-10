@@ -13,7 +13,6 @@ export default function PrintSale({id}:{id: any}) {
 
   const [sale, setSale] = useState<any>(undefined)
   const [valueStorage , setValue] = useLocalStorage("user", "")
-  console.log(id)
 
   const getSale = () => {
     apiClient(`/sale/${id}`,{
@@ -21,7 +20,7 @@ export default function PrintSale({id}:{id: any}) {
           Authorization: `Bearer ${valueStorage.token}`
       },
   })
-    .then((r:any)=>{console.log(r.data);setSale(r.data)})
+    .then((r:any)=>{setSale(r.data)})
     .catch((e:any)=>console.log(e))
   }
 

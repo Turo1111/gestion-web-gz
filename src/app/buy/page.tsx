@@ -38,7 +38,6 @@ export default function Buy() {
           }
         })
         .then(r=>{
-          console.log('loading false')
           dispatch(setLoading(false))
             setData(prevData=>{
               return r.data
@@ -66,7 +65,7 @@ export default function Buy() {
     <main>
         <div style={{display: 'flex', justifyContent: 'space-between', width: '100%', padding: '0px 15px', alignItems: 'center'}}>
           <Search name='search' placeHolder={'Buscar compras'} type='text' value={search} onChange={(e:any)=>setSearch(e.target.value)} />
-          <Button text='Nuevo' onClick={()=>console.log('nuevo')} to='/buy/newBuy'/>
+          <Button text='Nuevo' onClick={()=>{}} to='/buy/newBuy'/>
         </div>
         <ul>
             {

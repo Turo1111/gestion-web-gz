@@ -22,7 +22,7 @@ const InputWrapper = styled.div`
 
 interface InputLabelProps {
   color: string;
-  active: boolean;
+  $active: boolean;
 }
 
 const InputLabel = styled.label<InputLabelProps>`
@@ -35,8 +35,8 @@ const InputLabel = styled.label<InputLabelProps>`
   transform-origin: top left;
   pointer-events: none;
 
-  ${({ active }) =>
-    active &&
+  ${({ $active }) =>
+    $active &&
     `
     transform: translateY(-32px) scale(0.8);
   `}
@@ -44,7 +44,7 @@ const InputLabel = styled.label<InputLabelProps>`
 
 interface InputFieldProps {
   color: string;
-  focused: any;
+  $focused: any;
 }
 
 const InputField = styled.input<InputFieldProps>`
@@ -53,7 +53,7 @@ const InputField = styled.input<InputFieldProps>`
   font-size: 16px;
   color: ${props => props.color};
   border-radius: 10px;
-  border: ${({ focused}) => (focused ? '2px solid #7286D3' : '1px solid #d9d9d9')};
+  border: ${({ $focused}) => ($focused ? '2px solid #7286D3' : '1px solid #d9d9d9')};
   transition: border-color 0.2s ease-in-out;
 
   &:focus {
@@ -156,7 +156,6 @@ const InputSelectAdd = ({type = 'text', label, value, onChange, name, edit = fal
 
   const postValue = () => {
     setLoading2(true)
-    console.log('inputvalue', inputValue)
     apiClient.post(`/${path}`, {descripcion: inputValue},
     {
       headers: {
@@ -164,7 +163,6 @@ const InputSelectAdd = ({type = 'text', label, value, onChange, name, edit = fal
       }
     })
     .then((r)=>{
-      console.log(r.data)
       onChange(r.data._id, r.data)
       setLoading2(false)
     })
@@ -242,7 +240,7 @@ const InputSelectAdd = ({type = 'text', label, value, onChange, name, edit = fal
 
   return (
     <InputWrapper>
-      <InputLabel active={isActive} color={'#716A6A'} >{type === 'date' ? '' : label}</InputLabel>
+      <InputLabel $active={isActive} color={'#716A6A'} >{type === 'date' ? '' : label}</InputLabel>
       <InputField
         color={'#716A6A'}
         type={type}
@@ -251,7 +249,7 @@ const InputSelectAdd = ({type = 'text', label, value, onChange, name, edit = fal
         name={name}
         onFocus={handleInputFocus}
         onBlur={handleInputBlur}    
-        focused={isFocused ? 1:0}
+        $focused={isFocused ? 1:0}
       />
       {
         inputValue === '' ?  

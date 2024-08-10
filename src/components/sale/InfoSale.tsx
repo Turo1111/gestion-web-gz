@@ -17,17 +17,13 @@ export default function InfoSale({open, handleClose, id}:{open:boolean, handleCl
           Authorization: `Bearer ${valueStorage.token}`
       },
   })
-    .then((r:any)=>{console.log(r.data);setSale(r.data)})
+    .then((r:any)=>{setSale(r.data)})
     .catch((e:any)=>console.log(e))
   }
 
   useEffect(()=> {
     getSale()
   },[id])
-
-  useEffect(()=> {
-    console.log("sale",sale?.itemsSale)
-  },[sale])
 
   return (
     <Modal open={open} title={'Info de la venta'} eClose={handleClose} height='auto' width='60%' >

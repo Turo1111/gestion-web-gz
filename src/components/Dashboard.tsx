@@ -54,7 +54,9 @@ export default function Dashboard({children}: any) {
                                 itemsLi.map((item, index)=>{
                                     return(
                                     <Link href={"/"+(item.path.toLowerCase().split(' ').join(''))} style={{textDecoration: 'none'}}  key={index}> 
-                                        <ItemLi isSelect={pathname === "/"+(item.path.toLowerCase().split(' ').join('')) ? true : false} >{item.name}</ItemLi>
+                                        <ItemLi $isSelect={pathname === "/"+(item.path.toLowerCase().split(' ').join(''))}>
+                                            {item.name}
+                                        </ItemLi>
                                     </Link>
 
                                 )})
@@ -104,9 +106,10 @@ export default function Dashboard({children}: any) {
                         <ul>
                             {
                                 itemsLi.map((item, index)=>{
+                                    const isSelect = pathname === "/"+(item.path.toLowerCase().split(' ').join(''))
                                     return(
                                     <Link href={"/"+(item.path.toLowerCase().split(' ').join(''))} style={{textDecoration: 'none'}}  key={index} onClick={()=>setOpenMenu(false)}> 
-                                        <ItemLi isSelect={pathname === "/"+(item.path.toLowerCase().split(' ').join('')) ? true : false} >{item.name}</ItemLi>
+                                        <ItemLi $isSelect={isSelect} >{item.name}</ItemLi>
                                     </Link>
                                 )})
                             }
@@ -186,22 +189,22 @@ const LeftDash = styled.div `
     }
 `
 
-interface ItemLi {
-    isSelect: boolean
+interface ItemLiProps {
+    $isSelect: boolean;
 }
 
-const ItemLi = styled.li<ItemLi> `
+const ItemLi = styled.li<ItemLiProps>`
     list-style: none;
     font-weight: 600;
     font-size: 16px;
     margin: 15px 0;
     padding: 15px;
     border-bottom: 1px solid white;
-    background-color: ${({ isSelect }) => (isSelect ? '#3764A0' : 'none')};
-    color: ${({ isSelect }) => (isSelect ? 'white' : '#252525')};
+    background-color: ${({ $isSelect }) => ($isSelect ? '#3764A0' : 'none')};
+    color: ${({ $isSelect }) => ($isSelect ? 'white' : '#252525')};
     cursor: pointer;
-    &:hover{
+    &:hover {
         background-color: #3764A0;
         color: white;
     }
-`
+`;

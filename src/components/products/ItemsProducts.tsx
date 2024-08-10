@@ -2,12 +2,12 @@ import React, { useState } from 'react'
 import { MdEdit, MdInfo } from 'react-icons/md';
 import styled from 'styled-components';
 
-export default function ItemsProducts({item, onClick, select = true, onClickItem, line = true}:{item: any, onClick?: any, select?:boolean, onClickItem?: any, line?:boolean}) {
+export default function ItemsProducts({item, onClick, select = true, onClickItem, line = true}:{item: any, onClick?: any, select?:boolean, onClickItem?: any, line?:any}) {
 
     const [openInfo, setOpenInfo] = useState(false)
     
   return (
-    <ItemProduct onClick={onClickItem} line={line} >
+    <ItemProduct onClick={onClickItem} $line={line} >
         <div style={{display: 'flex', flex: 1}}>
             <div style={{display: 'flex', flex: 1, flexDirection: 'column', marginRight: 15}}>
                 <div style={{display: 'flex', justifyContent: 'space-between'}}>
@@ -48,7 +48,7 @@ export default function ItemsProducts({item, onClick, select = true, onClickItem
 }
 
 interface ItemProduct {
-    line?: boolean;
+    $line?: boolean;
 }
 
 const ItemProduct = styled.li <ItemProduct> `
@@ -56,7 +56,7 @@ const ItemProduct = styled.li <ItemProduct> `
   padding: 15px;
   font-weight: 600;
   width: 100%;
-  border-bottom: ${({ line }) => (line ? '1px solid #d1d1d1' : 'none')};
+  border-bottom: ${({ $line }) => ($line ? '1px solid #d1d1d1' : 'none')};
   display: flex;
   flex-direction: column;
   flex-shrink: 0;  /* Evita que el item se encoja demasiado */
