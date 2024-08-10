@@ -3,49 +3,47 @@ import { MdEdit, MdInfo } from 'react-icons/md';
 import styled from 'styled-components';
 
 export default function ItemsProducts({item, onClick, select = true, onClickItem, line = true}:{item: any, onClick?: any, select?:boolean, onClickItem?: any, line?:any}) {
-
-    const [openInfo, setOpenInfo] = useState(false)
+    const [openInfo, setOpenInfo] = useState(false);
     
-  return (
-    <ItemProduct onClick={onClickItem} $line={line} >
-        <div style={{display: 'flex', flex: 1}}>
-            <div style={{display: 'flex', flex: 1, flexDirection: 'column', marginRight: 15}}>
-                <div style={{display: 'flex', justifyContent: 'space-between'}}>
-                    <h2 style={{fontSize: 18, color: '#252525'}}>{item.descripcion}</h2>
-                    <h2 style={{fontSize: 18, color: '#FA9B50'}}>$ {item.precioUnitario}</h2>
-                </div>
-                <div style={{display: 'flex', justifyContent: 'space-between'}}>
-                    <h5 style={{fontSize: 14, fontWeight: 400, color: '#7F8487'}}>{item.NameCategoria}</h5>
-                    <h5 style={{fontSize: 14, fontWeight: 400, color: '#7F8487'}}>{item.NameMarca}</h5>
-                </div>
-            </div>
-            {
-                select && 
-                <div  style={{display: 'flex'}}>
-                    <IconWrapper style={{color: '#A2CA71'}}  onClick={onClick}>
-                    <MdEdit />
-                    </IconWrapper>
-                    <IconWrapper style={{color: '#6EACDA'}} onClick={()=>setOpenInfo(!openInfo)}>
-                    <MdInfo />
-                    </IconWrapper>
-                </div>
+    return (
+        <ItemProduct onClick={onClickItem} $line={line}>
+            <Container>
+                <Column>
+                    <Row>
+                        <Title>{item.descripcion}</Title>
+                        <Price>$ {item.precioUnitario}</Price>
+                    </Row>
+                    <Row>
+                        <Subtitle>{item.NameCategoria}</Subtitle>
+                        <Subtitle>{item.NameMarca}</Subtitle>
+                    </Row>
+                </Column>
+                {select && 
+                    <div style={{display: 'flex'}}>
+                        <IconWrapper style={{color: '#A2CA71'}} onClick={onClick}>
+                            <MdEdit />
+                        </IconWrapper>
+                        <IconWrapper style={{color: '#6EACDA'}} onClick={() => setOpenInfo(!openInfo)}>
+                            <MdInfo />
+                        </IconWrapper>
+                    </div>
+                }
+            </Container>
+            {openInfo && 
+                <InfoContainer>
+                    <InfoText>Stock: {item?.stock || 'No definido'}</InfoText>
+                    <InfoText>Proveedor: {item?.NameProveedor || 'No definido'}</InfoText>
+                    <InfoText>Codigo de barra: {item?.codigoBarra || 'Sin codigo'}</InfoText>
+                    <InfoText>Peso: {item?.peso?.cantidad || 'No definido'} {item?.peso?.unidad}</InfoText>
+                    <InfoText>Bulto: {item?.bulto || 'No definido'}</InfoText>
+                    <InfoText>Precio por Bulto: {item?.precioBulto || 'No definido'}</InfoText>
+                    <InfoText>Precio de compra: {item?.precioCompra || 'No definido'}</InfoText>
+                </InfoContainer>
             }
-        </div>
-        {
-            openInfo && 
-            <div style={{padding: '15px 0'}} >
-                <h2 style={{fontSize: 14, fontWeight: 400, color: '#7F8487'}}>Stock: {item?.stock || 'No definido'}</h2>
-                <h2 style={{fontSize: 14, fontWeight: 400, color: '#7F8487'}}>Proveedor: {item?.NameProveedor || 'No definido'}</h2>
-                <h2 style={{fontSize: 14, fontWeight: 400, color: '#7F8487'}}>Codigo de barra: {item?.codigoBarra || 'Sin codigo'}</h2>
-                <h2 style={{fontSize: 14, fontWeight: 400, color: '#7F8487'}}>Peso: {item?.peso?.cantidad || 'No definido'} {item?.peso?.unidad}</h2>
-                <h2 style={{fontSize: 14, fontWeight: 400, color: '#7F8487'}}>Bulto: {item?.bulto || 'No definido'}</h2>
-                <h2 style={{fontSize: 14, fontWeight: 400, color: '#7F8487'}}>Precio por Bulto: {item?.precioBulto || 'No definido'}</h2>
-                <h2 style={{fontSize: 14, fontWeight: 400, color: '#7F8487'}}>Precio de compra: {item?.precioCompra || 'No definido'}</h2>
-            </div>
-        }
-    </ItemProduct>
-  )
+        </ItemProduct>
+    );
 }
+
 
 interface ItemProduct {
     $line?: boolean;
@@ -63,6 +61,9 @@ const ItemProduct = styled.li <ItemProduct> `
   justify-content: center;  /* Centra el contenido verticalmente */
   min-height: 60px;  /* Altura mínima para que no crezca mucho con pocos elementos */
   height: auto;  /* Altura automática basada en el contenido */
+  @media only screen and (max-width: 500px) {
+    padding: 8px;
+  }
 `
 
 const IconWrapper = styled.div`
@@ -78,4 +79,62 @@ const IconWrapper = styled.div`
     &:hover {
         background-color: #d9d9d9;
     }
+    @media only screen and (max-width: 500px) {
+        font-size: 18px;
+        padding: 0px 8px;
+    }
 `
+
+const Container = styled.div`
+  display: flex;
+  flex: 1;
+`;
+
+const Column = styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  margin-right: 15px;
+`;
+
+const Row = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
+const Title = styled.h2`
+  font-size: 18px;
+  color: #252525;
+  @media only screen and (max-width: 500px) {
+    font-size: 14px;
+  }
+`;
+
+const Price = styled(Title)`
+  color: #FA9B50;
+  @media only screen and (max-width: 500px) {
+    font-size: 14px;
+  }
+`;
+
+const Subtitle = styled.h5`
+  font-size: 14px;
+  font-weight: 400;
+  color: #7F8487;
+  @media only screen and (max-width: 500px) {
+    font-size: 12px;
+  }
+`;
+
+const InfoContainer = styled.div`
+  padding: 15px 0;
+`;
+
+const InfoText = styled.h2`
+  font-size: 14px;
+  font-weight: 400;
+  color: #7F8487;
+  @media only screen and (max-width: 500px) {
+    font-size: 12px;
+  }
+`;
