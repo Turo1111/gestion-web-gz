@@ -188,24 +188,24 @@ export default function NewSale() {
                           setLineaVenta((prevData:any)=>prevData.filter((elem:any)=>elem._id!==item._id))
                             }
                             upQTY={(id:any)=>setLineaVenta((prevData:any)=>prevData.map((elem:any)=>{
-                              return elem._id===id ? {...elem, cantidad: elem.cantidad+1, total: elem.precioUnitario*(elem.cantidad+1)} : elem
+                              return elem._id===id ? {...elem, cantidad: elem.cantidad+1, total: (elem.precioUnitario*(elem.cantidad+1)).toFixed(2)} : elem
                             }))}
                             downQTY={(id:any)=>setLineaVenta((prevData:any)=>prevData.map((elem:any)=>{
                               if (elem._id===id) {
                                 if (elem.cantidad-1 > 1 ) {
-                                  return {...elem, cantidad: elem.cantidad-1, total: elem.precioUnitario*(elem.cantidad-1)}
+                                  return {...elem, cantidad: elem.cantidad-1, total: (elem.precioUnitario*(elem.cantidad-1)).toFixed(2)}
                                 }
                                 return {...elem, cantidad: 1, total: elem.precioUnitario}
                               }
                               return elem
                             }))}
                             upQTY10={(id:any)=>setLineaVenta((prevData:any)=>prevData.map((elem:any)=>{
-                              return elem._id===id ? {...elem, cantidad: elem.cantidad+10, total: elem.precioUnitario*(elem.cantidad+10)} : elem
+                              return elem._id===id ? {...elem, cantidad: elem.cantidad+10, total: (elem.precioUnitario*(elem.cantidad+10)).toFixed(2)} : elem
                             }))}
                             downQTY10={(id:any)=>setLineaVenta((prevData:any)=>prevData.map((elem:any)=>{
                               if (elem._id===id) {
                                 if (elem.cantidad > 10 ) {
-                                  return {...elem, cantidad: elem.cantidad-10, total: elem.precioUnitario*(elem.cantidad-10)}
+                                  return {...elem, cantidad: elem.cantidad-10, total: (elem.precioUnitario*(elem.cantidad-10)).toFixed(2)}
                                 }
                                 return elem
                               }
