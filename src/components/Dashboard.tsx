@@ -117,7 +117,7 @@ export default function Dashboard({children}: any) {
                                 )})
                             }
                         </ul>
-                        <SignOut onClick={() => {clearValue(); router.push('/')}}>Cerrar sesion</SignOut>
+                        <SignOut onClick={() => {clearValue(); router.push('/');setOpenMenu(false)}}>Cerrar sesion</SignOut>
                     </LeftDash>
                 }
                 <div style={{display: 'flex', flex: 1, flexDirection: 'column'}}>
