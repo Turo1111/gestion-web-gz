@@ -137,11 +137,9 @@ const Content = styled.div<ContentProps>`
     width: 80%;
   }
   @media only screen and (max-width: 768px) {
-    height: ${({height}) => height ? height : 'auto'};
+    height: auto;
     width: 95%;
-  }
-  @media only screen and (min-width: 768px) {
-    min-width: 600px;
+    min-width: 100%;
   }
 `;
 

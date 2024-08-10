@@ -8,13 +8,19 @@ import jsPDF from 'jspdf';
 import Modal from '../Modal';
 import ItemsProducts from './ItemsProducts';
 import Logo from '../Logo';
+import { getLoading, setLoading } from '@/redux/loadingSlice';
+import { useSelector } from 'react-redux';
+import { useAppDispatch } from '@/redux/hook';
 
 export default function PrintProduct({open, handleClose}:{open: boolean, handleClose: any}) {
 
   const [products, setProducts] = useState<any[]>([])
   const [valueStorage , setValue] = useLocalStorage("user", "")
+  const {open: loading} = useSelector(getLoading)
+  const dispatch = useAppDispatch();
 
   const getProducts = () => {
+    dispatch(setLoading(true))
     apiClient.get(`/product`,{
       headers: {
           Authorization: `Bearer ${valueStorage.token}`
@@ -23,8 +29,9 @@ export default function PrintProduct({open, handleClose}:{open: boolean, handleC
     .then((r:any)=> {
       const sortedProducts = sortProducts(r.data);
       setProducts(sortedProducts);
+      dispatch(setLoading(false))
     })
-    .catch((e:any)=>console.log(e))
+    .catch((e:any)=>{console.log(e);dispatch(setLoading(false))})
   }
 
   const sortProducts = (products: any[]): any[] => {
@@ -39,10 +46,11 @@ export default function PrintProduct({open, handleClose}:{open: boolean, handleC
   }
 
   const generatePdf = async () => {
+    dispatch(setLoading(true))
     const pdf = new jsPDF('p', 'mm', 'a4');
     for (let index = 0; index < [...Array(totalPartes)].length; index++) {
         const element:any = document.getElementById(`print-${index}`);
-        await html2canvas(element).then((canvas) => {
+        await html2canvas(element, { scale: 1 }).then((canvas) => {
           const imgData = canvas.toDataURL('image/png');
           const pdfWidth = pdf.internal.pageSize.getWidth();
           const pdfHeight = pdf.internal.pageSize.getHeight();
@@ -56,6 +64,7 @@ export default function PrintProduct({open, handleClose}:{open: boolean, handleC
       }
     const pdfName = `Lista-de-Productos-Golozur.pdf`;
     pdf.save(pdfName);
+    dispatch(setLoading(false))
   };
 
   useEffect(()=> {
