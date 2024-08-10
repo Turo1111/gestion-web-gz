@@ -52,6 +52,9 @@ const InputWrapper = styled.div `
     margin: 15px 0;
     width: 100%;
     padding: 0 15px;
+    @media only screen and (max-width: 500px) {
+      margin: 10px 0;
+    }
 `
 
 const Input = styled.input<{ $focused?: any; }> `

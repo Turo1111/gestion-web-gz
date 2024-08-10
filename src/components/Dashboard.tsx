@@ -86,20 +86,23 @@ export default function Dashboard({children}: any) {
             </ContainerBig>
             :
             <ContainerSmall>
-                <Header>
-                    {
-                        !openMenu ? 
-                        <IconWrapper onClick={()=>setOpenMenu(true)}>
-                            <BiMenu/>
-                        </IconWrapper>:
-                        <IconWrapper onClick={()=>setOpenMenu(false)}>
-                            <MdMenuOpen />
-                        </IconWrapper>
-                    }
-                    <div style={{display: 'flex', justifyContent: 'center', flex: 1}} >
-                        <Logo small={true}/>
-                    </div>
-                </Header>
+                {
+                    pathname !== '/' &&
+                    <Header>
+                        {
+                            !openMenu ? 
+                            <IconWrapper onClick={()=>setOpenMenu(true)}>
+                                <BiMenu/>
+                            </IconWrapper>:
+                            <IconWrapper onClick={()=>setOpenMenu(false)}>
+                                <MdMenuOpen />
+                            </IconWrapper>
+                        }
+                        <div style={{display: 'flex', justifyContent: 'center', flex: 1}} >
+                            <Logo small={true}/>
+                        </div>
+                    </Header>
+                }
                 {
                     openMenu &&
                     <LeftDash>
@@ -114,6 +117,7 @@ export default function Dashboard({children}: any) {
                                 )})
                             }
                         </ul>
+                        <SignOut onClick={() => {clearValue(); router.push('/')}}>Cerrar sesion</SignOut>
                     </LeftDash>
                 }
                 <div style={{display: 'flex', flex: 1, flexDirection: 'column'}}>

@@ -127,6 +127,9 @@ const ItemListText = styled.li<{ $isActive: boolean }>`
     background-color: #3764A0;
     color: white;
   }
+  @media only screen and (max-width: 500px) {
+    padding: 2px 10px;
+  }
 `;
 
 const HorizontalList = styled.ul`

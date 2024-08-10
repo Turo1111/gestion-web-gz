@@ -80,7 +80,7 @@ const IconWrapper = styled.div`
         background-color: #d9d9d9;
     }
     @media only screen and (max-width: 500px) {
-        font-size: 18px;
+        font-size: 22px;
         padding: 0px 8px;
     }
 `
@@ -106,14 +106,15 @@ const Title = styled.h2`
   font-size: 18px;
   color: #252525;
   @media only screen and (max-width: 500px) {
-    font-size: 14px;
+    font-size: 16px;
   }
 `;
 
 const Price = styled(Title)`
   color: #FA9B50;
+  font-size: 18px;
   @media only screen and (max-width: 500px) {
-    font-size: 14px;
+    font-size: 16px;
   }
 `;
 
@@ -122,7 +123,7 @@ const Subtitle = styled.h5`
   font-weight: 400;
   color: #7F8487;
   @media only screen and (max-width: 500px) {
-    font-size: 12px;
+    font-size: 14px;
   }
 `;
 
@@ -135,6 +136,6 @@ const InfoText = styled.h2`
   font-weight: 400;
   color: #7F8487;
   @media only screen and (max-width: 500px) {
-    font-size: 12px;
+    font-size: 14px;
   }
 `;

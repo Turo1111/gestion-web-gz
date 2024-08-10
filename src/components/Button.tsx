@@ -42,4 +42,8 @@ const Btn = styled.button <{ width?: string }>`
     :hover{
         background-color: #637195;
     }
+    @media only screen and (max-width: 500px) {
+      padding: 5px 15px;
+      margin: 5px;
+    }
 `

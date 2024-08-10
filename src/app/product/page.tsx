@@ -172,12 +172,14 @@ export default function Product() {
       {
         <>
           <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1}} >
-              <div style={{display: 'flex', width: '100%', padding: '0px 15px', alignItems: 'center'}}>
+              <WrapperSearch>
                 <Search name='search' placeHolder={'Buscar productos'} type='text' value={search} onChange={searchProduct} onClickFilter={()=>setOpenModalFilter(true)} />
-                <Button text='Imprimir' onClick={()=>setOpenPrintProduct(true)}/>
-                <Button text='Actualizar' onClick={()=>setOpenUpdatePrice(true)}/>
-                <Button text='Nuevo' onClick={()=>setOpenNewProduct(true)}/>
-              </div>
+                <WrapperButtons>
+                  <Button text='Imprimir' onClick={()=>setOpenPrintProduct(true)}/>
+                  <Button text='Actualizar' onClick={()=>setOpenUpdatePrice(true)}/>
+                  <Button text='Nuevo' onClick={()=>setOpenNewProduct(true)}/>
+                </WrapperButtons>
+              </WrapperSearch>
               <ListProduct>
                   {
                     search !== '' || activeBrand._id !== 1 || activeCategorie._id !== 1 || activeProvider._id !== 1 ?
@@ -230,6 +232,26 @@ export default function Product() {
     </main>
   )
 }
+
+const WrapperSearch = styled.div `
+  display: flex; 
+  width: 100%; 
+  padding: 0px 15px; 
+  align-items: center;
+  @media only screen and (max-width: 500px) {
+    flex-direction: column
+  }
+`
+
+const WrapperButtons = styled.div `
+  display: flex; 
+  padding: 0px 15px; 
+  align-items: center;
+  @media only screen and (max-width: 500px) {
+    width: 100%; 
+    justify-content: center;
+  }
+`
 
 const ListProduct = styled.ul `
   display: flex;
