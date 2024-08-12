@@ -251,6 +251,15 @@ const ContainerListProduct = styled.div `
   }
 `
 
+
+const Container = styled.div`
+  display: flex;
+  flex: 1;
+  @media only screen and (max-width: 940px) {
+    flex-direction: column;
+  }
+`
+
 const ContainerListLineaVenta = styled.div`
   display: flex;
   flex: 1;
@@ -261,25 +270,6 @@ const ContainerListLineaVenta = styled.div`
   }
 `
 
-const Container = styled.div`
-  display: flex;
-  flex: 1;
-  @media only screen and (max-width: 940px) {
-    flex-direction: column;
-  }
-`
-const ListProduct1 = styled.ul `
-  display: flex;
-  flex: 1;
-  width: 100%;
-  flex-direction: column;
-  padding: 0 15px;
-  overflow-y: scroll;
-  max-height: 82vh;
-  @media only screen and (max-width: 940px) {
-    max-height: 55vh;
-  }
-`
 
 const ListProduct = styled.ul `
   display: flex;

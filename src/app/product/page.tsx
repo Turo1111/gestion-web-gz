@@ -83,7 +83,10 @@ export default function Product() {
               });
   
               return [...prevData, ...newData];
-          });
+          })
+          console.log(response.data)
+          /* mini oreo, topline */
+         /*  response.data.array.map((item:any)=>console.log(item.descripcion, item.NameProveedor,item.NameCategoria, item.NameMarca, item.categoria, item.proveedor, item.marca)) */
           setLongArray(prevData=>response.data.longitud)
           dispatch(setLoading(false));
       } catch (e) {
@@ -99,6 +102,7 @@ export default function Product() {
     try {
         const response = await apiClient.post(`/product/search`, {input, categoria: categorie, marca: brand, proveedor: provider});
         setDataSearch(response.data);
+        console.log(response.data)
         dispatch(setLoading(false));
     } catch (e) {
         console.log("error", e);
@@ -156,6 +160,7 @@ export default function Product() {
           observer.current = new IntersectionObserver(entries => {
               if (entries[0].isIntersecting) {
                   if (search === '') {
+                    console.log(data.length < longArray, " ",data.length, "menor que", longArray )
                       if (data.length < longArray) {
                         setQuery(prevData => ({ skip: prevData.skip + 25, limit: prevData.limit }));
                       }
