@@ -9,8 +9,7 @@ import { useRouter } from 'next/router';
 import Input from '../Input';
 import Button from '../Button';
 
-export default function LineaVenta({lineaVenta}:
-    {lineaVenta: any}
+export default function LineaVenta(
 ) {
 
     const dispatch = useAppDispatch();
@@ -18,7 +17,7 @@ export default function LineaVenta({lineaVenta}:
 
   return (
     <ContainerListLineaVenta>
-        <div style={{display: 'flex', flex: 1, flexDirection: 'column', padding: 15}}>
+        {/* <div style={{display: 'flex', flex: 1, flexDirection: 'column', padding: 15}}>
             <h2 style={{fontSize: 18}} >Linea de Venta</h2>
             <ListProduct style={{ display: 'flex', flexDirection: 'column', padding: 15, maxHeight: '65vh'}}>
                 { 
@@ -76,7 +75,7 @@ export default function LineaVenta({lineaVenta}:
                 type: 'error'
               })))
             }} />
-        </div>
+        </div> */}
     </ContainerListLineaVenta>
   )
 }
