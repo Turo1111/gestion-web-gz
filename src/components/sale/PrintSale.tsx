@@ -54,7 +54,7 @@ export default function PrintSale({id}:{id: any}) {
   },[id])
 
   // Definir el número máximo de elementos por parte
-  const elementosPorParte = 8;
+  const elementosPorParte = 20;
 
   // Calcular el número total de partes necesarias
   let totalPartes = 0
@@ -96,8 +96,8 @@ export default function PrintSale({id}:{id: any}) {
                 />
             </div>
             <Tag style={{ textAlign: 'end' }}>TOTAL : $ {sale.r.total}</Tag> 
-            <p>*No valido como factura</p>
-            <p style={{fontSize: 14, color: '#252525', textAlign: 'end'}}>Pagina {index+1} de {totalPartes}</p>
+            <p style={{fontSize: 18, color: '#252525', fontWeight: 600}}>*No valido como factura</p>
+            <p style={{fontSize: 18, color: '#252525', textAlign: 'end', fontWeight: 500}}>Pagina {index+1} de {totalPartes}</p>
             </ContainerPrint>
           </WrapperPrint>
         );
@@ -136,12 +136,9 @@ const ContainerPrint = styled.div`
 `;
 
 const Tag = styled.h5`
-  font-size: 16px;
+  font-size: 18px;
   padding: 0 15px;
-  font-weight: 500;
+  font-weight: 600;
   margin: 10px 0;
   color: ${process.env.TEXT_COLOR};
-  @media only screen and (max-width: 768px) {
-    font-size: 14px;
-  }
 `;

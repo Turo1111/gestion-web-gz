@@ -53,7 +53,7 @@ export default function NewSale() {
     <Container>
       {
         ancho > 940 ?
-        <div>
+        <div style={{display: 'flex', flex: 1}}>
           <ContainerListProduct>
             <FindProductSale
               onClickItem={(item:any)=>{

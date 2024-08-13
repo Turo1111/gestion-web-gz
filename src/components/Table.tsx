@@ -55,42 +55,32 @@ export default function Table({data = [], columns, onClick, date=false, maxHeigh
 
 const TableHeader = styled.li `
     border-radius: 3px;
-    padding: 25px 30px;
+    padding: 15px 30px;
     display: flex;
     justify-content: space-between;
     margin-bottom: 5px;
     color: ${props=>props.color};
     background-color: #F9F5F6;
-    font-size: 14px;
+    font-size: 18px;
+    font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.03em;
-    @media only screen and (max-width: 800px) {
-      font-size: 12px;
-    }
-    @media only screen and (max-width: 445px) {
-      font-size: 10px;
-    }
 `
 
 const TableRow = styled.li `
     border-radius: 3px;
-    padding: 25px 30px;
+    padding: 5px 30px;
     display: flex;
     justify-content: space-between;
     margin-bottom: 5px;
+    font-weight: 600;
     color: ${props=>props.color};
+    font-size: 18px;
     background-color: #ffffff;
     cursor: ${props=>props.onClick && 'pointer'};
     :hover{
         background-color: ${props=>props.onClick && '#F9F5F6'};
     };
-    @media only screen and (max-width: 800px) {
-      font-size: 12px;
-    }
-    @media only screen and (max-width: 445px) {
-      font-size: 10px;
-      padding: 25px 0px;
-    }
 `
 
 interface List {
@@ -104,12 +94,9 @@ const List = styled.ul<List> `
 `
 
 const Tag = styled.h5 `
-    font-size: 14px;
+    font-size: 18px;
     padding: 0 15px;
-    font-weight: 500;
+    font-weight: 600;
     margin: 5px 0;
     color: ${process.env.TEXT_COLOR};
-    @media only screen and (max-width: 768px) {
-      font-size: 14px;
-    }
 `
