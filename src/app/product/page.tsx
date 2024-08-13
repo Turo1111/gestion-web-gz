@@ -84,9 +84,6 @@ export default function Product() {
   
               return [...prevData, ...newData];
           })
-          console.log(response.data)
-          /* mini oreo, topline */
-         /*  response.data.array.map((item:any)=>console.log(item.descripcion, item.NameProveedor,item.NameCategoria, item.NameMarca, item.categoria, item.proveedor, item.marca)) */
           setLongArray(prevData=>response.data.longitud)
           dispatch(setLoading(false));
       } catch (e) {

@@ -8,25 +8,31 @@ import Button from '../Button';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import Logo from '../Logo';
+import { useAppDispatch } from '@/redux/hook';
+import { setLoading } from '@/redux/loadingSlice';
 
 export default function PrintSale({id}:{id: any}) {
 
   const [sale, setSale] = useState<any>(undefined)
   const [valueStorage , setValue] = useLocalStorage("user", "")
+  const dispatch = useAppDispatch();
 
   const getSale = () => {
+    dispatch(setLoading(true))
     apiClient(`/sale/${id}`,{
       headers: {
           Authorization: `Bearer ${valueStorage.token}`
       },
   })
-    .then((r:any)=>{setSale(r.data)})
-    .catch((e:any)=>console.log(e))
+    .then((r:any)=>{setSale(r.data);dispatch(setLoading(false));console.log(r.data)})
+    .catch((e:any)=>{console.log(e);dispatch(setLoading(false))})
   }
 
   const generatePdf = async () => {
+    
     const pdf = new jsPDF('p', 'mm', 'a4');
-      const element: any = document.getElementById(`print`);
+    for (let index = 0; index < [...Array(totalPartes)].length; index++) {
+      const element: any = document.getElementById(`print-${index}`);
       await html2canvas(element).then((canvas) => {
         const imgData = canvas.toDataURL('image/png');
         const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -35,6 +41,10 @@ export default function PrintSale({id}:{id: any}) {
         const imgHeight = pdfHeight;
         pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
       });
+      if (index < [...Array(totalPartes)].length-1) {
+        pdf.addPage()
+      }
+    }
     const pdfName = `venta-${sale.r.cliente}-${sale.r.createdAt.split("T")[0]}.pdf`;
     pdf.save(pdfName);
   };
@@ -43,17 +53,34 @@ export default function PrintSale({id}:{id: any}) {
     getSale()
   },[id])
 
-  useEffect(()=> {
-    console.log("sale",sale?.itemsSale)
-  },[sale])
+  // Definir el número máximo de elementos por parte
+  const elementosPorParte = 8;
+
+  // Calcular el número total de partes necesarias
+  let totalPartes = 0
+
+  if (sale) {
+      if (sale?.itemsSale.length !== 0) {
+        totalPartes = Math.ceil(sale.itemsSale.length / elementosPorParte);
+      }
+  }
 
   return (
-    <div>
-      <WrapperPrint>
-        <ContainerPrint id={`print`}>
-        {
-          sale && 
-          <>
+    <Container>
+      <div style={{ display: 'flex', justifyContent: 'end' }}>
+        <Button text={'Imprimir'} onClick={generatePdf} />
+      </div>
+      {[...Array(totalPartes)].map((_, index) => {
+        // Calcular el índice de inicio y fin para cada parte
+        const startIndex = index * elementosPorParte;
+        const endIndex = (index + 1) * elementosPorParte;
+
+        // Obtener los elementos de la parte actual
+        const parteActual = sale.itemsSale.slice(startIndex, endIndex);
+
+        return (
+          <WrapperPrint key={index}>
+            <ContainerPrint id={`print-${index}`}>
             <Logo/>
             <h2 style={{fontSize: 18, color: '#252525'}}>Presupuesto</h2>
             <div>
@@ -62,7 +89,7 @@ export default function PrintSale({id}:{id: any}) {
               </div>
               <div>
                 <Table
-                  data={sale.itemsSale}
+                  data={parteActual}
                   columns={columns}
                   maxHeight={false}
                   onClick={() => ''}
@@ -70,22 +97,25 @@ export default function PrintSale({id}:{id: any}) {
             </div>
             <Tag style={{ textAlign: 'end' }}>TOTAL : $ {sale.r.total}</Tag> 
             <p>*No valido como factura</p>
-          </>
-        }
-        </ContainerPrint>
-      </WrapperPrint>
-      <div style={{ display: 'flex', justifyContent: 'end' }}>
-        <Button text={'Imprimir'} onClick={generatePdf} />
-      </div>
-    </div>
+            <p style={{fontSize: 14, color: '#252525', textAlign: 'end'}}>Pagina {index+1} de {totalPartes}</p>
+            </ContainerPrint>
+          </WrapperPrint>
+        );
+      })}
+    </Container>
   );
 }
 
 const columns = [
-  { label: 'Producto', field: 'descripcion', width: '50%' },
+  { label: 'Producto', field: 'descripcion', width: '40%' },
   { label: 'Cantidad', field: 'cantidad', width: '20%', align: 'center' },
-  { label: 'Total', field: 'total', width: '30%', align: 'center', price: true },
+  { label: 'P. unitario', field: 'precioUnitario', width: '20%', align: 'center', price: true },
+  { label: 'Total', field: 'total', width: '20%', align: 'center', price: true },
 ];
+
+const Container = styled.div`
+  overflow-y: scroll;
+`;
 
 const WrapperPrint = styled.div`
   overflow: scroll;

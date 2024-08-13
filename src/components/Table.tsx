@@ -98,7 +98,7 @@ interface List {
 }
 
 const List = styled.ul<List> `
-  max-height: ${props => !props.maxHeight ? 'none' : '300px' };
+  max-height: ${props => !props.maxHeight ? 'none' : '800px' };
   padding: 0;
   overflow-y: scroll;
 `

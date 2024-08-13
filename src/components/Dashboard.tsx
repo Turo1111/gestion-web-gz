@@ -43,7 +43,7 @@ export default function Dashboard({children}: any) {
   return (
     <div style={{display: 'flex', flexDirection: 'column', flex: 1, height: '100vh'}}>
         {
-            ancho > 960 ?
+            ancho > 940 ?
             <ContainerBig>
                 {
                     pathname !== '/' &&
