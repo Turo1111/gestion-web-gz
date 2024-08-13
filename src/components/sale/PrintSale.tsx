@@ -54,7 +54,7 @@ export default function PrintSale({id}:{id: any}) {
   },[id])
 
   // Definir el número máximo de elementos por parte
-  const elementosPorParte = 20;
+  const elementosPorParte = 28;
 
   // Calcular el número total de partes necesarias
   let totalPartes = 0

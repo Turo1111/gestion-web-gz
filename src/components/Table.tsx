@@ -69,7 +69,7 @@ const TableHeader = styled.li `
 
 const TableRow = styled.li `
     border-radius: 3px;
-    padding: 5px 30px;
+    padding: 0px 30px;
     display: flex;
     justify-content: space-between;
     margin-bottom: 5px;
