@@ -167,7 +167,7 @@ export default function Product() {
           if (node) observer.current.observe(node);
       },
       [loading, search, data]
-  );
+    );
 
   return (
     <main style={{display: 'flex', flexDirection: 'column', flex: 1}}>

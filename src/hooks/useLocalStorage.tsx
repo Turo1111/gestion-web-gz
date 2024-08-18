@@ -16,6 +16,7 @@ const useLocalStorage = (key: string, initialValue: any) => {
   const setValue = (value: any)=> {
     if (typeof window !== "undefined"){
         try {
+          console.log(value)
           const valueToStore = value instanceof Function ? value(state) : value
           window.localStorage.setItem(key, JSON.stringify(valueToStore))
           setState(value)

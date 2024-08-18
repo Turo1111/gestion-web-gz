@@ -1,28 +1,57 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import Search from '../../../../components/Search';
+import { io } from 'socket.io-client';
+import apiClient from '@/utils/client';
 import { getUser, setUser } from '@/redux/userSlice';
 import { useAppDispatch } from '@/redux/hook';
 import { useSelector } from 'react-redux';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import styled from 'styled-components';
+import ItemsProducts from '@/components/products/ItemsProducts';
+import Input from '@/components/Input';
+import ItemLineaVenta from '@/components/sale/ItemLineaVenta';
+import Button from '@/components/Button';
 import { useRouter } from 'next/navigation';
+import { getLoading, setLoading } from '@/redux/loadingSlice';
+import { setAlert } from '@/redux/alertSlice';
 import FindProductSale from '@/components/sale/FindProductSale';
 import LineaVenta from '@/components/sale/LineaVenta';
 import { useResize } from '@/hooks/useResize';
 
-export default function NewSale() {
+export default function EditSale({ params }: { params: { id: string } }) {
 
     const [valueStorage , setValue] = useLocalStorage("user", "")
-    const [newSaleStorage, setValueStorage] = useLocalStorage("newSale", "")
     const [lineaVenta, setLineaVenta] = useState<any>([])
     const [total, setTotal] = useState(0)
-    const router = useRouter()
+    const router: any = useRouter()
     let {ancho, alto} = useResize()
     const [openLVMobile, setOpenLVMobile] = useState(false)
-    const [cliente, setCliente] = useState<any>('')
+    const { id } = params;
+    const [cliente, setCliente] = useState('')
 
     const user = useSelector(getUser)
     const dispatch = useAppDispatch();
+
+    const getSale = () => {
+      dispatch(setLoading(true))
+      apiClient(`/sale/${id}`,{
+        headers: {
+            Authorization: `Bearer ${valueStorage.token}`
+        },
+      })
+      .then((r:any)=>{
+        dispatch(setLoading(false));
+        console.log(r.data.r.cliente)
+        setLineaVenta((prevData:any)=>r.data.itemsSale)
+        setTotal(r.data.r.total)
+        setCliente(r.data.r.cliente)
+      })
+      .catch((e:any)=>{
+        console.log(e);
+        dispatch(setLoading(false))
+      })
+    }
 
     useEffect(() => {
       if (!user && valueStorage) {
@@ -38,22 +67,13 @@ export default function NewSale() {
         (accumulator:any, currentValue: any) => parseFloat(accumulator) + parseFloat(currentValue.total),
         0,
     );
+    console.log(sumWithInitial)
     setTotal(prevData=>parseFloat(parseFloat(sumWithInitial).toFixed(2)))
   },[lineaVenta])
 
-  useEffect(()=>{
-    if (lineaVenta.length !== 0 || cliente !== '' || total !== 0) {
-      setValueStorage({lineaVenta:lineaVenta, cliente:cliente, total:total})
-    }
-  },[lineaVenta, cliente, total])
-
-  useEffect(() => {
-    if (newSaleStorage) {
-      setLineaVenta((prevData:any)=>newSaleStorage.lineaVenta)
-      setCliente((prevData:any)=>newSaleStorage.cliente)
-      setTotal((prevData:any)=>newSaleStorage.total)
-    }
-  }, [newSaleStorage])
+  useEffect(()=> {
+    getSale()
+  },[id])
 
   return (
     <Container>
@@ -75,8 +95,25 @@ export default function NewSale() {
             } }
             />
           </ContainerListProduct>
-          <LineaVenta lineaVenta={lineaVenta} total={total} cliente={cliente} onChangeCliente={(value:any)=>setCliente((prevData:any)=>value)}
-            onClick={(item:any)=>setLineaVenta((prevData:any)=>prevData.filter((elem:any)=>elem._id!==item._id))}
+          <LineaVenta lineaVenta={lineaVenta} total={total} cliente={cliente} onChangeCliente={(value:any)=>setCliente((prevData:any)=>value)} edit={true} id={id}
+            onClick={(item:any)=>{
+              
+              if (id) {
+                dispatch(setLoading(true));
+                apiClient.delete(`/itemSale/${item._id}`,{
+                  headers: {
+                      Authorization: `Bearer ${valueStorage.token}`
+                  },
+                })
+                .then((r:any)=>{
+                  dispatch(setLoading(false));
+                  setLineaVenta((prevData:any)=>prevData.filter((elem:any)=>elem._id!==item._id))
+                })
+                .catch((e:any)=>{
+                  dispatch(setLoading(false))
+                })
+              }
+            }}
             upQTY={(id:any)=>setLineaVenta((prevData:any)=>prevData.map((elem:any)=>{
               return elem._id===id ? {...elem, cantidad: elem.cantidad+1, total: (elem.precioUnitario*(elem.cantidad+1)).toFixed(2)} : elem
             }))}
@@ -121,7 +158,7 @@ export default function NewSale() {
             {
               openLVMobile && 
               <div>
-                <LineaVenta lineaVenta={lineaVenta} total={total} cliente={cliente} onChangeCliente={(value:any)=>console.log(value)}
+                <LineaVenta lineaVenta={lineaVenta} total={total} cliente={cliente} onChangeCliente={(value:any)=>setCliente((prevData:any)=>value)} edit={true} id={id}
                   onClick={(item:any)=>setLineaVenta((prevData:any)=>prevData.filter((elem:any)=>elem._id!==item._id))}
                   upQTY={(id:any)=>setLineaVenta((prevData:any)=>prevData.map((elem:any)=>{
                     return elem._id===id ? {...elem, cantidad: elem.cantidad+1, total: (elem.precioUnitario*(elem.cantidad+1)).toFixed(2)} : elem
@@ -172,7 +209,6 @@ const WrapperLineaVenta = styled.div<{$openLVMobile: boolean;}> `
   border-radius: 15px;
   padding: 15px;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-  min-height: 80%;
 `
 
 const ContainerMobile = styled.div `

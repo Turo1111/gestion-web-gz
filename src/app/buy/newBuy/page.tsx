@@ -16,26 +16,17 @@ import { useRouter } from 'next/navigation';
 import { getLoading, setLoading } from '@/redux/loadingSlice';
 import { setAlert } from '@/redux/alertSlice';
 import FindProductSale from '@/components/sale/FindProductSale';
+import { useResize } from '@/hooks/useResize';
 
 export default function NewBuy() {
 
-    const [search, setSearch] = useState('')
-    const [data, setData] = useState([])
     const [valueStorage , setValue] = useLocalStorage("user", "")
-    const [dataSearch, setDataSearch] = useState([])
-    const [query, setQuery] = useState({skip: 0, limit: 25})
-    const observer = useRef<IntersectionObserver | null>(null);
     const [lineaCompra, setLineaCompra] = useState<any>([])
     const [proveedor, setProveedor] = useState('')
     const [total, setTotal] = useState(0)
     const router = useRouter()
-    const loading = useSelector(getLoading)
-    const [activeCategorie, setActiveCategorie] = useState({_id: 1 , descripcion: 'Todas'})
-    const [activeBrand, setActiveBrand] = useState({_id: 1 , descripcion: 'Todas'})
-    const [activeProvider, setActiveProvider] = useState({_id: 1 , descripcion: 'Todas'})
-    const [openModalFilter, setOpenModalFilter] = useState(false)
-    
-    const [longArray, setLongArray] = useState(0)
+    let {ancho, alto} = useResize()
+    const [openLVMobile, setOpenLVMobile] = useState(false)
 
     const user = useSelector(getUser)
     const dispatch = useAppDispatch();
@@ -49,110 +40,6 @@ export default function NewBuy() {
       }
     }, [valueStorage, user, dispatch])
 
-    const getProduct = async (skip: number, limit: number) => {
-      dispatch(setLoading(true))
-      
-      try {
-          const response = await apiClient.post(`/product/skip`, { skip, limit },
-              {
-                  headers: {
-                      Authorization: `Bearer ${valueStorage.token}`
-                  },
-              });
-          setData(prevData => {
-  
-              if (prevData.length === 0) {
-                  return response.data.array;
-              }
-              const newData = response.data.array.filter((element: any) => {
-                  return prevData.findIndex((item: any) => item._id === element._id) === -1;
-              });
-  
-              return [...prevData, ...newData];
-          });
-          setLongArray(prevData=>response.data.longitud)
-          dispatch(setLoading(false));
-      } catch (e) {
-          console.log("error", e);
-          dispatch(setLoading(false));
-      } finally {
-        dispatch(setLoading(false));
-      }
-  }
-
-  const getProductSearch = async (input: string, categorie: any, brand: any, provider: any) => {
-    dispatch(setLoading(true))
-    try {
-        const response = await apiClient.post(`/product/search`, {input, categoria: categorie, marca: brand, proveedor: provider});
-        setDataSearch(response.data);
-        dispatch(setLoading(false));
-    } catch (e) {
-        console.log("error", e);
-        dispatch(setLoading(false));
-    } finally {
-      dispatch(setLoading(false))
-    }
-  }
-
-  useEffect(()=>{
-      
-    getProduct(query.skip, query.limit)
-  
-  },[query])  
-
-    useEffect(()=>{
-      if (search !== undefined ||  search !== '' || activeBrand._id !== 1 || activeCategorie._id !== 1 || activeProvider._id !== 1) {
-        getProductSearch(search, activeCategorie._id, activeBrand._id, activeProvider._id)
-      }
-    },[search, activeBrand, activeCategorie, activeProvider]) 
-
-    useEffect(()=>{
-      if (!process.env.NEXT_PUBLIC_DB_HOST) {
-        return
-      }
-      const socket = io(process.env.NEXT_PUBLIC_DB_HOST)
-      socket.on(`product`, (socket:any) => {
-        refreshProducts()
-        setData((prevData: any)=>{
-          const exist = prevData.find((elem: any) => elem._id === socket.data._id )
-          if (exist) {
-            return prevData.map((item: any) =>
-              item._id === socket.data._id ? socket.data : item
-            )
-          }
-          return [...prevData]
-        })
-      })
-      return () => {
-        socket.disconnect();
-      }; 
-    },[data, dataSearch])
-
-    const refreshProducts = () => {
-      setSearch(prevData=>'')
-      getProduct(query.skip, query.limit)
-    };
-
-    const lastElementRef = useCallback(
-      (node: HTMLLIElement | null) => {
-          if (loading) {
-            return 
-          };
-          if (observer.current) observer.current.disconnect();
-          observer.current = new IntersectionObserver(entries => {
-              if (entries[0].isIntersecting) {
-                  if (search === '') {
-                      if (data.length < longArray) {
-                        setQuery(prevData => ({ skip: prevData.skip + 25, limit: prevData.limit }));
-                      }
-                  }
-              }
-          });
-          if (node) observer.current.observe(node);
-      },
-      [loading, search]
-  );
-
   useEffect(()=>{
     const sumWithInitial = lineaCompra.reduce(
         (accumulator:number, currentValue: any) => accumulator + currentValue.total,
@@ -163,86 +50,228 @@ export default function NewBuy() {
 
   return (
     <Container>
-        <ContainerListProduct>
-          <FindProductSale
-            onClickItem={(item:any)=>{
-              setLineaCompra((prevData:any)=>{
-                  const exist = prevData.find((elem:any)=>elem._id===item._id)
-                  if (exist) {
-                      return prevData.map((elem: any) =>
-                          elem._id === item._id ? {...item, cantidad: 1, total: item.precioUnitario} : elem
-                      )
-                  }
-                  return [...prevData, {...item, cantidad: 1, total: item.precioUnitario, idProducto: item._id}]
-              })
-          } }
-          />
-        </ContainerListProduct>
-        <ContainerListLineaCompra>
-            <div style={{display: 'flex', flex: 1, flexDirection: 'column', padding: 15}}>
-                <h2 style={{fontSize: 18}} >Linea de Compra</h2>
-                <ListProduct style={{ display: 'flex', flexDirection: 'column', padding: 15, maxHeight: '65vh'}}>
-                    { 
-                        lineaCompra.length === 0 ? 'No se selecciono productos' :
-                        lineaCompra.map((item:any, index:number)=><ItemLineaVenta key={index} elem={item}  onClick={()=>
-                          setLineaCompra((prevData:any)=>prevData.filter((elem:any)=>elem._id!==item._id))
-                            }
-                            upQTY={(id:any)=>setLineaCompra((prevData:any)=>prevData.map((elem:any)=>{
-                              return elem._id===id ? {...elem, cantidad: elem.cantidad+1, total: (elem.precioUnitario*(elem.cantidad+1)).toFixed(2)} : elem
-                            }))}
-                            downQTY={(id:any)=>setLineaCompra((prevData:any)=>prevData.map((elem:any)=>{
-                              if (elem._id===id) {
-                                if (elem.cantidad-1 > 1 ) {
-                                  return {...elem, cantidad: elem.cantidad-1, total: (elem.precioUnitario*(elem.cantidad-1)).toFixed(2)}
-                                }
-                                return {...elem, cantidad: 1, total: elem.precioUnitario}
+      {
+        ancho > 940 ?
+        <div style={{display: 'flex', flex: 1}}>
+
+          <ContainerListProduct>
+            <FindProductSale
+              onClickItem={(item:any)=>{
+                setLineaCompra((prevData:any)=>{
+                    const exist = prevData.find((elem:any)=>elem._id===item._id)
+                    if (exist) {
+                        return prevData.map((elem: any) =>
+                            elem._id === item._id ? {...item, cantidad: 1, total: item.precioUnitario} : elem
+                        )
+                    }
+                    return [...prevData, {...item, cantidad: 1, total: item.precioUnitario, idProducto: item._id}]
+                })
+            } }
+            />
+          </ContainerListProduct>
+          <ContainerListLineaCompra>
+              <div style={{display: 'flex', flex: 1, flexDirection: 'column', padding: 15}}>
+                  <h2 style={{fontSize: 18}} >Linea de Compra</h2>
+                  <ListProduct style={{ display: 'flex', flexDirection: 'column', padding: 15, maxHeight: '65vh'}}>
+                      { 
+                          lineaCompra.length === 0 ? 'No se selecciono productos' :
+                          lineaCompra.map((item:any, index:number)=><ItemLineaVenta key={index} elem={item}  onClick={()=>
+                            setLineaCompra((prevData:any)=>prevData.filter((elem:any)=>elem._id!==item._id))
                               }
-                              return elem
-                            }))}
-                            upQTY10={(id:any)=>setLineaCompra((prevData:any)=>prevData.map((elem:any)=>{
-                              return elem._id===id ? {...elem, cantidad: elem.cantidad+10, total: (elem.precioUnitario*(elem.cantidad+10)).toFixed(2)} : elem
-                            }))}
-                            downQTY10={(id:any)=>setLineaCompra((prevData:any)=>prevData.map((elem:any)=>{
-                              if (elem._id===id) {
-                                if (elem.cantidad > 10 ) {
-                                  return {...elem, cantidad: elem.cantidad-10, total: (elem.precioUnitario*(elem.cantidad-10)).toFixed(2)}
+                              upQTY={(id:any)=>setLineaCompra((prevData:any)=>prevData.map((elem:any)=>{
+                                return elem._id===id ? {...elem, cantidad: elem.cantidad+1, total: (elem.precioUnitario*(elem.cantidad+1)).toFixed(2)} : elem
+                              }))}
+                              downQTY={(id:any)=>setLineaCompra((prevData:any)=>prevData.map((elem:any)=>{
+                                if (elem._id===id) {
+                                  if (elem.cantidad-1 > 1 ) {
+                                    return {...elem, cantidad: elem.cantidad-1, total: (elem.precioUnitario*(elem.cantidad-1)).toFixed(2)}
+                                  }
+                                  return {...elem, cantidad: 1, total: elem.precioUnitario}
                                 }
                                 return elem
+                              }))}
+                              upQTY10={(id:any)=>setLineaCompra((prevData:any)=>prevData.map((elem:any)=>{
+                                return elem._id===id ? {...elem, cantidad: elem.cantidad+10, total: (elem.precioUnitario*(elem.cantidad+10)).toFixed(2)} : elem
+                              }))}
+                              downQTY10={(id:any)=>setLineaCompra((prevData:any)=>prevData.map((elem:any)=>{
+                                if (elem._id===id) {
+                                  if (elem.cantidad > 10 ) {
+                                    return {...elem, cantidad: elem.cantidad-10, total: (elem.precioUnitario*(elem.cantidad-10)).toFixed(2)}
+                                  }
+                                  return elem
+                                }
+                                return elem
+                              }))}
+                          />)
+                      }
+                  </ListProduct>
+              </div>
+              <div style={{height: '30%', padding: '0 15px'}}>
+                  <Input label='Proveedor' name='proveedor' value={proveedor} onChange={(e:any)=>setProveedor(e.target.value)} type='text' />
+                  <h2 style={{fontSize: 18}} >Total: $ {total} </h2>
+                  <Button text='Crear' onClick={()=>{
+                    if (lineaCompra.length===0 || total <= 0) {
+                      dispatch(setAlert({
+                        message: `No se agregaron productos al carrito`,
+                        type: 'warning'
+                      }))
+                      return
+                    }
+                    if (proveedor==='' || proveedor === undefined) {
+                      dispatch(setAlert({
+                        message: `No se ingreso ningun proveedor`,
+                        type: 'warning'
+                      }))
+                      return
+                    }
+                    dispatch(setLoading(true))
+                    apiClient.post('/buy', {itemsBuy: lineaCompra, proveedor: proveedor, total: total, estado: 'Entregado'},{
+                      headers: {
+                        Authorization: `Bearer ${valueStorage.token}` 
+                      }
+                    })
+                    .then((r)=>{
+                      dispatch(setLoading(false))
+                      dispatch(setAlert({
+                        message: `Compra creada correctamente`,
+                        type: 'success'
+                      }))
+                      router.back()
+                    })
+                    .catch((e)=>dispatch(setAlert({
+                      message: `${e.response.data.error}`,
+                      type: 'error'
+                    })))
+                  }} />
+              </div>
+          </ContainerListLineaCompra>
+        </div>
+        :
+        <ContainerMobile>
+          <FindProductSale
+              onClickItem={(item:any)=>{
+                setLineaCompra((prevData:any)=>{
+                    const exist = prevData.find((elem:any)=>elem._id===item._id)
+                    if (exist) {
+                        return prevData.map((elem: any) =>
+                            elem._id === item._id ? {...item, cantidad: 1, total: item.precioUnitario} : elem
+                        )
+                    }
+                    return [...prevData, {...item, cantidad: 1, total: item.precioUnitario, idProducto: item._id}]
+                })
+            } }
+            />
+          <WrapperLineaVenta $openLVMobile={openLVMobile}>
+            {
+              openLVMobile && 
+              <ContainerListLineaCompra>
+              <div style={{display: 'flex', flex: 1, flexDirection: 'column', padding: 15}}>
+                  <h2 style={{fontSize: 18}} >Linea de Compra</h2>
+                  <ListProduct style={{ display: 'flex', flexDirection: 'column', padding: 15, maxHeight: '65vh'}}>
+                      { 
+                          lineaCompra.length === 0 ? 'No se selecciono productos' :
+                          lineaCompra.map((item:any, index:number)=><ItemLineaVenta key={index} elem={item}  onClick={()=>
+                            setLineaCompra((prevData:any)=>prevData.filter((elem:any)=>elem._id!==item._id))
                               }
-                              return elem
-                            }))}
-                        />)
+                              upQTY={(id:any)=>setLineaCompra((prevData:any)=>prevData.map((elem:any)=>{
+                                return elem._id===id ? {...elem, cantidad: elem.cantidad+1, total: (elem.precioUnitario*(elem.cantidad+1)).toFixed(2)} : elem
+                              }))}
+                              downQTY={(id:any)=>setLineaCompra((prevData:any)=>prevData.map((elem:any)=>{
+                                if (elem._id===id) {
+                                  if (elem.cantidad-1 > 1 ) {
+                                    return {...elem, cantidad: elem.cantidad-1, total: (elem.precioUnitario*(elem.cantidad-1)).toFixed(2)}
+                                  }
+                                  return {...elem, cantidad: 1, total: elem.precioUnitario}
+                                }
+                                return elem
+                              }))}
+                              upQTY10={(id:any)=>setLineaCompra((prevData:any)=>prevData.map((elem:any)=>{
+                                return elem._id===id ? {...elem, cantidad: elem.cantidad+10, total: (elem.precioUnitario*(elem.cantidad+10)).toFixed(2)} : elem
+                              }))}
+                              downQTY10={(id:any)=>setLineaCompra((prevData:any)=>prevData.map((elem:any)=>{
+                                if (elem._id===id) {
+                                  if (elem.cantidad > 10 ) {
+                                    return {...elem, cantidad: elem.cantidad-10, total: (elem.precioUnitario*(elem.cantidad-10)).toFixed(2)}
+                                  }
+                                  return elem
+                                }
+                                return elem
+                              }))}
+                          />)
+                      }
+                  </ListProduct>
+              </div>
+              <div style={{height: '30%', padding: '0 15px'}}>
+                  <Input label='Proveedor' name='proveedor' value={proveedor} onChange={(e:any)=>setProveedor(e.target.value)} type='text' />
+                  <h2 style={{fontSize: 18}} >Total: $ {total} </h2>
+                  <Button text='Crear' onClick={()=>{
+                    if (lineaCompra.length===0 || total <= 0) {
+                      dispatch(setAlert({
+                        message: `No se agregaron productos al carrito`,
+                        type: 'warning'
+                      }))
+                      return
                     }
-                </ListProduct>
-            </div>
-            <div style={{height: '30%', padding: '0 15px'}}>
-                <Input label='Proveedor' name='proveedor' value={proveedor} onChange={(e:any)=>setProveedor(e.target.value)} type='text' />
-                <h2 style={{fontSize: 18}} >Total: $ {total} </h2>
-                <Button text='Crear' onClick={()=>{
-                  dispatch(setLoading(true))
-                  apiClient.post('/buy', {itemsBuy: lineaCompra, proveedor: proveedor, total: total, estado: 'Entregado'},{
-                    headers: {
-                      Authorization: `Bearer ${valueStorage.token}` 
+                    if (proveedor==='' || proveedor === undefined) {
+                      dispatch(setAlert({
+                        message: `No se ingreso ningun proveedor`,
+                        type: 'warning'
+                      }))
+                      return
                     }
-                  })
-                  .then((r)=>{
-                    dispatch(setLoading(false))
-                    dispatch(setAlert({
-                      message: `Compra creada correctamente`,
-                      type: 'success'
-                    }))
-                    router.back()
-                  })
-                  .catch((e)=>dispatch(setAlert({
-                    message: `${e.response.data.error}`,
-                    type: 'error'
-                  })))
-                }} />
+                    dispatch(setLoading(true))
+                    apiClient.post('/buy', {itemsBuy: lineaCompra, proveedor: proveedor, total: total, estado: 'Entregado'},{
+                      headers: {
+                        Authorization: `Bearer ${valueStorage.token}` 
+                      }
+                    })
+                    .then((r)=>{
+                      dispatch(setLoading(false))
+                      dispatch(setAlert({
+                        message: `Compra creada correctamente`,
+                        type: 'success'
+                      }))
+                      router.back()
+                    })
+                    .catch((e)=>dispatch(setAlert({
+                      message: `${e.response.data.error}`,
+                      type: 'error'
+                    })))
+                  }} />
+              </div>
+          </ContainerListLineaCompra>
+            }
+            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}} >
+              <h2 style={{fontSize: 18}} > {lineaCompra.length} Productos </h2>
+              <h2 style={{fontSize: 18}} >Total: $ {total} </h2>
+              <h2 style={{fontSize: 18, color: '#3764A0'}} onClick={()=>setOpenLVMobile(!openLVMobile)} >{openLVMobile ? 'CERRAR':'ABRIR'}</h2>
             </div>
-        </ContainerListLineaCompra>
+          </WrapperLineaVenta>
+        </ContainerMobile>
+      }
     </Container>
   )
 }
+
+const WrapperLineaVenta = styled.div<{$openLVMobile: boolean;}> `
+  position: absolute;
+  bottom: ${({ $openLVMobile }) => ($openLVMobile ? 'none' : '15px')};
+  top: ${({ $openLVMobile }) => ($openLVMobile ? '-25px' : 'none')};
+  width: 100%;
+  background-color: #F7F7F8;
+  border: 1px solid #d9d9d9;
+  border-radius: 15px;
+  padding: 15px;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  min-height: 80%;
+`
+
+const ContainerMobile = styled.div `
+  position:relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+`
 
 const ContainerListProduct = styled.div `
   width: 50%;
@@ -288,4 +317,5 @@ const ListProduct = styled.ul `
   flex-direction: column;
   padding: 0 15px;
   overflow-y: scroll;
+  min-height: 60vh;
 `
