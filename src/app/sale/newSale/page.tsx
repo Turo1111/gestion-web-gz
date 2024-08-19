@@ -41,7 +41,7 @@ export default function NewSale() {
     setTotal(prevData=>parseFloat(parseFloat(sumWithInitial).toFixed(2)))
   },[lineaVenta])
 
-  useEffect(()=>{
+  /* useEffect(()=>{
     if (lineaVenta.length !== 0 || cliente !== '' || total !== 0) {
       setValueStorage({lineaVenta:lineaVenta, cliente:cliente, total:total})
     }
@@ -53,7 +53,7 @@ export default function NewSale() {
       setCliente((prevData:any)=>newSaleStorage.cliente)
       setTotal((prevData:any)=>newSaleStorage.total)
     }
-  }, [newSaleStorage])
+  }, [newSaleStorage]) */
 
   return (
     <Container>
