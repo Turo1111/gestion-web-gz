@@ -24,7 +24,6 @@ export default function RootLayout({
             {children}
             <ModalLoading/>
             <Alert/>
-            <Confirm/>
           </Dashboard>
         </Provider>
       </body>

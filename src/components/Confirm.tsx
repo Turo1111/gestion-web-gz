@@ -1,8 +1,3 @@
-
-
-
-import { useAppDispatch, useAppSelector } from "../redux/hook";
-import { useEffect } from "react";
 import styled from "styled-components";
 import { AiOutlineClose } from "react-icons/ai";
 import Button from "./Button";
