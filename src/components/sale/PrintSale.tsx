@@ -19,7 +19,7 @@ interface ResponseSale {
   itemsSale: ItemSale[]
 }
 
-export default function PrintSale({id}:{id: string | Types.ObjectId}) {
+export default function PrintSale({id}:{id: string | Types.ObjectId | undefined}) {
 
   const [sale, setSale] = useState<ResponseSale | undefined>(undefined)
   const [valueStorage , setValue] = useLocalStorage("user", "")
