@@ -5,10 +5,12 @@ import InfoSale from '@/components/sale/InfoSale'
 import ModalPrintSale from '@/components/sale/ModalPrintSale'
 import Search from '@/components/Search'
 import useLocalStorage from '@/hooks/useLocalStorage'
+import { Sale } from '@/interfaces/sale.interface'
 import { useAppDispatch } from '@/redux/hook'
 import { getLoading, setLoading } from '@/redux/loadingSlice'
 import { getUser, setUser } from '@/redux/userSlice'
 import apiClient from '@/utils/client'
+import { Types } from 'mongoose'
 import { useRouter } from 'next/navigation'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { BsPrinterFill } from 'react-icons/bs'
@@ -17,22 +19,22 @@ import { useSelector } from 'react-redux'
 import { io } from 'socket.io-client'
 import styled from 'styled-components'
 
-export default function Sale() {
+export default function SaleScreen() {
 
-    const [search, setSearch] = useState('')
-    const [data, setData] = useState<any>([])
+    const [search, setSearch] = useState<string>('')
+    const [data, setData] = useState<Sale[]>([])
     const [longArray, setLongArray] = useState(0)
-    const [dataSearch, setDataSearch] = useState<any>([])
+    const [dataSearch, setDataSearch] = useState<Sale[]>([])
     const user = useSelector(getUser)
     const [valueStorage , setValue] = useLocalStorage("user", "")
     const dispatch = useAppDispatch();
     const router:any = useRouter()
     const {open: loading} = useSelector(getLoading)
-    const [openPrintSale, setOpenPrintSale] = useState(false)
-    const [saleSelected, setSaleSelected] = useState(undefined)
-    const [openInfoSale, setOpenInfoSale] = useState(false)
+    const [openPrintSale, setOpenPrintSale] = useState<boolean>(false)
+    const [saleSelected, setSaleSelected] = useState< Types.ObjectId | undefined | string>(undefined)
+    const [openInfoSale, setOpenInfoSale] = useState<boolean>(false)
     const observer = useRef<IntersectionObserver | null>(null);
-    const [query, setQuery] = useState({skip: 0, limit: 25})
+    const [query, setQuery] = useState<{skip: number, limit: number}>({skip: 0, limit: 25})
 
     const getSale = async (skip: number, limit: number) => {
       dispatch(setLoading(true))
@@ -43,13 +45,13 @@ export default function Sale() {
                   Authorization: `Bearer ${valueStorage.token}`
               },
           });
-          setData((prevData:any) => {
+          setData((prevData:Sale[]) => {
   
             if (prevData.length === 0) {
                 return response.data.array;
             }
-            const newData = response.data.array.filter((element: any) => {
-                return prevData.findIndex((item: any) => item._id === element._id) === -1;
+            const newData = response.data.array.filter((element: Sale) => {
+                return prevData.findIndex((item: Sale) => item._id === element._id) === -1;
             });
 
             return [...prevData, ...newData];
@@ -67,8 +69,8 @@ export default function Sale() {
     const getSaleSearch = async (input: string) => {
       dispatch(setLoading(true))
       try {
-          const response = await apiClient.post(`/sale/search`, {input});
-          setDataSearch(response.data);
+          const {data}:{data:Sale[]} = await apiClient.post(`/sale/search`, {input});
+          setDataSearch(data);
           dispatch(setLoading(false));
       } catch (e) {
           console.log("error", e);
@@ -106,7 +108,7 @@ export default function Sale() {
       const socket = io(process.env.NEXT_PUBLIC_DB_HOST)
       socket.on(`sale`, (socket) => {
         console.log('escucho', socket)
-        setData((prevData:any)=>{
+        setData((prevData:Sale[])=>{
           return [...prevData, socket.data]
         })
       })
@@ -142,7 +144,7 @@ export default function Sale() {
             {
                search !== '' ?
                 dataSearch.length !== 0 ?
-                dataSearch.map((item:any, index:number)=>{
+                dataSearch.map((item:Sale, index:number)=>{
                 return (<Item key={index} onClick={()=>setSaleSelected(item._id)} >
                   <div style={{display: 'flex', justifyContent: 'space-between', width : '100%', alignItems: 'center', marginRight: 15}}>
                     <h2 style={{fontSize: 18, color: '#252525'}}>{item.cliente}</h2>
@@ -166,7 +168,7 @@ export default function Sale() {
                 'no hay ventas'
               :
                 data.length !== 0 ? 
-                data.map((item:any, index:number)=>
+                data.map((item:Sale, index:number)=>
                   <Item key={index} onClick={()=>setSaleSelected(item._id)} >
                     <div style={{display: 'flex', justifyContent: 'space-between', width : '100%', alignItems: 'center', marginRight: 15}}>
                       <h2 style={{fontSize: 18, color: '#252525'}}>{item.cliente}</h2>

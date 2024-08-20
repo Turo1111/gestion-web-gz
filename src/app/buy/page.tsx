@@ -7,10 +7,12 @@ import InfoSale from '@/components/sale/InfoSale'
 import ModalPrintSale from '@/components/sale/ModalPrintSale'
 import Search from '@/components/Search'
 import useLocalStorage from '@/hooks/useLocalStorage'
+import { Buy } from '@/interfaces/buy.interface'
 import { useAppDispatch } from '@/redux/hook'
 import { getLoading, setLoading } from '@/redux/loadingSlice'
 import { getUser, setUser } from '@/redux/userSlice'
 import apiClient from '@/utils/client'
+import { Types } from 'mongoose'
 import { useRouter } from 'next/navigation'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { BsPrinterFill } from 'react-icons/bs'
@@ -18,20 +20,20 @@ import { MdInfo } from 'react-icons/md'
 import { useSelector } from 'react-redux'
 import styled from 'styled-components'
 
-export default function Buy() {
+export default function BuyScreen() {
 
-    const [search, setSearch] = useState('')
-    const [data, setData] = useState<any>([])
-    const [longArray, setLongArray] = useState(0)
-    const [dataSearch, setDataSearch] = useState<any>([])
+    const [search, setSearch] = useState<string>('')
+    const [data, setData] = useState<Buy[]>([])
+    const [longArray, setLongArray] = useState<number>(0)
+    const [dataSearch, setDataSearch] = useState<Buy[]>([])
     const user = useSelector(getUser)
     const [valueStorage , setValue] = useLocalStorage("user", "")
     const dispatch = useAppDispatch();
     const router = useRouter()
     const {open: loading} = useSelector(getLoading)
-    const [buySelected, setBuySelected] = useState(undefined)
-    const [openInfoBuy, setOpenInfoBuy] = useState(false)
-    const [query, setQuery] = useState({skip: 0, limit: 25})
+    const [buySelected, setBuySelected] = useState< Types.ObjectId | undefined | string>(undefined)
+    const [openInfoBuy, setOpenInfoBuy] = useState<boolean>(false)
+    const [query, setQuery] = useState<{skip: number, limit: number}>({skip: 0, limit: 25})
     const observer = useRef<IntersectionObserver | null>(null);
 
     const getSale = async (skip: number, limit: number) => {
@@ -43,19 +45,18 @@ export default function Buy() {
                   Authorization: `Bearer ${valueStorage.token}`
               },
           });
-          setData((prevData:any) => {
+          setData((prevData:Buy[]) => {
   
             if (prevData.length === 0) {
                 return response.data.array;
             }
-            const newData = response.data.array.filter((element: any) => {
-                return prevData.findIndex((item: any) => item._id === element._id) === -1;
+            const newData = response.data.array.filter((element: Buy) => {
+                return prevData.findIndex((item: Buy) => item._id === element._id) === -1;
             });
 
             return [...prevData, ...newData];
           })
           setLongArray(prevData=>response.data.longitud)
-          console.log(response.data.longitud)
           dispatch(setLoading(false))
       } catch (e) {
         console.log("error getSale",e);dispatch(setLoading(false))
@@ -126,7 +127,7 @@ export default function Buy() {
             {
               search !== '' ?
                 dataSearch.length !== 0 ?
-                dataSearch.map((item:any, index:number)=>
+                dataSearch.map((item:Buy, index:number)=>
                 <Item key={index} onClick={()=>setBuySelected(item._id)} >
                   <div style={{display: 'flex', justifyContent: 'space-between', width : '100%', alignItems: 'center', marginRight: 15}}>
                     <h2 style={{fontSize: 18, color: '#252525'}}>{item.proveedor}</h2>
@@ -142,7 +143,7 @@ export default function Buy() {
                 'no hay compras'
               :
                 data.length !== 0 ?
-                data.map((item:any, index:number)=>
+                data.map((item:Buy, index:number)=>
                 <Item key={index} onClick={()=>setBuySelected(item._id)} >
                   <div style={{display: 'flex', justifyContent: 'space-between', width : '100%', alignItems: 'center', marginRight: 15}}>
                     <h2 style={{fontSize: 18, color: '#252525'}}>{item.proveedor}</h2>

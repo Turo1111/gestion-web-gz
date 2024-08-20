@@ -1,8 +1,9 @@
+import { Product } from '@/interfaces/product.interface';
 import React, { useState } from 'react'
 import { MdEdit, MdInfo } from 'react-icons/md';
 import styled from 'styled-components';
 
-export default function ItemsProducts({item, onClick, select = true, onClickItem, line = true}:{item: any, onClick?: any, select?:boolean, onClickItem?: any, line?:any}) {
+export default function ItemsProducts({item, onClick, select = true, onClickItem, line = true}:{item: Product, onClick?: ()=>void, select?:boolean, onClickItem?: ()=>void, line?:boolean}) {
     const [openInfo, setOpenInfo] = useState(false);
     
     return (

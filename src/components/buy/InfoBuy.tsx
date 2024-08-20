@@ -5,20 +5,31 @@ import apiClient from '@/utils/client';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import Logo from '../Logo';
 import Modal from '../Modal';
+import { Types } from 'mongoose';
+import { Buy, ItemBuy } from '@/interfaces/buy.interface';
+import { setLoading } from '@/redux/loadingSlice';
+import { useAppDispatch } from '@/redux/hook';
 
-export default function InfoBuy({open, handleClose, id}:{open:boolean, handleClose: any, id:any}) {
+interface ResponseSale {
+  r: Buy
+  itemsBuy: ItemBuy[]
+}
 
-  const [buy, setBuy] = useState<any>(undefined)
+export default function InfoBuy({open, handleClose, id}:{open:boolean, handleClose: ()=>void , id:Types.ObjectId | undefined | string}) {
+
+  const [buy, setBuy] = useState<ResponseSale | undefined>(undefined)
   const [valueStorage , setValue] = useLocalStorage("user", "")
+  const dispatch = useAppDispatch();
 
   const getBuy = () => {
-    apiClient(`/buy/${id}`,{
+    dispatch(setLoading(true));
+    apiClient.get(`/buy/${id}`,{
       headers: {
           Authorization: `Bearer ${valueStorage.token}`
       },
   })
-    .then((r:any)=>{setBuy(r.data)})
-    .catch((e:any)=>console.log(e))
+    .then(({data}:{data:ResponseSale})=>{setBuy(data);dispatch(setLoading(false));})
+    .catch((e:any)=>{console.log(e);dispatch(setLoading(false));})
   }
 
   useEffect(()=> {

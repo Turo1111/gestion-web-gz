@@ -10,8 +10,10 @@ import Button from '../Button'
 import Modal from '../Modal'
 import InputSelect from '../InputSelect'
 import Input from '../Input'
+import { Brand, Categorie, Provider } from '@/interfaces/product.interface'
+import { setLoading } from '@/redux/loadingSlice'
 
-export default function UpdatePrice({open, handleClose, updateQuery}:{open: boolean, handleClose: any, updateQuery: any}) {
+export default function UpdatePrice({open, handleClose, updateQuery}:{open: boolean, handleClose: ()=>void, updateQuery: ()=>void}) {
 
     const user = useAppSelector(getUser)
     const dispatch = useDispatch()
@@ -26,6 +28,7 @@ export default function UpdatePrice({open, handleClose, updateQuery}:{open: bool
         },
         validateOnChange: false,
         onSubmit: (formValue: any) => {
+          dispatch(setLoading(true));
             if (parseInt(formValue.porcentaje) <= 0) {
               dispatch(setAlert({
                 message: 'Porcentaje tiene que ser mayor a 0',
@@ -45,6 +48,7 @@ export default function UpdatePrice({open, handleClose, updateQuery}:{open: bool
                 await updateQuery()
                 formik.resetForm()
                 handleClose()
+                dispatch(setLoading(false));
               })
               .catch(e=>console.log("error", e))
             }else{
@@ -52,6 +56,7 @@ export default function UpdatePrice({open, handleClose, updateQuery}:{open: bool
                 message: 'Tiene que elegir algun filtro',
                 type: 'error'
               }))
+              dispatch(setLoading(false));
               return 
             }
         }
@@ -61,7 +66,7 @@ export default function UpdatePrice({open, handleClose, updateQuery}:{open: bool
     <Modal open={open} eClose={handleClose} title='Actualizar precios' height='auto' >
         <InputSelect
             value={formik.values.categoria}
-            onChange={(id:any, item:any)=>{
+            onChange={(id:string, item:Categorie)=>{
               formik.setFieldValue('categoria', id)
               formik.setFieldValue('NameCategoria', item.descripcion)
             }}
@@ -69,7 +74,7 @@ export default function UpdatePrice({open, handleClose, updateQuery}:{open: bool
         />
         <InputSelect
             value={formik.values.proveedor}
-            onChange={(id:any, item:any)=>{
+            onChange={(id:string, item:Provider)=>{
               formik.setFieldValue('proveedor', id)
               formik.setFieldValue('NameProveedor', item.descripcion)
             }}
@@ -77,7 +82,7 @@ export default function UpdatePrice({open, handleClose, updateQuery}:{open: bool
         />
         <InputSelect
             value={formik.values.marca}
-            onChange={(id:any, item:any)=>{
+            onChange={(id:string, item:Brand)=>{
               formik.setFieldValue('marca', id)
               formik.setFieldValue('NameMarca', item.descripcion)
             }}

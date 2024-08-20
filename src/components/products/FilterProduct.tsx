@@ -3,41 +3,59 @@ import Modal from '../Modal'
 import apiClient from '@/utils/client'
 import styled from 'styled-components'
 import Button from '../Button'
+import { useAppDispatch } from '@/redux/hook'
+import { setLoading } from '@/redux/loadingSlice'
+
+interface CBP {
+  _id: (string | number) 
+  descripcion: string
+}
 
 export default function FilterProduct({open, handleClose, activeCategorie, activeBrand, activeProvider, selectCategorie, selectBrand, selectProvider}:
-    {open: boolean, handleClose: any, activeCategorie: any, activeBrand: any, activeProvider: any, selectCategorie: any, selectBrand: any, selectProvider: any}) {
+    {open: boolean, handleClose: ()=>void, activeCategorie: (string | number), activeBrand: (string | number), activeProvider: (string | number), 
+      selectCategorie: (item: CBP)=>void, selectBrand: (item: CBP)=>void, selectProvider: (item: CBP)=>void}) {
 
-    const [categorie, setCategorie] = useState<any>([])
-    const [brand, setBrand] = useState<any>([])
-    const [provider, setProvider] = useState<any>([])
+    const [categorie, setCategorie] = useState<CBP[]>([])
+    const [brand, setBrand] = useState<CBP[]>([])
+    const [provider, setProvider] = useState<CBP[]>([])
+    const dispatch = useAppDispatch();
 
     const getCategorie = () => {
+      dispatch(setLoading(true));
       apiClient.get(`/categorie`)
       .then(function(response){
         setCategorie([ {_id: 1 , descripcion: 'Todas'}, ...response.data])
+        dispatch(setLoading(false));
       })
       .catch(function(error){
           console.log("get",error);
+          dispatch(setLoading(false));
       })
     }
 
     const getBrand = () => {
+      dispatch(setLoading(true));
       apiClient.get(`/brand`)
       .then(function(response){
         setBrand([ {_id: 1 , descripcion: 'Todas'}, ...response.data])
+        dispatch(setLoading(false));
       })
       .catch(function(error){
           console.log("get",error);
+          dispatch(setLoading(false));
       })
     }
 
     const getProvider = () => {
+        dispatch(setLoading(true));
         apiClient.get(`/provider`)
         .then(function(response){
           setProvider([ {_id: 1 , descripcion: 'Todas'}, ...response.data])
+          dispatch(setLoading(false));
         })
         .catch(function(error){
             console.log("get",error);
+            dispatch(setLoading(false));
         })
     }
 
@@ -54,7 +72,7 @@ export default function FilterProduct({open, handleClose, activeCategorie, activ
         <div style={{padding: 15}}>
             <TitleText>CATEGORIAS</TitleText>
             <HorizontalList>
-            {categorie.map((item: any) => (
+            {categorie.map((item: CBP) => (
                 <ItemListText
                 key={item._id}
                 $isActive={activeCategorie === item._id}
@@ -67,7 +85,7 @@ export default function FilterProduct({open, handleClose, activeCategorie, activ
 
             <TitleText>MARCAS</TitleText>
             <HorizontalList>
-            {brand.map((item: any) => (
+            {brand.map((item: CBP) => (
                 <ItemListText
                 key={item._id}
                 $isActive={activeBrand === item._id}
@@ -80,7 +98,7 @@ export default function FilterProduct({open, handleClose, activeCategorie, activ
 
             <TitleText>PROVEEDORES</TitleText>
             <HorizontalList>
-            {provider.map((item: any) => (
+            {provider.map((item: CBP) => (
                 <ItemListText
                 key={item._id}
                 $isActive={activeProvider === item._id}

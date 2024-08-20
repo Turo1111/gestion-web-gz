@@ -4,7 +4,7 @@ import styled from 'styled-components'
 
 export default function Button({text, onClick, width='auto', to, type}: {
   text: string;
-  onClick: any;
+  onClick: ()=>void;
   width?: string | undefined;
   to?: string;
   type?: 'submit' 
@@ -15,12 +15,12 @@ export default function Button({text, onClick, width='auto', to, type}: {
       {
         to ?
         <Link href={to}>
-          <Btn onClick={onClick} width={width} type={type} >
+          <Btn onClick={onClick} $width={width} type={type} >
             {text}
           </Btn>
         </Link>
         :
-        <Btn onClick={onClick} width={width} type={type}>
+        <Btn onClick={onClick} $width={width} type={type}>
           {text}
         </Btn>
       }
@@ -28,7 +28,7 @@ export default function Button({text, onClick, width='auto', to, type}: {
   )
 }
 
-const Btn = styled.button <{ width?: string }>`
+const Btn = styled.button <{ $width?: string }>`
     border: 0;
     background-color: #8294C4;
     padding: 10px 25px;
@@ -36,7 +36,7 @@ const Btn = styled.button <{ width?: string }>`
     color: #fff;
     font-size: 14px;
     font-weight: 600;
-    width: ${props=>props.width ? props.width : 'auto'};
+    width: ${props=>props.$width ? props.$width : 'auto'};
     margin: 10px;
     cursor: pointer;
     :hover{

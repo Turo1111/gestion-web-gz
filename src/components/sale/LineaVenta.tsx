@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { ChangeEvent, useEffect, useState } from 'react'
 import styled from 'styled-components'
 import ItemLineaVenta from './ItemLineaVenta'
 import apiClient from '@/utils/client';
@@ -9,18 +9,23 @@ import Input from '../Input';
 import Button from '../Button';
 import { useRouter } from 'next/navigation';
 import useLocalStorage from '@/hooks/useLocalStorage';
+import { ExtendItemSale, ItemSale } from '@/interfaces/sale.interface';
+import { Types } from 'mongoose';
 
 export default function LineaVenta({lineaVenta, onClick, upQTY, downQTY, upQTY10, downQTY10, total, edit=false, id, cliente, onChangeCliente}:
-  {lineaVenta:any, onClick:any, upQTY:any, downQTY: any, upQTY10:any, downQTY10:any, total:any, edit?:boolean, id?:string, cliente?:any, onChangeCliente?:any}
+  {
+    lineaVenta:ExtendItemSale[], onClick:(item:ExtendItemSale)=>void, upQTY:(id:string | Types.ObjectId | undefined)=>void, 
+    downQTY: (id:string | Types.ObjectId | undefined)=>void, upQTY10:(id:string | Types.ObjectId | undefined)=>void, 
+    downQTY10:(id:string | Types.ObjectId | undefined)=>void, total:number, 
+    edit?:boolean, id?:string, cliente?:string, onChangeCliente:(event: ChangeEvent<HTMLInputElement>)=>void
+  }
 ) {
 
     const dispatch = useAppDispatch();
     const router = useRouter()
-    /* const [cliente, setCliente] = useState<any>('') */
     const [valueStorage , setValue] = useLocalStorage("user", "")
-    const [clearValue] = useLocalStorage("newSale", "")
+    const [valueStorageSale , setValueSale, clearValueSale] = useLocalStorage("newSale", "")
 
-    /* useEffect(()=>{c !== '' && onChangeCliente(c)},[c]) */
 
   return (
     <ContainerListLineaVenta>
@@ -29,18 +34,17 @@ export default function LineaVenta({lineaVenta, onClick, upQTY, downQTY, upQTY10
             <ListProduct style={{ display: 'flex', flexDirection: 'column', padding: 15}}>
                 { 
                     lineaVenta.length === 0 ? 'No se selecciono productos' :
-                    lineaVenta.map((item:any, index:number)=><ItemLineaVenta key={index} elem={item}  
-                      onClick={()=>onClick(item)}
-                      upQTY={(id:any)=>upQTY(id)}
-                      downQTY={(id:any)=>downQTY(id)}
-                      upQTY10={(id:any)=>upQTY10(id)}
-                      downQTY10={(id:any)=>downQTY10(id)} 
-                    />)
+                    lineaVenta.map((item: ExtendItemSale, index:number)=><ItemLineaVenta key={index} elem={item}
+                    onClick={() => onClick(item)}
+                    upQTY={(id: string | Types.ObjectId | undefined) => upQTY(id)}
+                    downQTY={(id: string | Types.ObjectId | undefined) => downQTY(id)}
+                    upQTY10={(id: string | Types.ObjectId | undefined) => upQTY10(id)}
+                    downQTY10={(id: string | Types.ObjectId | undefined) => downQTY10(id)} />)
                 }
             </ListProduct>
         </div>
         <div style={{height: '30%', padding: '0 15px'}}>
-           <Input label='Cliente' name='cliente' value={cliente} onChange={(e:any)=>onChangeCliente(e.target.value)} type='text' />
+           <Input label='Cliente' name='cliente' value={cliente} onChange={(e:ChangeEvent<HTMLInputElement>)=>onChangeCliente(e)} type='text' />
             <Total>Total: $ {total} </Total>
             <div style={{display: 'flex', justifyContent: 'center'}}>
               <Button text='Crear' onClick={()=>{
@@ -51,7 +55,6 @@ export default function LineaVenta({lineaVenta, onClick, upQTY, downQTY, upQTY10
                   }))
                   return
                 }
-                console.log(cliente)
                 if (cliente==='' || cliente===undefined) {
                   dispatch(setAlert({
                     message: `No se ingreso ningun cliente`,
@@ -72,13 +75,17 @@ export default function LineaVenta({lineaVenta, onClick, upQTY, downQTY, upQTY10
                     message: `Venta creada correctamente`,
                     type: 'success'
                   }))
-                  clearValue()
+                  clearValueSale()
                   router.back()
                 })
-                .catch((e)=>dispatch(setAlert({
+                .catch((e)=>{
+                  console.log(e)
+                  dispatch(setLoading(false))
+                  dispatch(setAlert({
                   message: `${e.response.data.error}`,
                   type: 'error'
-                }))):
+                  }))
+                }):
                 apiClient.patch(`/sale/${id}`, {itemsSale: lineaVenta, cliente: cliente, total: total, estado: 'Modificado'},{
                   headers: {
                     Authorization: `Bearer ${valueStorage.token}` 
@@ -86,6 +93,7 @@ export default function LineaVenta({lineaVenta, onClick, upQTY, downQTY, upQTY10
                 })
                 .then((r)=>{
                   dispatch(setLoading(false))
+                  clearValueSale()
                   dispatch(setAlert({
                     message: `Venta modificada correctamente`,
                     type: 'success'
@@ -93,11 +101,12 @@ export default function LineaVenta({lineaVenta, onClick, upQTY, downQTY, upQTY10
                   router.back()
                 })
                 .catch((e)=>{
-                    dispatch(setLoading(false))
-                    dispatch(setAlert({
-                    message: `${e.response.data.error}`,
-                    type: 'error'
-                    }))
+                  console.log(e.response)
+                  dispatch(setLoading(false))
+                  dispatch(setAlert({
+                  message: `${e.response.data.error}`,
+                  type: 'error'
+                  }))
                 })
               }} />
             </div>

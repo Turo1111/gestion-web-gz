@@ -1,15 +1,15 @@
-import React, {useState} from 'react'
+import React, {ChangeEvent, useState} from 'react'
 import styled from 'styled-components'
 import { IoMdSearch } from "react-icons/io";
 import { IoOptionsOutline } from 'react-icons/io5';
 
 export default function Search({ type, value, onChange, name, placeHolder, onClickFilter=undefined }: {
   type: string,
-  value: any,
-  onChange: any,
+  value: string,
+  onChange: (e: ChangeEvent<HTMLInputElement>)=>void,
   name: string,
   placeHolder: string,
-  onClickFilter?: any
+  onClickFilter?: ()=>void
 }) {
 
   const [isFocused, setIsFocused] = useState<boolean>(false)
@@ -26,7 +26,7 @@ export default function Search({ type, value, onChange, name, placeHolder, onCli
           </IconWrapper>
           <Input 
             placeholder={placeHolder}
-            $focused={isFocused ? 1:0}
+            $focused={isFocused}
             name={name}
             type={type}
             value={value}
@@ -57,7 +57,7 @@ const InputWrapper = styled.div `
     }
 `
 
-const Input = styled.input<{ $focused?: any; }> `
+const Input = styled.input<{ $focused?: boolean }> `
   height: 35px;
   padding: 10px 25px;
   font-size: 16px;

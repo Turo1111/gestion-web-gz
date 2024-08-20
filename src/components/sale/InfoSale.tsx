@@ -5,20 +5,31 @@ import apiClient from '@/utils/client';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import Logo from '../Logo';
 import Modal from '../Modal';
+import { Types } from 'mongoose';
+import { ItemSale, Sale } from '@/interfaces/sale.interface';
+import { useDispatch } from 'react-redux';
+import { setLoading } from '@/redux/loadingSlice';
 
-export default function InfoSale({open, handleClose, id}:{open:boolean, handleClose: any, id:any}) {
+interface ResponseSale {
+  r: Sale
+  itemsSale: ItemSale[]
+}
 
-  const [sale, setSale] = useState<any>(undefined)
+export default function InfoSale({open, handleClose, id}:{open:boolean, handleClose: ()=>void, id:string | Types.ObjectId | undefined}) {
+
+  const [sale, setSale] = useState<ResponseSale | undefined>(undefined)
   const [valueStorage , setValue] = useLocalStorage("user", "")
+  const dispatch = useDispatch()
 
   const getSale = () => {
-    apiClient(`/sale/${id}`,{
+    dispatch(setLoading(true));
+    apiClient.get(`/sale/${id}`,{
       headers: {
           Authorization: `Bearer ${valueStorage.token}`
       },
   })
-    .then((r:any)=>{setSale(r.data)})
-    .catch((e:any)=>console.log(e))
+    .then(({data}:{data: ResponseSale})=>{setSale(data);dispatch(setLoading(false));})
+    .catch((e:any)=>{console.log(e);dispatch(setLoading(false));})
   }
 
   useEffect(()=> {

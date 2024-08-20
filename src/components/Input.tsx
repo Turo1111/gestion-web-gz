@@ -1,4 +1,4 @@
-import React, { LabelHTMLAttributes, useEffect, useState } from 'react';
+import React, { ChangeEvent, LabelHTMLAttributes, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 
@@ -63,7 +63,7 @@ const Input = ({ type, label, value, onChange, name, required, readOnly, prefix 
   type: TypeInput,
   label: string,
   value: any,
-  onChange: any,
+  onChange: (e: ChangeEvent<HTMLInputElement>)=>void,
   name: string,
   required?: boolean,
   readOnly?: boolean,

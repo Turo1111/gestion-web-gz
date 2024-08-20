@@ -1,5 +1,5 @@
 'use client'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react'
 import Search from '../../../../components/Search';
 import { io } from 'socket.io-client';
 import apiClient from '@/utils/client';
@@ -18,34 +18,41 @@ import { setAlert } from '@/redux/alertSlice';
 import FindProductSale from '@/components/sale/FindProductSale';
 import LineaVenta from '@/components/sale/LineaVenta';
 import { useResize } from '@/hooks/useResize';
+import { ExtendItemSale, ItemSale, Sale } from '@/interfaces/sale.interface';
+import { Product } from '@/interfaces/product.interface';
+import { Types } from 'mongoose';
+
+interface ResponseSale {
+  r: Sale
+  itemsSale: ExtendItemSale[]
+}
 
 export default function EditSale({ params }: { params: { id: string } }) {
 
     const [valueStorage , setValue] = useLocalStorage("user", "")
-    const [lineaVenta, setLineaVenta] = useState<any>([])
-    const [total, setTotal] = useState(0)
+    const [lineaVenta, setLineaVenta] = useState<ExtendItemSale[]>([])
+    const [total, setTotal] = useState<number>(0)
     const router: any = useRouter()
     let {ancho, alto} = useResize()
-    const [openLVMobile, setOpenLVMobile] = useState(false)
+    const [openLVMobile, setOpenLVMobile] = useState<boolean>(false)
     const { id } = params;
-    const [cliente, setCliente] = useState('')
+    const [cliente, setCliente] = useState<string>('')
 
     const user = useSelector(getUser)
     const dispatch = useAppDispatch();
 
     const getSale = () => {
       dispatch(setLoading(true))
-      apiClient(`/sale/${id}`,{
+      apiClient.get(`/sale/${id}`,{
         headers: {
             Authorization: `Bearer ${valueStorage.token}`
         },
       })
-      .then((r:any)=>{
+      .then(({data}:{data: ResponseSale})=>{
         dispatch(setLoading(false));
-        console.log(r.data.r.cliente)
-        setLineaVenta((prevData:any)=>r.data.itemsSale)
-        setTotal(r.data.r.total)
-        setCliente(r.data.r.cliente)
+        setLineaVenta((prevData)=>data.itemsSale)
+        setTotal(data.r.total)
+        setCliente(data.r.cliente)
       })
       .catch((e:any)=>{
         console.log(e);
@@ -62,14 +69,21 @@ export default function EditSale({ params }: { params: { id: string } }) {
       }
     }, [valueStorage, user, dispatch])
 
-  useEffect(()=>{
-    const sumWithInitial = lineaVenta.reduce(
-        (accumulator:any, currentValue: any) => parseFloat(accumulator) + parseFloat(currentValue.total),
-        0,
-    );
-    console.log(sumWithInitial)
-    setTotal(prevData=>parseFloat(parseFloat(sumWithInitial).toFixed(2)))
-  },[lineaVenta])
+    useEffect(()=>{
+      if (lineaVenta.length === 0) {
+        setTotal(prevData=>0)
+        return
+      }
+      const sum = lineaVenta.reduce(
+          (accumulator:number, currentValue: ItemSale) => {
+            console.log(accumulator, currentValue.total)
+            return accumulator + currentValue.total
+          }
+          ,
+          0,
+      );
+      setTotal(prevData => parseFloat(sum.toFixed(2)))
+    },[lineaVenta])
 
   useEffect(()=> {
     getSale()
@@ -82,11 +96,11 @@ export default function EditSale({ params }: { params: { id: string } }) {
         <div style={{display: 'flex', flex: 1}}>
           <ContainerListProduct>
             <FindProductSale
-              onClickItem={(item:any)=>{
-                setLineaVenta((prevData:any)=>{
-                    const exist = prevData.find((elem:any)=>elem._id===item._id)
+              onClickItem={(item:Product)=>{
+                setLineaVenta((prevData:ExtendItemSale[])=>{
+                    const exist = prevData.find((elem:ExtendItemSale)=>elem._id===item._id)
                     if (exist) {
-                        return prevData.map((elem: any) =>
+                        return prevData.map((elem: ExtendItemSale) =>
                             elem._id === item._id ? {...item, cantidad: 1, total: item.precioUnitario} : elem
                         )
                     }
@@ -95,8 +109,9 @@ export default function EditSale({ params }: { params: { id: string } }) {
             } }
             />
           </ContainerListProduct>
-          <LineaVenta lineaVenta={lineaVenta} total={total} cliente={cliente} onChangeCliente={(value:any)=>setCliente((prevData:any)=>value)} edit={true} id={id}
-            onClick={(item:any)=>{
+          <LineaVenta lineaVenta={lineaVenta} total={total} cliente={cliente} onChangeCliente={(e:ChangeEvent<HTMLInputElement>)=>setCliente((prevData:string)=>e.target.value)} 
+            edit={true} id={id}
+            onClick={(item:ExtendItemSale)=>{
               
               if (id) {
                 dispatch(setLoading(true));
@@ -107,32 +122,32 @@ export default function EditSale({ params }: { params: { id: string } }) {
                 })
                 .then((r:any)=>{
                   dispatch(setLoading(false));
-                  setLineaVenta((prevData:any)=>prevData.filter((elem:any)=>elem._id!==item._id))
+                  setLineaVenta((prevData:ExtendItemSale[])=>prevData.filter((elem:ExtendItemSale)=>elem._id!==item._id))
                 })
                 .catch((e:any)=>{
                   dispatch(setLoading(false))
                 })
               }
             }}
-            upQTY={(id:any)=>setLineaVenta((prevData:any)=>prevData.map((elem:any)=>{
-              return elem._id===id ? {...elem, cantidad: elem.cantidad+1, total: (elem.precioUnitario*(elem.cantidad+1)).toFixed(2)} : elem
+            upQTY={(id:string | Types.ObjectId | undefined)=>setLineaVenta((prevData:ExtendItemSale[])=>prevData.map((elem:ExtendItemSale)=>{
+              return elem._id===id ? {...elem, cantidad: elem.cantidad+1, total: parseFloat((elem.precioUnitario*(elem.cantidad+1)).toFixed(2))} : elem
             }))}
-            downQTY={(id:any)=>setLineaVenta((prevData:any)=>prevData.map((elem:any)=>{
+            downQTY={(id:string | Types.ObjectId | undefined)=>setLineaVenta((prevData:ExtendItemSale[])=>prevData.map((elem:ExtendItemSale)=>{
               if (elem._id===id) {
                 if (elem.cantidad-1 > 1 ) {
-                  return {...elem, cantidad: elem.cantidad-1, total: (elem.precioUnitario*(elem.cantidad-1)).toFixed(2)}
+                  return {...elem, cantidad: elem.cantidad-1, total: parseFloat((elem.precioUnitario*(elem.cantidad-1)).toFixed(2))}
                 }
                 return {...elem, cantidad: 1, total: elem.precioUnitario}
               }
               return elem
             }))}
-            upQTY10={(id:any)=>setLineaVenta((prevData:any)=>prevData.map((elem:any)=>{
-              return elem._id===id ? {...elem, cantidad: elem.cantidad+10, total: (elem.precioUnitario*(elem.cantidad+10)).toFixed(2)} : elem
+            upQTY10={(id:string | Types.ObjectId | undefined)=>setLineaVenta((prevData:ExtendItemSale[])=>prevData.map((elem:ExtendItemSale)=>{
+              return elem._id===id ? {...elem, cantidad: elem.cantidad+10, total: parseFloat((elem.precioUnitario*(elem.cantidad+10)).toFixed(2))} : elem
             }))}
-            downQTY10={(id:any)=>setLineaVenta((prevData:any)=>prevData.map((elem:any)=>{
+            downQTY10={(id:string | Types.ObjectId | undefined)=>setLineaVenta((prevData:ExtendItemSale[])=>prevData.map((elem:ExtendItemSale)=>{
               if (elem._id===id) {
                 if (elem.cantidad > 10 ) {
-                  return {...elem, cantidad: elem.cantidad-10, total: (elem.precioUnitario*(elem.cantidad-10)).toFixed(2)}
+                  return {...elem, cantidad: elem.cantidad-10, total: parseFloat((elem.precioUnitario*(elem.cantidad-10)).toFixed(2))}
                 }
                 return elem
               }
@@ -142,11 +157,11 @@ export default function EditSale({ params }: { params: { id: string } }) {
         </div>:
         <ContainerMobile>
           <FindProductSale
-              onClickItem={(item:any)=>{
-                setLineaVenta((prevData:any)=>{
-                    const exist = prevData.find((elem:any)=>elem._id===item._id)
+              onClickItem={(item:Product)=>{
+                setLineaVenta((prevData:ExtendItemSale[])=>{
+                    const exist = prevData.find((elem:ExtendItemSale)=>elem._id===item._id)
                     if (exist) {
-                        return prevData.map((elem: any) =>
+                        return prevData.map((elem: ExtendItemSale) =>
                             elem._id === item._id ? {...item, cantidad: 1, total: item.precioUnitario} : elem
                         )
                     }
@@ -158,27 +173,45 @@ export default function EditSale({ params }: { params: { id: string } }) {
             {
               openLVMobile && 
               <div>
-                <LineaVenta lineaVenta={lineaVenta} total={total} cliente={cliente} onChangeCliente={(value:any)=>setCliente((prevData:any)=>value)} edit={true} id={id}
-                  onClick={(item:any)=>setLineaVenta((prevData:any)=>prevData.filter((elem:any)=>elem._id!==item._id))}
-                  upQTY={(id:any)=>setLineaVenta((prevData:any)=>prevData.map((elem:any)=>{
-                    return elem._id===id ? {...elem, cantidad: elem.cantidad+1, total: (elem.precioUnitario*(elem.cantidad+1)).toFixed(2)} : elem
+                <LineaVenta lineaVenta={lineaVenta} total={total} cliente={cliente} onChangeCliente={(e:ChangeEvent<HTMLInputElement>)=>setCliente((prevData:string)=>e.target.value)} 
+                  edit={true} id={id}
+                  onClick={(item:ExtendItemSale)=>{
+                    
+                    if (id) {
+                      dispatch(setLoading(true));
+                      apiClient.delete(`/itemSale/${item._id}`,{
+                        headers: {
+                            Authorization: `Bearer ${valueStorage.token}`
+                        },
+                      })
+                      .then((r:any)=>{
+                        dispatch(setLoading(false));
+                        setLineaVenta((prevData:ExtendItemSale[])=>prevData.filter((elem:ExtendItemSale)=>elem._id!==item._id))
+                      })
+                      .catch((e:any)=>{
+                        dispatch(setLoading(false))
+                      })
+                    }
+                  }}
+                  upQTY={(id:string | Types.ObjectId | undefined)=>setLineaVenta((prevData:ExtendItemSale[])=>prevData.map((elem:ExtendItemSale)=>{
+                    return elem._id===id ? {...elem, cantidad: elem.cantidad+1, total: parseFloat((elem.precioUnitario*(elem.cantidad+1)).toFixed(2))} : elem
                   }))}
-                  downQTY={(id:any)=>setLineaVenta((prevData:any)=>prevData.map((elem:any)=>{
+                  downQTY={(id:string | Types.ObjectId | undefined)=>setLineaVenta((prevData:ExtendItemSale[])=>prevData.map((elem:ExtendItemSale)=>{
                     if (elem._id===id) {
                       if (elem.cantidad-1 > 1 ) {
-                        return {...elem, cantidad: elem.cantidad-1, total: (elem.precioUnitario*(elem.cantidad-1)).toFixed(2)}
+                        return {...elem, cantidad: elem.cantidad-1, total: parseFloat((elem.precioUnitario*(elem.cantidad-1)).toFixed(2))}
                       }
                       return {...elem, cantidad: 1, total: elem.precioUnitario}
                     }
                     return elem
                   }))}
-                  upQTY10={(id:any)=>setLineaVenta((prevData:any)=>prevData.map((elem:any)=>{
-                    return elem._id===id ? {...elem, cantidad: elem.cantidad+10, total: (elem.precioUnitario*(elem.cantidad+10)).toFixed(2)} : elem
+                  upQTY10={(id:string | Types.ObjectId | undefined)=>setLineaVenta((prevData:ExtendItemSale[])=>prevData.map((elem:ExtendItemSale)=>{
+                    return elem._id===id ? {...elem, cantidad: elem.cantidad+10, total: parseFloat((elem.precioUnitario*(elem.cantidad+10)).toFixed(2))} : elem
                   }))}
-                  downQTY10={(id:any)=>setLineaVenta((prevData:any)=>prevData.map((elem:any)=>{
+                  downQTY10={(id:string | Types.ObjectId | undefined)=>setLineaVenta((prevData:ExtendItemSale[])=>prevData.map((elem:ExtendItemSale)=>{
                     if (elem._id===id) {
                       if (elem.cantidad > 10 ) {
-                        return {...elem, cantidad: elem.cantidad-10, total: (elem.precioUnitario*(elem.cantidad-10)).toFixed(2)}
+                        return {...elem, cantidad: elem.cantidad-10, total: parseFloat((elem.precioUnitario*(elem.cantidad-10)).toFixed(2))}
                       }
                       return elem
                     }

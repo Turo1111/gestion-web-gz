@@ -9,37 +9,44 @@ import PrintProduct from '@/components/products/PrintProduct';
 import UpdatePrice from '@/components/products/UpdatePrice';
 import Search from '@/components/Search';
 import useLocalStorage from '@/hooks/useLocalStorage';
+import { Product } from '@/interfaces/product.interface';
 import { useAppDispatch } from '@/redux/hook';
 import { getLoading, setLoading } from '@/redux/loadingSlice';
 import { getUser, setUser } from '@/redux/userSlice';
 import apiClient from '@/utils/client';
 import { useRouter } from 'next/navigation';
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { MdEdit, MdInfo } from 'react-icons/md';
 import { useSelector } from 'react-redux';
 import { io } from 'socket.io-client';
 import styled from 'styled-components';
 
-export default function Product() {
+interface CBP {
+  _id: (string | number) 
+  descripcion: string
+}
 
-    const [search, setSearch] = useState('')
-    const [data, setData] = useState([])
+
+export default function ProductScreen() {
+
+    const [search, setSearch] = useState<string>('')
+    const [data, setData] = useState<Product[] | []>([])
     const [valueStorage , setValue] = useLocalStorage("user", "")
-    const [dataSearch, setDataSearch] = useState([])
-    const [query, setQuery] = useState({skip: 0, limit: 25})
-    const [selectProduct, setSelectProduct] = useState(undefined)
-    const [openModalProduct, setOpenModalProduct] = useState(false)
+    const [dataSearch, setDataSearch] = useState<Product[] | []>([])
+    const [query, setQuery] = useState<{skip: number, limit: number}>({skip: 0, limit: 25})
+    const [selectProduct, setSelectProduct] = useState<Product | undefined>(undefined)
+    const [openModalProduct, setOpenModalProduct] = useState<boolean>(false)
     const observer = useRef<IntersectionObserver | null>(null);
     const {open: loading} = useSelector(getLoading)
-    const [openNewProduct, setOpenNewProduct] = useState(false)
+    const [openNewProduct, setOpenNewProduct] = useState<boolean>(false)
     const router = useRouter()
-    const [longArray, setLongArray] = useState(0)
-    const [openUpdatePrice, setOpenUpdatePrice] = useState(false)
-    const [openPrintProduct, setOpenPrintProduct] = useState(false)
-    const [activeCategorie, setActiveCategorie] = useState({_id: 1 , descripcion: 'Todas'})
-    const [activeBrand, setActiveBrand] = useState({_id: 1 , descripcion: 'Todas'})
-    const [activeProvider, setActiveProvider] = useState({_id: 1 , descripcion: 'Todas'})
-    const [openModalFilter, setOpenModalFilter] = useState(false)
+    const [longArray, setLongArray] = useState<number>(0)
+    const [openUpdatePrice, setOpenUpdatePrice] = useState<boolean>(false)
+    const [openPrintProduct, setOpenPrintProduct] = useState<boolean>(false)
+    const [activeCategorie, setActiveCategorie] = useState<CBP>({_id: 1 , descripcion: 'Todas'})
+    const [activeBrand, setActiveBrand] = useState<CBP>({_id: 1 , descripcion: 'Todas'})
+    const [activeProvider, setActiveProvider] = useState<CBP>({_id: 1 , descripcion: 'Todas'})
+    const [openModalFilter, setOpenModalFilter] = useState<boolean>(false)
 
     const user = useSelector(getUser)
     const dispatch = useAppDispatch();
@@ -59,13 +66,12 @@ export default function Product() {
       }
     }, [valueStorage, user, dispatch])
 
-    const searchProduct = (e: any) => {
+    const searchProduct = (e: ChangeEvent<HTMLInputElement>) => {
         setSearch(prevData=>e.target.value)
     }
 
     const getProduct = async (skip: number, limit: number) => {
       dispatch(setLoading(true))
-      
       try {
           const response = await apiClient.post(`/product/skip`, { skip, limit },
               {
@@ -78,8 +84,8 @@ export default function Product() {
               if (prevData.length === 0) {
                   return response.data.array;
               }
-              const newData = response.data.array.filter((element: any) => {
-                  return prevData.findIndex((item: any) => item._id === element._id) === -1;
+              const newData = response.data.array.filter((element: Product) => {
+                  return prevData.findIndex((item: Product) => item._id === element._id) === -1;
               });
   
               return [...prevData, ...newData];
@@ -128,10 +134,10 @@ export default function Product() {
       const socket = io(process.env.NEXT_PUBLIC_DB_HOST)
       socket.on(`product`, (socket:any) => {
         refreshProducts()
-        setData((prevData: any)=>{
-          const exist = prevData.find((elem: any) => elem._id === socket.data._id )
+        setData((prevData: Product[])=>{
+          const exist = prevData.find((elem: Product) => elem._id === socket.data._id )
           if (exist) {
-            return prevData.map((item: any) =>
+            return prevData.map((item: Product) =>
               item._id === socket.data._id ? socket.data : item
             )
           }
@@ -157,7 +163,6 @@ export default function Product() {
           observer.current = new IntersectionObserver(entries => {
               if (entries[0].isIntersecting) {
                   if (search === '') {
-                    console.log(data.length < longArray, " ",data.length, "menor que", longArray )
                       if (data.length < longArray) {
                         setQuery(prevData => ({ skip: prevData.skip + 25, limit: prevData.limit }));
                       }
@@ -186,13 +191,13 @@ export default function Product() {
                   {
                     search !== '' || activeBrand._id !== 1 || activeCategorie._id !== 1 || activeProvider._id !== 1 ?
                       dataSearch.length !== 0 ? 
-                        dataSearch.map((item: any, index: any)=>{
+                        dataSearch.map((item: Product, index: number)=>{
                           return <ItemsProducts  key={index} item={item} onClick={()=>{setSelectProduct(item);setOpenModalProduct(true)}}/>
                         })
                         : 'NO HAY PRODUCTOS'
                     :
                       data.length !== 0 ? 
-                      data.map((item: any, index: any)=>{
+                      data.map((item: Product, index: number)=>{
                         return <ItemsProducts  key={index} item={item} onClick={()=>{setSelectProduct(item);setOpenModalProduct(true)}}/>
                       })
                       : 'NO HAY PRODUCTOS'
@@ -205,7 +210,7 @@ export default function Product() {
               </ListProduct>
           </div>
           {
-            openModalProduct &&
+            (openModalProduct && selectProduct !== undefined) &&
             <ModalProduct open={openModalProduct} handleClose={()=>setOpenModalProduct(false)} product={selectProduct} ></ModalProduct>
           }
           {
@@ -224,9 +229,9 @@ export default function Product() {
             openModalFilter &&
             <FilterProduct open={openModalFilter} handleClose={()=>setOpenModalFilter(false)} 
               activeBrand={activeBrand._id} activeCategorie={activeCategorie._id} activeProvider={activeProvider._id}
-              selectCategorie={(item: any)=>setActiveCategorie(prevData=>item)}
-              selectBrand={(item: any)=>setActiveBrand(prevData=>item)}
-              selectProvider={(item: any)=>setActiveProvider(prevData=>item)}
+              selectCategorie={(item: CBP)=>setActiveCategorie(prevData=>item)}
+              selectBrand={(item: CBP)=>setActiveBrand(prevData=>item)}
+              selectProvider={(item: CBP)=>setActiveProvider(prevData=>item)}
             />
           }
         </>

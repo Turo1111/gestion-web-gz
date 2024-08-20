@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {IoIosArrowDown} from 'react-icons/io'
 import Button from './Button';
@@ -7,7 +7,10 @@ import { useFormik } from 'formik';
 import { useAppDispatch, useAppSelector } from '@/redux/hook';
 import { getUser } from '@/redux/userSlice';
 import useLocalStorage from '@/hooks/useLocalStorage';
+import { ObjectId } from 'mongoose';
 const io = require('socket.io-client')
+
+type TypeInput = 'text' | 'number' | 'email' | 'date' | 'password';
 
 const InputWrapper = styled.div`
   position: relative;
@@ -112,7 +115,10 @@ const LoadingText = styled.p`
   color: #8294C4;
 `;
 
-const InputSelectAdd = ({type = 'text', label, value, onChange, name, edit = false, path}: {type?: any, label: any, value: any, onChange: any, name: any, edit?: any, path: any}) => {
+const InputSelectAdd = ({type = 'text', label, value, onChange, name, edit = false, path, idSelect}: 
+  {type: TypeInput, label: string, value: any, onChange: (id:any, item:any)=>void, name: string, edit?: boolean, path: string, idSelect?: (string | ObjectId)}
+
+) => {
   const [isActive, setIsActive] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [openList, setOpenList] = useState(false)
@@ -125,7 +131,7 @@ const InputSelectAdd = ({type = 'text', label, value, onChange, name, edit = fal
 
   const [inputValue, setInputValue] = useState(value)
 
-  const handleInputChange = (event: any) => {
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
   };
 
@@ -172,20 +178,23 @@ const InputSelectAdd = ({type = 'text', label, value, onChange, name, edit = fal
   }
 
   const patchValue = () => {
-    setLoading2(true)
-    apiClient.patch(`/${path}/${value}`, {_id: value, descripcion: inputValue},
-    {
-      headers: {
-        Authorization: `Bearer ${valueStorage.token}` // Agregar el token en el encabezado como "Bearer {token}"
-      }
-    })
-    .then((r)=>{
-      onChange(r.data.body._id)
-      setLoading2(false)
-    })
-    .catch(e=>{
-      setLoading2(false)
-    })
+      setLoading2(true)
+      console.log(idSelect)
+      apiClient.patch(`/${path}/${idSelect}`, {_id: idSelect, descripcion: inputValue},
+      {
+        headers: {
+          Authorization: `Bearer ${valueStorage.token}` // Agregar el token en el encabezado como "Bearer {token}"
+        }
+      })
+      .then((r)=>{
+        onChange(r.data._id, r.data)
+        console.log('matias');
+        
+        setLoading2(false)
+      })
+      .catch(e=>{
+        setLoading2(false)
+      })
   }
 
   useEffect(()=>{

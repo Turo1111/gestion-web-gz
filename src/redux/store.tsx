@@ -7,7 +7,7 @@ export const store = configureStore({
     reducer: {
         user: userSlice,
         loading: loadingSlice,
-        alert: alertSlice
+        alert: alertSlice,
     }
 })
 

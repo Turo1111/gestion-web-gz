@@ -1,8 +1,14 @@
+import { Product } from '@/interfaces/product.interface'
+import { ExtendItemSale, ItemSale } from '@/interfaces/sale.interface'
+import { Types } from 'mongoose'
 import React from 'react'
 import { BiTrash } from 'react-icons/bi'
 import styled from 'styled-components'
 
-export default function ItemLineaVenta({elem, onClick, upQTY, downQTY, downQTY10, upQTY10}:{onClick:any, elem: any, upQTY: any, downQTY: any, downQTY10: any, upQTY10: any}) {
+export default function ItemLineaVenta({elem, onClick, upQTY, downQTY, downQTY10, upQTY10}:
+    {onClick:()=>void, upQTY:(id:string | Types.ObjectId| undefined)=>void, 
+    downQTY: (id:string | Types.ObjectId | undefined)=>void, upQTY10:(id:string | Types.ObjectId | undefined)=>void, 
+    downQTY10:(id:string | Types.ObjectId | undefined)=>void, elem: ExtendItemSale}) {
   return (
     <Item>
         <div>

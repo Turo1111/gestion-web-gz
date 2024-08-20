@@ -10,21 +10,29 @@ import jsPDF from 'jspdf';
 import Logo from '../Logo';
 import { useAppDispatch } from '@/redux/hook';
 import { setLoading } from '@/redux/loadingSlice';
+import { Types } from 'mongoose';
+import { Sale } from '@/interfaces/sale.interface';
+import { ItemSale } from '../../interfaces/sale.interface';
 
-export default function PrintSale({id}:{id: any}) {
+interface ResponseSale {
+  r: Sale
+  itemsSale: ItemSale[]
+}
 
-  const [sale, setSale] = useState<any>(undefined)
+export default function PrintSale({id}:{id: string | Types.ObjectId}) {
+
+  const [sale, setSale] = useState<ResponseSale | undefined>(undefined)
   const [valueStorage , setValue] = useLocalStorage("user", "")
   const dispatch = useAppDispatch();
 
   const getSale = () => {
     dispatch(setLoading(true))
-    apiClient(`/sale/${id}`,{
+    apiClient.get(`/sale/${id}`,{
       headers: {
           Authorization: `Bearer ${valueStorage.token}`
       },
   })
-    .then((r:any)=>{setSale(r.data);dispatch(setLoading(false));console.log(r.data)})
+    .then(({data}:{data: ResponseSale})=>{setSale(data);dispatch(setLoading(false));})
     .catch((e:any)=>{console.log(e);dispatch(setLoading(false))})
   }
 
@@ -45,6 +53,9 @@ export default function PrintSale({id}:{id: any}) {
         pdf.addPage()
       }
     }
+    if (!sale) {
+      return
+    }
     const pdfName = `venta-${sale.r.cliente}-${sale.r.createdAt.split("T")[0]}.pdf`;
     pdf.save(pdfName);
   };
@@ -63,6 +74,10 @@ export default function PrintSale({id}:{id: any}) {
       if (sale?.itemsSale.length !== 0) {
         totalPartes = Math.ceil(sale.itemsSale.length / elementosPorParte);
       }
+  }
+
+  if (!sale) {
+    return
   }
 
   return (

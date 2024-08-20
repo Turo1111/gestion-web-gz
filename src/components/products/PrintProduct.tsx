@@ -11,8 +11,9 @@ import Logo from '../Logo';
 import { getLoading, setLoading } from '@/redux/loadingSlice';
 import { useSelector } from 'react-redux';
 import { useAppDispatch } from '@/redux/hook';
+import { Product } from '@/interfaces/product.interface';
 
-export default function PrintProduct({open, handleClose}:{open: boolean, handleClose: any}) {
+export default function PrintProduct({open, handleClose}:{open: boolean, handleClose: ()=>void}) {
 
   const [products, setProducts] = useState<any[]>([])
   const [valueStorage , setValue] = useLocalStorage("user", "")
@@ -26,19 +27,21 @@ export default function PrintProduct({open, handleClose}:{open: boolean, handleC
           Authorization: `Bearer ${valueStorage.token}`
       },
   })
-    .then((r:any)=> {
-      const sortedProducts = sortProducts(r.data);
+    .then(({data}:{data:Product[]})=> {
+      const sortedProducts = sortProducts(data);
       setProducts(sortedProducts);
       dispatch(setLoading(false))
     })
     .catch((e:any)=>{console.log(e);dispatch(setLoading(false))})
   }
 
-  const sortProducts = (products: any[]): any[] => {
-    return products.sort((a, b) => {
+  const sortProducts = (products: Product[]): any[] => {
+    return products.sort((a:Product, b:Product) => {
       // Comparar por categoría
-      if (a.NameCategoria < b.NameCategoria) return -1;
-      if (a.NameCategoria > b.NameCategoria) return 1;
+      if (a.NameCategoria !== undefined && b.NameCategoria !== undefined) {
+        if (a.NameCategoria < b.NameCategoria) return -1;
+        if (a.NameCategoria > b.NameCategoria) return 1;
+      }
       
       // Si las categorías son iguales, comparar por descripción alfabéticamente
       return a.descripcion.localeCompare(b.descripcion);
@@ -102,14 +105,14 @@ export default function PrintProduct({open, handleClose}:{open: boolean, handleC
                   const parteActual = products.slice(startIndex, endIndex);
 
                   // Mantener un registro de la categoría ya impresa
-                  let lastPrintedCategory = '';
+                  let lastPrintedCategory:string|undefined = '';
 
                   return (
                   <WrapperPrint key={index}>
                       <ContainerPrint id={`print-${index}`}>
                       <ListProduct>
                           {
-                              parteActual.map((item: any, i: any, array: any) => {
+                              parteActual.map((item: Product, i: any, array: any) => {
                                   // Mostrar el nombre de la categoría solo si no ha sido impreso en la parte actual
                                   const showCategoryTitle = lastPrintedCategory !== item.NameCategoria;
 
@@ -122,7 +125,7 @@ export default function PrintProduct({open, handleClose}:{open: boolean, handleC
                                       {showCategoryTitle && (
                                         <CategoryTitle>{item.NameCategoria}</CategoryTitle>
                                       )}
-                                      <ItemsProducts key={item._id} item={item} select={false} line={false}/>
+                                      <ItemsProducts key={item._id || i} item={item} select={false} line={false}/>
                                     </React.Fragment>
                                   );
                               })
