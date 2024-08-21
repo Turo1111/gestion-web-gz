@@ -1,5 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react'
-import styled from 'styled-components';
+import styled, { CSSProperties } from 'styled-components';
 import Table from '../Table';
 import apiClient from '@/utils/client';
 import useLocalStorage from '@/hooks/useLocalStorage';
@@ -19,6 +20,15 @@ interface ResponseSale {
   itemsSale: ItemSale[]
 }
 
+interface Column {
+  label: string
+  field: string
+  width: string
+  align?: CSSProperties['textAlign']
+  price?: boolean
+  date?: boolean
+}
+
 export default function PrintSale({id}:{id: string | Types.ObjectId | undefined}) {
 
   const [sale, setSale] = useState<ResponseSale | undefined>(undefined)
@@ -33,7 +43,7 @@ export default function PrintSale({id}:{id: string | Types.ObjectId | undefined}
       },
   })
     .then(({data}:{data: ResponseSale})=>{setSale(data);dispatch(setLoading(false));})
-    .catch((e:any)=>{console.log(e);dispatch(setLoading(false))})
+    .catch((e)=>{console.log(e);dispatch(setLoading(false))})
   }
 
   const generatePdf = async () => {
@@ -121,7 +131,7 @@ export default function PrintSale({id}:{id: string | Types.ObjectId | undefined}
   );
 }
 
-const columns = [
+const columns: Column[] = [
   { label: 'Producto', field: 'descripcion', width: '40%' },
   { label: 'Cantidad', field: 'cantidad', width: '20%', align: 'center' },
   { label: 'P. unitario', field: 'precioUnitario', width: '20%', align: 'center', price: true },

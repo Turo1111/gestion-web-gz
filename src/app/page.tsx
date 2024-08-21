@@ -10,6 +10,7 @@ import { getLoading, setLoading } from "@/redux/loadingSlice";
 import { setUser } from "@/redux/userSlice";
 import apiClient from "@/utils/client";
 import { useFormik } from "formik";
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -22,7 +23,7 @@ export default function Home() {
   const [error, setError] = useState('')
   const [valueStorage, setValue] = useLocalStorage("user", "")
   const dispatch = useAppDispatch();
-  const router = useRouter()
+  const router: AppRouterInstance = useRouter()
 
   const formik = useFormik({
     initialValues: initialValues,

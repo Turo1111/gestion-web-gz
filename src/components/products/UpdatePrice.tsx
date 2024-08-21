@@ -13,23 +13,32 @@ import Input from '../Input'
 import { Brand, Categorie, Provider } from '@/interfaces/product.interface'
 import { setLoading } from '@/redux/loadingSlice'
 
-export default function UpdatePrice({open, handleClose, updateQuery}:{open: boolean, handleClose: ()=>void, updateQuery: ()=>void}) {
+interface ValueUpdate {
+  categoria: string,
+  proveedor: string,
+  marca: string,
+  porcentaje: number
+}
+
+const initialValues:ValueUpdate = {
+  categoria: '',
+  proveedor: '',
+  marca: '',
+  porcentaje: 0
+}
+
+export default function UpdatePrice({open, handleClose}:{open: boolean, handleClose: ()=>void}) {
 
     const user = useAppSelector(getUser)
     const dispatch = useDispatch()
     const [valueStorage , setValue] = useLocalStorage("user", "")
 
     const formik = useFormik({
-        initialValues: {
-            categoria: '',
-            proveedor: '',
-            marca: '',
-            porcentaje: 0
-        },
+        initialValues: initialValues,
         validateOnChange: false,
-        onSubmit: (formValue: any) => {
+        onSubmit: (formValue: ValueUpdate) => {
           dispatch(setLoading(true));
-            if (parseInt(formValue.porcentaje) <= 0) {
+            if (formValue.porcentaje <= 0) {
               dispatch(setAlert({
                 message: 'Porcentaje tiene que ser mayor a 0',
                 type: 'error'
@@ -44,8 +53,6 @@ export default function UpdatePrice({open, handleClose, updateQuery}:{open: bool
                 }
               })
               .then(async(response)=>{
-                console.log(response)
-                await updateQuery()
                 formik.resetForm()
                 handleClose()
                 dispatch(setLoading(false));
@@ -88,7 +95,7 @@ export default function UpdatePrice({open, handleClose, updateQuery}:{open: bool
             }}
             name={'Marca'} path={'brand'}
         />
-        <Input label={'Porcentaje'} name={'porcentaje'} value={formik.values.porcentaje} onChange={formik.handleChange} type='text' />
+        <Input label={'Porcentaje'} name={'porcentaje'} value={formik.values.porcentaje} onChange={formik.handleChange} type='number' />
         <Button text='Actualizar' onClick={formik.handleSubmit}/>
     </Modal>
   )

@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import { ExtendItemSale, ItemSale } from '@/interfaces/sale.interface';
 import { Types } from 'mongoose';
+import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
 export default function LineaVenta({lineaVenta, onClick, upQTY, downQTY, upQTY10, downQTY10, total, edit=false, id, cliente, onChangeCliente}:
   {
@@ -22,9 +23,10 @@ export default function LineaVenta({lineaVenta, onClick, upQTY, downQTY, upQTY10
 ) {
 
     const dispatch = useAppDispatch();
-    const router = useRouter()
+    const router: AppRouterInstance = useRouter()
     const [valueStorage , setValue] = useLocalStorage("user", "")
     const [valueStorageSale , setValueSale, clearValueSale] = useLocalStorage("newSale", "")
+    const [newEditSaleStorage, setEditSaleStorage, clearEditSale] = useLocalStorage("newEditSale", "")
 
 
   return (
@@ -93,7 +95,7 @@ export default function LineaVenta({lineaVenta, onClick, upQTY, downQTY, upQTY10
                 })
                 .then((r)=>{
                   dispatch(setLoading(false))
-                  clearValueSale()
+                  clearEditSale()
                   dispatch(setAlert({
                     message: `Venta modificada correctamente`,
                     type: 'success'

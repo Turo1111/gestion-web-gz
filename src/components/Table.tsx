@@ -1,14 +1,24 @@
 import { useDate } from '@/hooks/useDate'
 import React from 'react'
-import styled from 'styled-components'
+import styled, { CSSProperties } from 'styled-components'
 
-export default function Table({data = [], columns, onClick, date=false, maxHeight = true, title}: {data: any, columns: any, onClick: any, date?: any, maxHeight: any, title?: any}) {
+interface Column {
+  label: string
+  field: string
+  width: string
+  align?: CSSProperties['textAlign']
+  price?: boolean
+  date?: boolean
+}
+
+export default function Table({data = [], columns, onClick, date=false, maxHeight = true, title}: 
+  {data: any[], columns: Column[], onClick: (item:any)=>void, date?: boolean, maxHeight: boolean, title?: string}) {
   return (
     <div>
       {title && <Tag>{title}</Tag>}
       <List maxHeight={maxHeight || true}>
           <TableHeader color={process.env.TEXT_COLOR}>
-              {columns.map((column: any, index: any) => (
+              {columns.map((column: Column, index: number) => (
                 <div key={index} style={{ flexBasis: column.width, textAlign: column.align }}>
                   {column.label}
                 </div>
@@ -20,11 +30,11 @@ export default function Table({data = [], columns, onClick, date=false, maxHeigh
                       <div style={{textAlign: 'center'}} data-label="Sucursal">NO HAY ELEMENTOS</div>
                   </TableRow>
               :
-              data.map((item:any,index:any)=>{
+              data.map((item:any,index:number)=>{
 
                 return(
                   <TableRow key={index} onClick={()=>onClick(item)} color={process.env.TEXT_COLOR} >
-                      {columns.map((column: any, columnIndex: any) =>{ 
+                      {columns.map((column: Column, columnIndex: number) =>{ 
                         // eslint-disable-next-line
                         const fecha = useDate(item[column.field]).date;
                         return(
@@ -84,7 +94,7 @@ const TableRow = styled.li `
 `
 
 interface List {
-  maxHeight?: any
+  maxHeight?: boolean
 }
 
 const List = styled.ul<List> `

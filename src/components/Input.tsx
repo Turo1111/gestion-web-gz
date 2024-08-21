@@ -44,7 +44,7 @@ const Prefix = styled.div`
   align-items: center;
 `;
 
-const InputField = styled.input<{ $focused?: any; $hasPrefix?: boolean; }>`
+const InputField = styled.input<{ $focused?: boolean; $hasPrefix?: boolean; }>`
   height: 35px;
   padding: 5px 10px;
   font-size: 16px;
@@ -107,7 +107,7 @@ const Input = ({ type, label, value, onChange, name, required, readOnly, prefix 
         onChange={onChange}
         onFocus={handleInputFocus}
         onBlur={handleInputBlur}
-        $focused={isFocused ? 1:0}
+        $focused={isFocused}
         readOnly={readOnly}
         $hasPrefix={!prefix}
       />

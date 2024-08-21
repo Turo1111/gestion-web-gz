@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {IoIosArrowDown} from 'react-icons/io'
@@ -47,7 +48,7 @@ const InputLabel = styled.label<InputLabelProps>`
 
 interface InputFieldProps {
   color: string;
-  $focused: any;
+  $focused: boolean;
 }
 
 const InputField = styled.input<InputFieldProps>`
@@ -124,7 +125,7 @@ const InputSelectAdd = ({type = 'text', label, value, onChange, name, edit = fal
   const [openList, setOpenList] = useState(false)
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(false)
-  const user: any = useAppSelector(getUser);
+  const user = useAppSelector(getUser);
   const dispatch = useAppDispatch();
   const [loading2, setLoading2] = useState(false)
   const [valueStorage , setValue] = useLocalStorage("user", "")
@@ -258,7 +259,7 @@ const InputSelectAdd = ({type = 'text', label, value, onChange, name, edit = fal
         name={name}
         onFocus={handleInputFocus}
         onBlur={handleInputBlur}    
-        $focused={isFocused ? 1:0}
+        $focused={isFocused}
       />
       {
         inputValue === '' ?  

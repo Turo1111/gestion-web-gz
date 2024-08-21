@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components';
 import apiClient from '@/utils/client';
@@ -15,7 +16,7 @@ import { Product } from '@/interfaces/product.interface';
 
 export default function PrintProduct({open, handleClose}:{open: boolean, handleClose: ()=>void}) {
 
-  const [products, setProducts] = useState<any[]>([])
+  const [products, setProducts] = useState<Product[]>([])
   const [valueStorage , setValue] = useLocalStorage("user", "")
   const {open: loading} = useSelector(getLoading)
   const dispatch = useAppDispatch();
@@ -32,10 +33,10 @@ export default function PrintProduct({open, handleClose}:{open: boolean, handleC
       setProducts(sortedProducts);
       dispatch(setLoading(false))
     })
-    .catch((e:any)=>{console.log(e);dispatch(setLoading(false))})
+    .catch((e)=>{console.log(e);dispatch(setLoading(false))})
   }
 
-  const sortProducts = (products: Product[]): any[] => {
+  const sortProducts = (products: Product[]): Product[] => {
     return products.sort((a:Product, b:Product) => {
       // Comparar por categoría
       if (a.NameCategoria !== undefined && b.NameCategoria !== undefined) {
@@ -112,7 +113,7 @@ export default function PrintProduct({open, handleClose}:{open: boolean, handleC
                       <ContainerPrint id={`print-${index}`}>
                       <ListProduct>
                           {
-                              parteActual.map((item: Product, i: any, array: any) => {
+                              parteActual.map((item: Product, i: number) => {
                                   // Mostrar el nombre de la categoría solo si no ha sido impreso en la parte actual
                                   const showCategoryTitle = lastPrintedCategory !== item.NameCategoria;
 
@@ -125,7 +126,7 @@ export default function PrintProduct({open, handleClose}:{open: boolean, handleC
                                       {showCategoryTitle && (
                                         <CategoryTitle>{item.NameCategoria}</CategoryTitle>
                                       )}
-                                      <ItemsProducts key={item._id || i} item={item} select={false} line={false}/>
+                                      <ItemsProducts key={i} item={item} select={false} line={false}/>
                                     </React.Fragment>
                                   );
                               })

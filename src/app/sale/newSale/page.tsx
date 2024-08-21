@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 import React, { ChangeEvent, useEffect, useState } from 'react'
 import { getUser, setUser } from '@/redux/userSlice';
@@ -13,6 +14,7 @@ import Confirm from '@/components/Confirm';
 import { ExtendItemSale, ItemSale } from '@/interfaces/sale.interface';
 import { Product } from '@/interfaces/product.interface';
 import { Types } from 'mongoose';
+import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
 export default function NewSale() {
 
@@ -20,7 +22,7 @@ export default function NewSale() {
     const [newSaleStorage, setValueStorage, clearValue] = useLocalStorage("newSale", "")
     const [lineaVenta, setLineaVenta] = useState<ExtendItemSale[]>([])
     const [total, setTotal] = useState<number>(0)
-    const router = useRouter()
+    const router: AppRouterInstance = useRouter()
     let {ancho, alto} = useResize()
     const [openLVMobile, setOpenLVMobile] = useState<boolean>(false)
     const [cliente, setCliente] = useState<string>('')
@@ -36,7 +38,7 @@ export default function NewSale() {
       if (!valueStorage) {
         router.push('/')
       }
-    }, [valueStorage, user, dispatch])
+    }, [valueStorage, user, dispatch, router])
 
   useEffect(()=>{
     if (lineaVenta.length === 0) {
@@ -57,7 +59,10 @@ export default function NewSale() {
   useEffect(()=>{
     if (lineaVenta.length !== 0 || cliente !== '' || total !== 0) {
       setValueStorage({lineaVenta:lineaVenta, cliente:cliente, total:total})
+      return
     }
+    clearValue()
+    return
   },[lineaVenta, cliente, total]) 
 
   useEffect(() => {

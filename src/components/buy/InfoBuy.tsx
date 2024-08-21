@@ -1,5 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react'
-import styled from 'styled-components';
+import styled, { CSSProperties } from 'styled-components';
 import Table from '../Table';
 import apiClient from '@/utils/client';
 import useLocalStorage from '@/hooks/useLocalStorage';
@@ -13,6 +14,15 @@ import { useAppDispatch } from '@/redux/hook';
 interface ResponseSale {
   r: Buy
   itemsBuy: ItemBuy[]
+}
+
+interface Column {
+  label: string
+  field: string
+  width: string
+  align?: CSSProperties['textAlign']
+  price?: boolean
+  date?: boolean
 }
 
 export default function InfoBuy({open, handleClose, id}:{open:boolean, handleClose: ()=>void , id:Types.ObjectId | undefined | string}) {
@@ -29,7 +39,7 @@ export default function InfoBuy({open, handleClose, id}:{open:boolean, handleClo
       },
   })
     .then(({data}:{data:ResponseSale})=>{setBuy(data);dispatch(setLoading(false));})
-    .catch((e:any)=>{console.log(e);dispatch(setLoading(false));})
+    .catch((e)=>{console.log(e);dispatch(setLoading(false));})
   }
 
   useEffect(()=> {
@@ -65,7 +75,7 @@ export default function InfoBuy({open, handleClose, id}:{open:boolean, handleClo
   );
 }
 
-const columns = [
+const columns: Column[] = [
   { label: 'Producto', field: 'descripcion', width: '50%' },
   { label: 'Cantidad', field: 'cantidad', width: '20%', align: 'center' },
   { label: 'Total', field: 'total', width: '30%', align: 'center', price: true },

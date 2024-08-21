@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 import React, { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react'
 import Search from '../../../../components/Search';
@@ -21,6 +22,8 @@ import { useResize } from '@/hooks/useResize';
 import { ExtendItemSale, ItemSale, Sale } from '@/interfaces/sale.interface';
 import { Product } from '@/interfaces/product.interface';
 import { Types } from 'mongoose';
+import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
+import Confirm from '@/components/Confirm';
 
 interface ResponseSale {
   r: Sale
@@ -32,11 +35,13 @@ export default function EditSale({ params }: { params: { id: string } }) {
     const [valueStorage , setValue] = useLocalStorage("user", "")
     const [lineaVenta, setLineaVenta] = useState<ExtendItemSale[]>([])
     const [total, setTotal] = useState<number>(0)
-    const router: any = useRouter()
+    const router: AppRouterInstance = useRouter()
     let {ancho, alto} = useResize()
     const [openLVMobile, setOpenLVMobile] = useState<boolean>(false)
     const { id } = params;
     const [cliente, setCliente] = useState<string>('')
+    const [newEditSaleStorage, setEditSaleStorage, clearEditSale] = useLocalStorage(`newEditSale-${id}`, "")
+    const [openConfirm, setOpenConfirm] = useState<boolean>(false)
 
     const user = useSelector(getUser)
     const dispatch = useAppDispatch();
@@ -54,7 +59,7 @@ export default function EditSale({ params }: { params: { id: string } }) {
         setTotal(data.r.total)
         setCliente(data.r.cliente)
       })
-      .catch((e:any)=>{
+      .catch((e)=>{
         console.log(e);
         dispatch(setLoading(false))
       })
@@ -67,7 +72,7 @@ export default function EditSale({ params }: { params: { id: string } }) {
       if (!valueStorage) {
         router.push('/')
       }
-    }, [valueStorage, user, dispatch])
+    }, [valueStorage, user, dispatch, router])
 
     useEffect(()=>{
       if (lineaVenta.length === 0) {
@@ -86,8 +91,38 @@ export default function EditSale({ params }: { params: { id: string } }) {
     },[lineaVenta])
 
   useEffect(()=> {
+
+    if (newEditSaleStorage) {
+      if (newEditSaleStorage.id === id) {
+        return
+      }
+      clearEditSale()
+    }
+    
+    console.log('hago la consulta')
     getSale()
-  },[id])
+  },[id, valueStorage, newEditSaleStorage, openConfirm])
+
+  useEffect(()=>{
+    if (lineaVenta.length !== 0 || cliente !== '' || total !== 0) {
+      console.log('guardando')
+      setEditSaleStorage({lineaVenta:lineaVenta, cliente:cliente, total:total, id: id})
+      return
+    }
+    
+  },[lineaVenta, cliente, total]) 
+
+  useEffect(() => {
+    if (newEditSaleStorage) {
+      if (newEditSaleStorage.id === id) {
+        console.log(newEditSaleStorage);
+        
+        setOpenConfirm(true)
+        return
+      }
+      clearEditSale()
+    }
+  }, [])
 
   return (
     <Container>
@@ -120,11 +155,11 @@ export default function EditSale({ params }: { params: { id: string } }) {
                       Authorization: `Bearer ${valueStorage.token}`
                   },
                 })
-                .then((r:any)=>{
+                .then((r)=>{
                   dispatch(setLoading(false));
                   setLineaVenta((prevData:ExtendItemSale[])=>prevData.filter((elem:ExtendItemSale)=>elem._id!==item._id))
                 })
-                .catch((e:any)=>{
+                .catch((e)=>{
                   dispatch(setLoading(false))
                 })
               }
@@ -184,11 +219,11 @@ export default function EditSale({ params }: { params: { id: string } }) {
                             Authorization: `Bearer ${valueStorage.token}`
                         },
                       })
-                      .then((r:any)=>{
+                      .then((r)=>{
                         dispatch(setLoading(false));
                         setLineaVenta((prevData:ExtendItemSale[])=>prevData.filter((elem:ExtendItemSale)=>elem._id!==item._id))
                       })
-                      .catch((e:any)=>{
+                      .catch((e)=>{
                         dispatch(setLoading(false))
                       })
                     }
@@ -227,6 +262,15 @@ export default function EditSale({ params }: { params: { id: string } }) {
             </div>
           </WrapperLineaVenta>
         </ContainerMobile>
+      }
+      {
+        openConfirm &&
+        <Confirm open={openConfirm} message='Hay elementos en el borrador, ¿Quieres continuar con el borrador?' handleClose={async()=>{setOpenConfirm(false);await getSale()}} handleConfirm={()=>{
+          setLineaVenta((prevData:ExtendItemSale[])=>newEditSaleStorage.lineaVenta)
+          setCliente((prevData:string)=>newEditSaleStorage.cliente)
+          setTotal((prevData:number)=>newEditSaleStorage.total)
+          setOpenConfirm(false)
+        }} />
       }
     </Container>
   )

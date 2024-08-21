@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 import Button from '@/components/Button';
 import Loading from '@/components/Loading';
@@ -14,6 +15,7 @@ import { useAppDispatch } from '@/redux/hook';
 import { getLoading, setLoading } from '@/redux/loadingSlice';
 import { getUser, setUser } from '@/redux/userSlice';
 import apiClient from '@/utils/client';
+import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import { useRouter } from 'next/navigation';
 import React, { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { MdEdit, MdInfo } from 'react-icons/md';
@@ -39,7 +41,7 @@ export default function ProductScreen() {
     const observer = useRef<IntersectionObserver | null>(null);
     const {open: loading} = useSelector(getLoading)
     const [openNewProduct, setOpenNewProduct] = useState<boolean>(false)
-    const router = useRouter()
+    const router: AppRouterInstance = useRouter()
     const [longArray, setLongArray] = useState<number>(0)
     const [openUpdatePrice, setOpenUpdatePrice] = useState<boolean>(false)
     const [openPrintProduct, setOpenPrintProduct] = useState<boolean>(false)
@@ -58,7 +60,7 @@ export default function ProductScreen() {
       if (!valueStorage) {
         router.push('/')
       }
-    }, [valueStorage, user, dispatch])
+    }, [valueStorage, user, dispatch, router])
 
     useEffect(() => {
       if (!user && valueStorage) {
@@ -70,70 +72,73 @@ export default function ProductScreen() {
         setSearch(prevData=>e.target.value)
     }
 
-    const getProduct = async (skip: number, limit: number) => {
-      dispatch(setLoading(true))
-      try {
-          const response = await apiClient.post(`/product/skip`, { skip, limit },
-              {
-                  headers: {
-                      Authorization: `Bearer ${valueStorage.token}`
-                  },
-              });
-          setData(prevData => {
-  
-              if (prevData.length === 0) {
-                  return response.data.array;
-              }
-              const newData = response.data.array.filter((element: Product) => {
-                  return prevData.findIndex((item: Product) => item._id === element._id) === -1;
-              });
-  
-              return [...prevData, ...newData];
-          })
-          setLongArray(prevData=>response.data.longitud)
-          dispatch(setLoading(false));
-      } catch (e) {
-          console.log("error", e);
-          dispatch(setLoading(false));
-      } finally {
-        dispatch(setLoading(false));
-      }
-  }
+    useEffect(()=>{
 
-  const getProductSearch = async (input: string, categorie: any, brand: any, provider: any) => {
-    dispatch(setLoading(true))
-    try {
-        const response = await apiClient.post(`/product/search`, {input, categoria: categorie, marca: brand, proveedor: provider});
-        setDataSearch(response.data);
-        console.log(response.data)
-        dispatch(setLoading(false));
-    } catch (e) {
-        console.log("error", e);
-        dispatch(setLoading(false));
-    } finally {
-      dispatch(setLoading(false))
+      const getProduct = async (skip: number, limit: number) => {
+        dispatch(setLoading(true))
+        try {
+            const response = await apiClient.post(`/product/skip`, { skip, limit },
+                {
+                    headers: {
+                        Authorization: `Bearer ${valueStorage.token}`
+                    },
+                });
+            setData(prevData => {
+    
+                if (prevData.length === 0) {
+                    return response.data.array;
+                }
+                const newData = response.data.array.filter((element: Product) => {
+                    return prevData.findIndex((item: Product) => item._id === element._id) === -1;
+                });
+    
+                return [...prevData, ...newData];
+            })
+            setLongArray(prevData=>response.data.longitud)
+            dispatch(setLoading(false));
+        } catch (e) {
+            console.log("error", e);
+            dispatch(setLoading(false));
+        } finally {
+          dispatch(setLoading(false));
+        }
     }
-  }
+      if (valueStorage) {
+        getProduct(query.skip, query.limit)
+      }
+      
+    },[dispatch, query, valueStorage]) 
 
     useEffect(()=>{
-      
-      getProduct(query.skip, query.limit)
-      
-    },[query]) 
 
-    useEffect(()=>{
+      const getProductSearch = async (input: string, categorie: CBP['_id'], brand: CBP['_id'], provider: CBP['_id']) => {
+        dispatch(setLoading(true))
+        try {
+            const response = await apiClient.post(`/product/search`, {input, categoria: categorie, marca: brand, proveedor: provider});
+            setDataSearch(response.data);
+            console.log(response.data)
+            dispatch(setLoading(false));
+        } catch (e) {
+            console.log("error", e);
+            dispatch(setLoading(false));
+        } finally {
+          dispatch(setLoading(false))
+        }
+      }
+    
       if ( search !== '' || activeBrand._id !== 1 || activeCategorie._id !== 1 || activeProvider._id !== 1) {
         getProductSearch(search, activeCategorie._id, activeBrand._id, activeProvider._id)
       }
-    },[search, activeBrand, activeCategorie, activeProvider]) 
+    },[search, activeBrand, activeCategorie, activeProvider, dispatch]) 
+
 
     useEffect(()=>{
       if (!process.env.NEXT_PUBLIC_DB_HOST) {
         return
       }
       const socket = io(process.env.NEXT_PUBLIC_DB_HOST)
-      socket.on(`product`, (socket:any) => {
-        refreshProducts()
+      socket.on(`product`, (socket) => {
+        setSearch(prevData=>'')
         setData((prevData: Product[])=>{
           const exist = prevData.find((elem: Product) => elem._id === socket.data._id )
           if (exist) {
@@ -147,13 +152,9 @@ export default function ProductScreen() {
       return () => {
         socket.disconnect();
       }; 
-    },[data,dataSearch])
+    },[data, dataSearch])
 
-    const refreshProducts = () => {
-      setSearch(prevData=>'')
-      getProduct(query.skip, query.limit)
-    };
-
+    
     const lastElementRef = useCallback(
       (node: HTMLLIElement | null) => {
           if (loading) {
@@ -171,7 +172,7 @@ export default function ProductScreen() {
           });
           if (node) observer.current.observe(node);
       },
-      [loading, search, data]
+      [loading, search, data.length, longArray]
     );
 
   return (
@@ -219,7 +220,7 @@ export default function ProductScreen() {
           }
           {
             openUpdatePrice && 
-            <UpdatePrice open={openUpdatePrice} handleClose={()=>setOpenUpdatePrice(false)} updateQuery={()=>refreshProducts()} />
+            <UpdatePrice open={openUpdatePrice} handleClose={()=>setOpenUpdatePrice(false)} />
           }
           {
             openPrintProduct && 

@@ -1,6 +1,13 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-const initialState = {
+interface AlertState {
+  message: string;
+  type: string;
+  open: boolean;
+  color: string;
+}
+
+const initialState: AlertState = {
   message: '',
   type: '',
   open: false,
@@ -11,7 +18,7 @@ const alertSlice = createSlice({
   name: 'alert',
   initialState,
   reducers: {
-    setAlert: (state, action) => {
+    setAlert: (state, action: PayloadAction<{ message: string; type: string }>) => {
       state.message = action.payload.message;
       state.type = action.payload.type;
       state.open = true;
@@ -26,7 +33,7 @@ const alertSlice = createSlice({
   },
 });
 
-const getColorByType = (type:string) => {
+const getColorByType = (type: string): string => {
   switch (type) {
     case 'error':
       return '#F7A4A4';
@@ -39,6 +46,6 @@ const getColorByType = (type:string) => {
   }
 };
 
-export const getAlert = (state:any) => state.alert;
+export const getAlert = (state: { alert: AlertState }) => state.alert;
 export const { setAlert, clearAlert } = alertSlice.actions;
 export default alertSlice.reducer;

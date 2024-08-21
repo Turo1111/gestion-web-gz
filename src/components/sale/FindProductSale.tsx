@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 import Button from '@/components/Button';
 import Loading from '@/components/Loading';
@@ -14,6 +15,7 @@ import { useAppDispatch } from '@/redux/hook';
 import { getLoading, setLoading } from '@/redux/loadingSlice';
 import { getUser, setUser } from '@/redux/userSlice';
 import apiClient from '@/utils/client';
+import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import { useRouter } from 'next/navigation';
 import React, { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { MdEdit, MdInfo } from 'react-icons/md';
@@ -38,7 +40,7 @@ export default function FindProductSale({onClickItem}:{onClickItem:(item:Product
     const observer = useRef<IntersectionObserver | null>(null);
     const {open: loading} = useSelector(getLoading)
     const [openNewProduct, setOpenNewProduct] = useState<boolean>(false)
-    const router = useRouter()
+    const router: AppRouterInstance = useRouter()
     const [longArray, setLongArray] = useState<number>(0)
     const [openUpdatePrice, setOpenUpdatePrice] = useState<boolean>(false)
     const [openPrintProduct, setOpenPrintProduct] = useState<boolean>(false)
@@ -100,7 +102,7 @@ export default function FindProductSale({onClickItem}:{onClickItem:(item:Product
       }
   }
 
-  const getProductSearch = async (input: string, categorie: any, brand: any, provider: any) => {
+  const getProductSearch = async (input: string, categorie: CBP['_id'], brand: CBP['_id'], provider: CBP['_id']) => {
     dispatch(setLoading(true))
     try {
         const response = await apiClient.post(`/product/search`, {input, categoria: categorie, marca: brand, proveedor: provider});
@@ -129,7 +131,7 @@ export default function FindProductSale({onClickItem}:{onClickItem:(item:Product
         return
       }
       const socket = io(process.env.NEXT_PUBLIC_DB_HOST)
-      socket.on(`product`, (socket:any) => {
+      socket.on(`product`, (socket) => {
         refreshProducts()
         setData((prevData: Product[])=>{
           const exist = prevData.find((elem: Product) => elem._id === socket.data._id )
@@ -214,7 +216,7 @@ export default function FindProductSale({onClickItem}:{onClickItem:(item:Product
           }
           {
             openUpdatePrice && 
-            <UpdatePrice open={openUpdatePrice} handleClose={()=>setOpenUpdatePrice(false)} updateQuery={()=>refreshProducts()} />
+            <UpdatePrice open={openUpdatePrice} handleClose={()=>setOpenUpdatePrice(false)}/>
           }
           {
             openPrintProduct && 

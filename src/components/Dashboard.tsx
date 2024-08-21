@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { ReactNode, useEffect, useState } from 'react'
 import Logo from './Logo'
 import styled from 'styled-components'
 import Link from 'next/link'
@@ -10,8 +10,9 @@ import { useSelector } from 'react-redux';
 import { useResize } from '@/hooks/useResize';
 import { BiMenu } from 'react-icons/bi';
 import { MdMenuOpen } from 'react-icons/md';
+import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
-export default function Dashboard({children}: any) {
+export default function Dashboard({children}: {children: ReactNode} ) {
 
     /* const itemsLi = ["HOME", "PRODUCT", "SALE", "BUY"] */
     const itemsLi = [
@@ -27,7 +28,7 @@ export default function Dashboard({children}: any) {
     const user = useSelector(getUser)
     const [valueStorage , setValue, clearValue] = useLocalStorage("user", "")
     const dispatch = useAppDispatch();
-    const router = useRouter()
+    const router: AppRouterInstance = useRouter()
     const [openMenu, setOpenMenu] = useState(false)
 
     useEffect(() => {

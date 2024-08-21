@@ -9,25 +9,20 @@ const Modal = ({
   open = false,
   eClose,
   title,
-  modalButton = false,
-  onButton1,
-  onButton2,
   borderRadius = false,
   width = "30%",
-  height = "35%",
-  el
+  height = "35%"
 }:{
   children?: React.ReactNode,
   open: boolean,
-  eClose: any,
+  eClose: ()=>void,
   title: string,
   modalButton?: boolean,
   onButton1?: void,
   onButton2?: void,
   borderRadius?: boolean,
   width?: string,
-  height?: string,
-  el?: any
+  height?: string
 }) => {
 
   const modalRef = useRef(null);
@@ -56,10 +51,6 @@ const Modal = ({
           <ModalContent>
             {children}
           </ModalContent>
-          {/* <ModalButton modalButton={modalButton}>
-            <Button onClick={onButton1}>Cancelar</Button>
-            <Button onClick={onButton2}>Aceptar</Button>
-          </ModalButton> */}
         </Content>
       </Container>
     </CSSTransition>

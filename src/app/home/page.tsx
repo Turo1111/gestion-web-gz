@@ -11,13 +11,14 @@ import { UserWithToken } from '@/interfaces/auth.interface';
 import { useRouter } from 'next/navigation';
 import Loading from '@/components/Loading';
 import Button from '@/components/Button';
+import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
 export default function Home() {
 
   const user = useSelector(getUser)
   const [valueStorage , setValue] = useLocalStorage("user", "")
   const dispatch = useAppDispatch();
-  const router = useRouter()
+  const router: AppRouterInstance = useRouter()
 
   useEffect(() => {
     if (!user && valueStorage) {
@@ -26,7 +27,7 @@ export default function Home() {
     if (!valueStorage) {
       router.push('/')
     }
-  }, [valueStorage, user, dispatch])
+  }, [valueStorage, user, dispatch, router])
   
   return (
     <div style={{display: 'flex', flexDirection: 'column'}} >

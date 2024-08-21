@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
 import Button from '@/components/Button'
@@ -11,8 +12,9 @@ import { getLoading, setLoading } from '@/redux/loadingSlice'
 import { getUser, setUser } from '@/redux/userSlice'
 import apiClient from '@/utils/client'
 import { Types } from 'mongoose'
+import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime'
 import { useRouter } from 'next/navigation'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { BsPrinterFill } from 'react-icons/bs'
 import { MdEdit, MdInfo } from 'react-icons/md'
 import { useSelector } from 'react-redux'
@@ -28,7 +30,7 @@ export default function SaleScreen() {
     const user = useSelector(getUser)
     const [valueStorage , setValue] = useLocalStorage("user", "")
     const dispatch = useAppDispatch();
-    const router:any = useRouter()
+    const router: AppRouterInstance = useRouter()
     const {open: loading} = useSelector(getLoading)
     const [openPrintSale, setOpenPrintSale] = useState<boolean>(false)
     const [saleSelected, setSaleSelected] = useState< Types.ObjectId | undefined | string>(undefined)
@@ -117,7 +119,7 @@ export default function SaleScreen() {
       }; 
     },[data])
       
-    const lastElementRef: any = useCallback(
+    const lastElementRef = useCallback(
       (node: HTMLLIElement | null) => {
         if (loading) return;
         if (observer.current) observer.current.disconnect();
@@ -137,7 +139,7 @@ export default function SaleScreen() {
   return (
     <main>
         <div style={{display: 'flex', justifyContent: 'space-between', width: '100%', padding: '0px 15px', alignItems: 'center'}}>
-          <Search name='search' placeHolder={'Buscar ventas'} type='text' value={search} onChange={(e:any)=>setSearch(e.target.value)} />
+          <Search name='search' placeHolder={'Buscar ventas'} type='text' value={search} onChange={(e:ChangeEvent<HTMLInputElement>)=>setSearch(e.target.value)} />
           <Button text='Nuevo' onClick={()=>{}} to='/sale/newSale'/>
         </div>
         <ListSale>

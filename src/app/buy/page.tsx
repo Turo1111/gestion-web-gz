@@ -13,8 +13,9 @@ import { getLoading, setLoading } from '@/redux/loadingSlice'
 import { getUser, setUser } from '@/redux/userSlice'
 import apiClient from '@/utils/client'
 import { Types } from 'mongoose'
+import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime'
 import { useRouter } from 'next/navigation'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { BsPrinterFill } from 'react-icons/bs'
 import { MdInfo } from 'react-icons/md'
 import { useSelector } from 'react-redux'
@@ -29,67 +30,71 @@ export default function BuyScreen() {
     const user = useSelector(getUser)
     const [valueStorage , setValue] = useLocalStorage("user", "")
     const dispatch = useAppDispatch();
-    const router = useRouter()
+    const router: AppRouterInstance = useRouter()
     const {open: loading} = useSelector(getLoading)
     const [buySelected, setBuySelected] = useState< Types.ObjectId | undefined | string>(undefined)
     const [openInfoBuy, setOpenInfoBuy] = useState<boolean>(false)
     const [query, setQuery] = useState<{skip: number, limit: number}>({skip: 0, limit: 25})
     const observer = useRef<IntersectionObserver | null>(null);
 
-    const getSale = async (skip: number, limit: number) => {
-      dispatch(setLoading(true))
-      try {
-        const response = await apiClient.post(`/buy/skip`, { skip, limit },
-          {
-              headers: {
-                  Authorization: `Bearer ${valueStorage.token}`
-              },
-          });
-          setData((prevData:Buy[]) => {
-  
-            if (prevData.length === 0) {
-                return response.data.array;
-            }
-            const newData = response.data.array.filter((element: Buy) => {
-                return prevData.findIndex((item: Buy) => item._id === element._id) === -1;
-            });
-
-            return [...prevData, ...newData];
-          })
-          setLongArray(prevData=>response.data.longitud)
-          dispatch(setLoading(false))
-      } catch (e) {
-        console.log("error getSale",e);dispatch(setLoading(false))
-      } finally {
-        dispatch(setLoading(false));
-      }
-    }
-
-    const getSaleSearch = async (input: string) => {
-      dispatch(setLoading(true))
-      try {
-          const response = await apiClient.post(`/buy/search`, {input});
-          setDataSearch(response.data);
-          dispatch(setLoading(false));
-      } catch (e) {
-          console.log("error", e);
-          dispatch(setLoading(false));
-      } finally {
-        dispatch(setLoading(false))
-      }
-    }
+    
 
     useEffect(()=>{
+
+      const getSaleSearch = async (input: string) => {
+        dispatch(setLoading(true))
+        try {
+            const response = await apiClient.post(`/buy/search`, {input});
+            setDataSearch(response.data);
+            dispatch(setLoading(false));
+        } catch (e) {
+            console.log("error", e);
+            dispatch(setLoading(false));
+        } finally {
+          dispatch(setLoading(false))
+        }
+      }
+
       if ( search !== '') {
         getSaleSearch(search)
       }
-    },[search]) 
+    },[dispatch, search]) 
 
     useEffect(()=>{
+
+      const getSale = async (skip: number, limit: number) => {
+        dispatch(setLoading(true))
+        try {
+          const response = await apiClient.post(`/buy/skip`, { skip, limit },
+            {
+                headers: {
+                    Authorization: `Bearer ${valueStorage.token}`
+                },
+            });
+            setData((prevData:Buy[]) => {
+    
+              if (prevData.length === 0) {
+                  return response.data.array;
+              }
+              const newData = response.data.array.filter((element: Buy) => {
+                  return prevData.findIndex((item: Buy) => item._id === element._id) === -1;
+              });
+  
+              return [...prevData, ...newData];
+            })
+            setLongArray(prevData=>response.data.longitud)
+            dispatch(setLoading(false))
+        } catch (e) {
+          console.log("error getSale",e);dispatch(setLoading(false))
+        } finally {
+          dispatch(setLoading(false));
+        }
+      }
+
       if (valueStorage) {
         getSale(query.skip, query.limit)
       }
-    },[query])
+    },[dispatch, query, valueStorage])
 
     useEffect(() => {
         if (!user && valueStorage) {
@@ -98,9 +103,9 @@ export default function BuyScreen() {
         if (!valueStorage) {
             router.push('/')
           }
-      }, [valueStorage, user, dispatch])
+      }, [valueStorage, user, dispatch, router])
 
-  const lastElementRef: any = useCallback(
+  const lastElementRef = useCallback(
     (node: HTMLLIElement | null) => {
       if (loading) return;
       if (observer.current) observer.current.disconnect();
@@ -114,13 +119,13 @@ export default function BuyScreen() {
       });
       if (node) observer.current.observe(node);
     },
-    [loading, data, search, query]
+    [loading, data.length, longArray]
   );
 
   return (
     <main>
         <div style={{display: 'flex', justifyContent: 'space-between', width: '100%', padding: '0px 15px', alignItems: 'center'}}>
-          <Search name='search' placeHolder={'Buscar compras'} type='text' value={search} onChange={(e:any)=>setSearch(e.target.value)} />
+          <Search name='search' placeHolder={'Buscar compras'} type='text' value={search} onChange={(e:ChangeEvent<HTMLInputElement>)=>setSearch(e.target.value)} />
           <Button text='Nuevo' onClick={()=>{}} to='/buy/newBuy'/>
         </div>
         <ListSale>

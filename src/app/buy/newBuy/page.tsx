@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 import React, { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react'
 import Search from '../../../components/Search';
@@ -20,6 +21,8 @@ import { useResize } from '@/hooks/useResize';
 import { ExtendItemBuy } from '@/interfaces/buy.interface';
 import { Product } from '@/interfaces/product.interface';
 import { Types } from 'mongoose';
+import Confirm from '@/components/Confirm';
+import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
 export default function NewBuy() {
 
@@ -27,9 +30,11 @@ export default function NewBuy() {
     const [lineaCompra, setLineaCompra] = useState<ExtendItemBuy[]>([])
     const [proveedor, setProveedor] = useState<string>('')
     const [total, setTotal] = useState<number>(0)
-    const router = useRouter()
+    const router: AppRouterInstance = useRouter()
     let {ancho, alto} = useResize()
     const [openLVMobile, setOpenLVMobile] = useState<boolean>(false)
+    const [newBuyStorage, setBuyStorage, clearBuy] = useLocalStorage("newBuy", "")
+    const [openConfirm, setOpenConfirm] = useState<boolean>(false)
 
     const user = useSelector(getUser)
     const dispatch = useAppDispatch();
@@ -41,7 +46,7 @@ export default function NewBuy() {
       if (!valueStorage) {
         router.push('/')
       }
-    }, [valueStorage, user, dispatch])
+    }, [valueStorage, user, dispatch, router])
 
     useEffect(()=>{
       if (lineaCompra.length === 0) {
@@ -58,6 +63,18 @@ export default function NewBuy() {
       );
       setTotal(prevData => parseFloat(sum.toFixed(2)))
     },[lineaCompra])
+
+    useEffect(()=>{
+      if (lineaCompra.length !== 0 || proveedor !== '' || total !== 0) {
+        setBuyStorage({lineaCompra:lineaCompra, proveedor:proveedor, total:total})
+      }
+    },[lineaCompra, proveedor, total]) 
+  
+    useEffect(() => {
+      if (newBuyStorage) {
+        setOpenConfirm(true)
+      }
+    }, [])
 
   return (
     <Container>
@@ -118,7 +135,7 @@ export default function NewBuy() {
                   </ListProduct>
               </div>
               <div style={{height: '30%', padding: '0 15px'}}>
-                  <Input label='Proveedor' name='proveedor' value={proveedor} onChange={(e:any)=>setProveedor(e.target.value)} type='text' />
+                  <Input label='Proveedor' name='proveedor' value={proveedor} onChange={(e:ChangeEvent<HTMLInputElement>)=>setProveedor(e.target.value)} type='text' />
                   <h2 style={{fontSize: 18}} >Total: $ {total} </h2>
                   <Button text='Crear' onClick={()=>{
                     if (lineaCompra.length===0 || total <= 0) {
@@ -267,6 +284,15 @@ export default function NewBuy() {
             </div>
           </WrapperLineaVenta>
         </ContainerMobile>
+      }
+      {
+        openConfirm &&
+        <Confirm open={openConfirm} message='Hay elementos en el borrador, ¿Quieres continuar con el borrador?' handleClose={()=>setOpenConfirm(false)} handleConfirm={()=>{
+          setLineaCompra((prevData:ExtendItemBuy[])=>newBuyStorage.lineaCompra)
+          setProveedor((prevData:string)=>newBuyStorage.proveedor)
+          setTotal((prevData:number)=>newBuyStorage.total)
+          setOpenConfirm(false)
+        }} />
       }
     </Container>
   )
