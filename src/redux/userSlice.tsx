@@ -2,8 +2,8 @@ import { UserWithToken } from "@/interfaces/auth.interface";
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState: UserWithToken = {
-  user: "",
-  token: "",
+  nickname: '',
+  token: '',
 };
 
 const userSlice = createSlice({
@@ -11,17 +11,17 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     setUser: (state, action) => {
-      state.user = action.payload.user;
-      state.user = action.payload.token;
+      state.nickname = action.payload.nickname;
+      state.token = action.payload.token;
     },
     clearUser: (state) => {
-      state.user = "";
-      state.token = "";
+      state.nickname = '';
+      state.token = '';
     },
   },
 });
 
-export const getUser = (state: UserWithToken) => state.user;
+export const getUser = (state: {user: UserWithToken}) => state.user;
 
 export const { setUser, clearUser } = userSlice.actions;
 

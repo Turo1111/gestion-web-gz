@@ -39,15 +39,6 @@ export default function NewBuy() {
     const user = useSelector(getUser)
     const dispatch = useAppDispatch();
 
-    useEffect(() => {
-      if (!user && valueStorage) {
-        dispatch(setUser(valueStorage))
-      }
-      if (!valueStorage) {
-        router.push('/')
-      }
-    }, [valueStorage, user, dispatch, router])
-
     useEffect(()=>{
       if (lineaCompra.length === 0) {
         setTotal(prevData=>0)

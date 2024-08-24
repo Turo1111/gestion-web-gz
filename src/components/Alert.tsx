@@ -33,7 +33,7 @@ export default function Alert() {
               zIndex: 100,
               left: '45%'
             }
-        } >
+        } suppressHydrationWarning={true} >
             <h2 style={{ fontWeight: "bold", color: '#fff', fontSize: 14 }}>{alert.message || 'Esto es una alerta'}</h2>
         </div>
     )

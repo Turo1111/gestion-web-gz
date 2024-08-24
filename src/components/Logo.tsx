@@ -3,15 +3,15 @@ import styled from 'styled-components';
 
 export default function Logo({ small = false }:{small?: boolean}) {
     return (
-      <StyledButton onClick={() => { /* Handle navigation here */ }}>
-        <Container>
-          <Golozur>
-            <ColorBlue style={{ fontSize: `${small ? '25px' : '40px'}`, fontWeight: 'bold' }}>GOLO</ColorBlue>
-            <ColorOrange style={{ fontSize: `${small ? '25px' : '40px'}`, fontWeight: 'bold' }}>ZUR</ColorOrange>
+      <StyledButton onClick={() => { /* Handle navigation here */ }} suppressHydrationWarning={true}>
+        <Container suppressHydrationWarning={true}>
+          <Golozur suppressHydrationWarning={true}>
+            <ColorBlue style={{ fontSize: `${small ? '25px' : '40px'}`, fontWeight: 'bold' }} suppressHydrationWarning={true}>GOLO</ColorBlue>
+            <ColorOrange style={{ fontSize: `${small ? '25px' : '40px'}`, fontWeight: 'bold' }} suppressHydrationWarning={true}>ZUR</ColorOrange>
           </Golozur>
-          <Distri style={{ marginTop: `${small ? '-5px' : '-10px'}`}}>
-            <ColorBlue style={{ fontSize: `${small ? '8px' : '16px'}`, fontWeight: 'bold' }}>DISTRI</ColorBlue>
-            <ColorOrange style={{ fontSize: `${small ? '8px' : '16px'}`, fontWeight: 'bold' }}>BUIDORA</ColorOrange>
+          <Distri style={{ marginTop: `${small ? '-5px' : '-10px'}`}} suppressHydrationWarning={true}>
+            <ColorBlue style={{ fontSize: `${small ? '8px' : '16px'}`, fontWeight: 'bold' }} suppressHydrationWarning={true}>DISTRI</ColorBlue>
+            <ColorOrange style={{ fontSize: `${small ? '8px' : '16px'}`, fontWeight: 'bold' }} suppressHydrationWarning={true}>BUIDORA</ColorOrange>
           </Distri>
         </Container>
       </StyledButton>

@@ -96,15 +96,6 @@ export default function BuyScreen() {
       }
     },[dispatch, query, valueStorage])
 
-    useEffect(() => {
-        if (!user && valueStorage) {
-          dispatch(setUser(valueStorage))
-        }
-        if (!valueStorage) {
-            router.push('/')
-          }
-      }, [valueStorage, user, dispatch, router])
-
   const lastElementRef = useCallback(
     (node: HTMLLIElement | null) => {
       if (loading) return;

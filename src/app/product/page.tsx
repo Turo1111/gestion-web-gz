@@ -57,15 +57,6 @@ export default function ProductScreen() {
       if (!user && valueStorage) {
         dispatch(setUser(valueStorage))
       }
-      if (!valueStorage) {
-        router.push('/')
-      }
-    }, [valueStorage, user, dispatch, router])
-
-    useEffect(() => {
-      if (!user && valueStorage) {
-        dispatch(setUser(valueStorage))
-      }
     }, [valueStorage, user, dispatch])
 
     const searchProduct = (e: ChangeEvent<HTMLInputElement>) => {

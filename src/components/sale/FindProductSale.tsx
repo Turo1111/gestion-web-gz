@@ -56,15 +56,6 @@ export default function FindProductSale({onClickItem}:{onClickItem:(item:Product
       if (!user && valueStorage) {
         dispatch(setUser(valueStorage))
       }
-      if (!valueStorage) {
-        router.push('/')
-      }
-    }, [valueStorage, user, dispatch])
-
-    useEffect(() => {
-      if (!user && valueStorage) {
-        dispatch(setUser(valueStorage))
-      }
     }, [valueStorage, user, dispatch])
 
     const searchProduct = (e: ChangeEvent<HTMLInputElement>) => {

@@ -4,13 +4,15 @@ import styled from 'styled-components'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation';
 import useLocalStorage from '@/hooks/useLocalStorage';
-import { getUser, setUser } from '@/redux/userSlice';
+import { clearUser, getUser, setUser } from '@/redux/userSlice';
 import { useAppDispatch } from '@/redux/hook';
 import { useSelector } from 'react-redux';
 import { useResize } from '@/hooks/useResize';
 import { BiMenu } from 'react-icons/bi';
 import { MdMenuOpen } from 'react-icons/md';
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
+import { UserWithToken } from '@/interfaces/auth.interface';
+import { setLoading } from '@/redux/loadingSlice';
 
 export default function Dashboard({children}: {children: ReactNode} ) {
 
@@ -22,30 +24,56 @@ export default function Dashboard({children}: {children: ReactNode} ) {
         {path: 'BUY', name: 'COMPRAS'}
     ]
     const pathname = usePathname()
-    const [isClient, setIsClient] = useState(false)
     let {ancho, alto} = useResize()
 
-    const user = useSelector(getUser)
+    const user:any = useSelector(getUser)
     const [valueStorage , setValue, clearValue] = useLocalStorage("user", "")
     const dispatch = useAppDispatch();
     const router: AppRouterInstance = useRouter()
     const [openMenu, setOpenMenu] = useState(false)
 
     useEffect(() => {
-      if (!user && valueStorage) {
-        dispatch(setUser(valueStorage))
-      }
-      if (!valueStorage) {
-        router.push('/')
-      }
-      setIsClient(true)
-    }, [valueStorage, user, dispatch, router])
+        const isLogIn = async () => {
+          if (valueStorage.nickname !== '' && valueStorage.token !== '' && valueStorage.nickname !== undefined && valueStorage.token !== undefined) {
+            if (pathname === '/') {
+               router.push('/home')
+                return
+            }
+            return
+          }
+          if (pathname === '/') {
+            return
+          }
+          router.push('/')
+          return
+        }
+        if (valueStorage !== undefined && valueStorage !== '') {
+            isLogIn()
+        }else{
+            if (pathname !== '/') {
+                router.push('/')
+                return
+            }
+        }
+        
+    }, [router])
 
+    useEffect(() => {
+        const saveLogIn = async () => {
+            if (user.nickname === '' && user.token === '' && valueStorage.nickname !== '' && valueStorage.token !== ''){
+                dispatch(setUser({...valueStorage}))
+            }
+        }
+        if (valueStorage !== undefined) {
+            saveLogIn()
+        }
+    }, [user, valueStorage])
+    
   return (
-    <div style={{display: 'flex', flexDirection: 'column', flex: 1, height: '100vh'}}>
+    <div style={{display: 'flex', flexDirection: 'column', flex: 1, height: '100vh'}} suppressHydrationWarning={true}>
         {
             ancho > 940 ?
-            <ContainerBig>
+            <ContainerBig suppressHydrationWarning={true}>
                 {
                     pathname !== '/' &&
                     <LeftDash>
@@ -65,63 +93,64 @@ export default function Dashboard({children}: {children: ReactNode} ) {
                         </ul>
                     </LeftDash>
                 }
-                <div style={{display: 'flex', flexDirection: 'column', flex: 1}}>
+                <div style={{display: 'flex', flexDirection: 'column', flex: 1}} suppressHydrationWarning={true}>
                     {
                         pathname !== '/' &&
-                        <div style={{display: 'flex', backgroundColor: '#f1f1f1', justifyContent: 'space-between', padding: 15, alignItems: 'center', color: '#252525'}}>
+                        <div style={{display: 'flex', backgroundColor: '#f1f1f1', justifyContent: 'space-between', padding: 15, alignItems: 'center', color: '#252525'}} suppressHydrationWarning={true}>
                             <h2>{pathname}</h2>
                             {
-                            isClient && (
-                                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                                <label style={{fontSize: 18, fontWeight: 600, marginRight: 15}}>Bienvenido {valueStorage?.user}</label>
-                                <SignOut onClick={() => {clearValue(); router.push('/')}}>Cerrar sesion</SignOut>
+                                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}} suppressHydrationWarning={true}>
+                                    <label style={{fontSize: 18, fontWeight: 600, marginRight: 15}} suppressHydrationWarning={true}>Bienvenido {valueStorage.user || user.nickname || undefined}</label>
+                                    <SignOut onClick={() => {clearValue(); router.push('/')}}>Cerrar sesion</SignOut>
                                 </div>
-                            )
                             }
                         </div>
                     }
-                    <div style={{display: 'flex', flex: 1, flexDirection: 'column'}}>
+                    <div style={{display: 'flex', flex: 1, flexDirection: 'column', overflowY: 'scroll'}} suppressHydrationWarning={true}>
                         {children}
                     </div>
                 </div>
             </ContainerBig>
             :
-            <ContainerSmall>
+            <ContainerSmall suppressHydrationWarning={true}>
                 {
                     pathname !== '/' &&
-                    <Header>
+                    <Header suppressHydrationWarning={true}>
                         {
                             !openMenu ? 
-                            <IconWrapper onClick={()=>setOpenMenu(true)}>
+                            <IconWrapper onClick={()=>setOpenMenu(true)} suppressHydrationWarning={true}>
                                 <BiMenu/>
                             </IconWrapper>:
-                            <IconWrapper onClick={()=>setOpenMenu(false)}>
+                            <IconWrapper onClick={()=>setOpenMenu(false)} suppressHydrationWarning={true}>
                                 <MdMenuOpen />
                             </IconWrapper>
                         }
-                        <div style={{display: 'flex', justifyContent: 'center', flex: 1}} >
+                        <div style={{display: 'flex', justifyContent: 'center', flex: 1}} suppressHydrationWarning={true}>
                             <Logo small={true}/>
                         </div>
                     </Header>
                 }
                 {
                     openMenu &&
-                    <LeftDash>
-                        <ul>
+                    <LeftDash suppressHydrationWarning={true}>
+                        <ul suppressHydrationWarning={true}>
                             {
                                 itemsLi.map((item, index)=>{
                                     const isSelect = pathname === "/"+(item.path.toLowerCase().split(' ').join(''))
                                     return(
-                                    <Link href={"/"+(item.path.toLowerCase().split(' ').join(''))} style={{textDecoration: 'none'}}  key={index} onClick={()=>setOpenMenu(false)}> 
+                                    <Link href={"/"+(item.path.toLowerCase().split(' ').join(''))} style={{textDecoration: 'none'}}  key={index} onClick={()=>setOpenMenu(false)} suppressHydrationWarning={true}> 
                                         <ItemLi $isSelect={isSelect} >{item.name}</ItemLi>
                                     </Link>
                                 )})
                             }
                         </ul>
-                        <SignOut onClick={() => {clearValue(); router.push('/');setOpenMenu(false)}}>Cerrar sesion</SignOut>
+                        <SignOut onClick={async () => {
+                            await clearValue();
+                            setOpenMenu(false)
+                        }} suppressHydrationWarning={true}>Cerrar sesion</SignOut>
                     </LeftDash>
                 }
-                <div style={{display: 'flex', flex: 1, flexDirection: 'column'}}>
+                <div style={{display: 'flex', flex: 1, flexDirection: 'column', overflowY: 'scroll'}} suppressHydrationWarning={true}>
                     {children}
                 </div>
             </ContainerSmall>
@@ -141,6 +170,8 @@ const ContainerSmall = styled.div `
     display: none;
     flex:1;
     position: relative;
+    max-height: 100vh;
+    overflow-y: scroll;
     @media only screen and (max-width: 940px) {
         display: flex;
         flex-direction: column;
@@ -167,6 +198,8 @@ const ContainerBig = styled.div `
     width: 100%;
     display: flex;
     flex:1;
+    max-height: 100vh;
+    overflow-y: scroll;
     @media only screen and (max-width: 940px) {
         display: none
     }

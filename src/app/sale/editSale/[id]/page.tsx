@@ -65,15 +65,6 @@ export default function EditSale({ params }: { params: { id: string } }) {
       })
     }
 
-    useEffect(() => {
-      if (!user && valueStorage) {
-        dispatch(setUser(valueStorage))
-      }
-      if (!valueStorage) {
-        router.push('/')
-      }
-    }, [valueStorage, user, dispatch, router])
-
     useEffect(()=>{
       if (lineaVenta.length === 0) {
         setTotal(prevData=>0)

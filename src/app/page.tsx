@@ -4,10 +4,10 @@ import Input from "@/components/Input";
 import Loading from "@/components/Loading";
 import MiniLoading from "@/components/MiniLoading";
 import useLocalStorage from "@/hooks/useLocalStorage";
-import { Auth } from "@/interfaces/auth.interface";
+import { Auth, UserWithToken } from "@/interfaces/auth.interface";
 import { useAppDispatch } from "@/redux/hook";
 import { getLoading, setLoading } from "@/redux/loadingSlice";
-import { setUser } from "@/redux/userSlice";
+import { getUser, setUser } from "@/redux/userSlice";
 import apiClient from "@/utils/client";
 import { useFormik } from "formik";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
@@ -24,6 +24,7 @@ export default function Home() {
   const [valueStorage, setValue] = useLocalStorage("user", "")
   const dispatch = useAppDispatch();
   const router: AppRouterInstance = useRouter()
+  const user: UserWithToken = useSelector(getUser)
 
   const formik = useFormik({
     initialValues: initialValues,
@@ -45,10 +46,7 @@ export default function Home() {
       .catch(e=>{console.log(e);dispatch(setLoading(false))})
     }
   }) 
-
-  if (valueStorage) {
-    router.push('/home')
-  }
+  
 
   return (
     <Main>
