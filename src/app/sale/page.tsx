@@ -4,6 +4,7 @@
 import Button from '@/components/Button'
 import InfoSale from '@/components/sale/InfoSale'
 import ModalPrintSale from '@/components/sale/ModalPrintSale'
+import PrintMultipleSale from '@/components/sale/PrintMultipleSale'
 import Search from '@/components/Search'
 import useLocalStorage from '@/hooks/useLocalStorage'
 import { Sale } from '@/interfaces/sale.interface'
@@ -16,7 +17,7 @@ import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.share
 import { useRouter } from 'next/navigation'
 import React, { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { BsPrinterFill } from 'react-icons/bs'
-import { MdEdit, MdInfo } from 'react-icons/md'
+import { MdClose, MdEdit, MdInfo } from 'react-icons/md'
 import { useSelector } from 'react-redux'
 import { io } from 'socket.io-client'
 import styled from 'styled-components'
@@ -37,6 +38,18 @@ export default function SaleScreen() {
     const [openInfoSale, setOpenInfoSale] = useState<boolean>(false)
     const observer = useRef<IntersectionObserver | null>(null);
     const [query, setQuery] = useState<{skip: number, limit: number}>({skip: 0, limit: 25})
+    const [selectSaleArray, setSelectSaleArray] = useState<Sale[]>([])
+    const [openMultipleSale, setOpenMultipleSale] = useState(false)
+
+    const addSaleArray = (item: Sale) => {
+      setSelectSaleArray(prevData=>{
+        const exist = prevData.find((elem: Sale) => elem._id === item._id)
+        if (exist) {
+          return prevData.filter((elem: Sale) => elem._id !== item._id)
+        }
+        return[...prevData, item]
+      })
+    }
 
     const getSale = async (skip: number, limit: number) => {
       dispatch(setLoading(true))
@@ -140,14 +153,24 @@ export default function SaleScreen() {
     <main>
         <div style={{display: 'flex', justifyContent: 'space-between', width: '100%', padding: '0px 15px', alignItems: 'center'}}>
           <Search name='search' placeHolder={'Buscar ventas'} type='text' value={search} onChange={(e:ChangeEvent<HTMLInputElement>)=>setSearch(e.target.value)} />
-          <Button text='Nuevo' onClick={()=>{}} to='/sale/newSale'/>
+          {
+            selectSaleArray.length === 0 ?
+            <Button text='Nuevo' onClick={()=>{}} to='/sale/newSale'/>:
+            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0px 15px'}}>
+              <IconWrapper onClick={()=>setSelectSaleArray(prevData=>[])}>
+                <MdClose/>
+              </IconWrapper>
+              <h2 style={{fontSize: 16, color: '#252525'}}>{selectSaleArray.length} Ventas seleccionadas</h2>
+              <Button text='Imprimir' onClick={()=>setOpenMultipleSale(true)}/>
+            </div>
+          }
         </div>
         <ListSale>
             {
                search !== '' ?
                 dataSearch.length !== 0 ?
                 dataSearch.map((item:Sale, index:number)=>{
-                return (<Item key={index} onClick={()=>setSaleSelected(item._id)} >
+                return (<Item key={index} onClick={()=>addSaleArray(item)} $isSelect={selectSaleArray.find((elem: Sale) => elem._id === item._id) ? true : false} >
                   <div style={{display: 'flex', justifyContent: 'space-between', width : '100%', alignItems: 'center', marginRight: 15}}>
                     <h2 style={{fontSize: 18, color: '#252525'}}>{item.cliente}</h2>
                     <h2 style={{fontSize: 18, fontWeight: 600, color: '#FA9B50'}}>$ {item.total}</h2>
@@ -158,10 +181,10 @@ export default function SaleScreen() {
                     }}>
                         <MdEdit />
                     </IconWrapper>
-                    <IconWrapper style={{color: '#939185'}}  onClick={()=>{setOpenPrintSale(true)}}>
+                    <IconWrapper style={{color: '#939185'}}  onClick={()=>{setOpenPrintSale(true); setSaleSelected(item._id)}}>
                       <BsPrinterFill />
                     </IconWrapper>
-                    <IconWrapper style={{color: '#6EACDA'}} onClick={()=>setOpenInfoSale(true)}>
+                    <IconWrapper style={{color: '#6EACDA'}} onClick={()=>{setOpenInfoSale(true);setSaleSelected(item._id)}}>
                       <MdInfo />
                     </IconWrapper>
                 </div>
@@ -171,9 +194,12 @@ export default function SaleScreen() {
               :
                 data.length !== 0 ? 
                 data.map((item:Sale, index:number)=>
-                  <Item key={index} onClick={()=>setSaleSelected(item._id)} >
+                  <Item key={index} onClick={()=>addSaleArray(item)} $isSelect={selectSaleArray.find((elem: Sale) => elem._id === item._id) ? true : false} >
                     <div style={{display: 'flex', justifyContent: 'space-between', width : '100%', alignItems: 'center', marginRight: 15}}>
-                      <h2 style={{fontSize: 18, color: '#252525'}}>{item.cliente}</h2>
+                      <div>
+                        <h2 style={{fontSize: 18, color: '#252525'}}>{item.cliente}</h2>
+                        <h2 style={{fontSize: 14, color: '#252525'}}>{item.createdAt.split("T")[0]}</h2>
+                      </div>
                       <h2 style={{fontSize: 18, fontWeight: 600, color: '#FA9B50'}}>$ {item.total}</h2>
                     </div>
                     <div  style={{display: 'flex'}}>
@@ -182,12 +208,12 @@ export default function SaleScreen() {
                       }}>
                           <MdEdit />
                       </IconWrapper>
-                      <IconWrapper style={{color: '#939185'}}  onClick={()=>{setOpenPrintSale(true)}}>
-                        <BsPrinterFill />
-                      </IconWrapper>
-                      <IconWrapper style={{color: '#6EACDA'}} onClick={()=>setOpenInfoSale(true)}>
-                        <MdInfo />
-                      </IconWrapper>
+                      <IconWrapper style={{color: '#939185'}}  onClick={()=>{setOpenPrintSale(true); setSaleSelected(item._id)}}>
+                      <BsPrinterFill />
+                    </IconWrapper>
+                    <IconWrapper style={{color: '#6EACDA'}} onClick={()=>{setOpenInfoSale(true);setSaleSelected(item._id)}}>
+                      <MdInfo />
+                    </IconWrapper>
                   </div>
                   </Item>)
                   :
@@ -215,11 +241,15 @@ export default function SaleScreen() {
           openInfoSale && 
           <InfoSale open={openInfoSale} handleClose={()=>setOpenInfoSale(false)} id={saleSelected} />
         }
+        {
+          openMultipleSale &&
+          <PrintMultipleSale open={openMultipleSale} handleClose={()=>setOpenMultipleSale(false)} salesIds={selectSaleArray} />
+        }
     </main>
   )
 }
 
-const Item = styled.li `
+const Item = styled.li<{$isSelect: boolean}> `
   list-style: none;
   padding: 15px;
   font-weight: 600;
@@ -228,6 +258,7 @@ const Item = styled.li `
   display: flex;
   justify-content: space-between;
   cursor: pointer;
+  background-color: ${({ $isSelect }) => ($isSelect ? '#e4e2e2' : 'none')};
 `
 
 const IconWrapper = styled.div`

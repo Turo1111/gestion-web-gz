@@ -27,12 +27,10 @@ const formatBarChartData = (data: { sales: Response[], buy: Response[] }) => {
   // Extraer etiquetas del primer conjunto de datos
   const labels = data.sales.map(item => item.label);
 
-  console.log(labels)
-
   return {
     series: [
-      { data: salesData },
-      { data: buyData },
+      { data: salesData, color: '#99BC85' }, // Color para `sales`
+      { data: buyData, color: '#DC8686' },   // Color para `buy`
     ],
     xAxis: labels,
   };
@@ -43,6 +41,7 @@ const transformData = (data: Response[]): { id: number; value: number; label: st
     id: item.id,
     value: item.totalSales, // O usa salesCount si prefieres ese valor
     label: item.label === "sale" ? 'VENTAS' : 'COMPRAS',
+    color: item.label === "sale" ? '#99BC85' : '#DC8686',
   }));
 };
 
@@ -115,12 +114,12 @@ export default function Home() {
             </div>
           )}
           <div style={{ display: 'flex', flex: 1 }}>
-          <BarChart
-            series={barChartData.series}
-            height={290}
-            xAxis={[{ data: barChartData.xAxis, scaleType: 'band' }]}
-            margin={{ top: 10, bottom: 30, left: 40, right: 10 }}
-          />
+            <BarChart
+              series={barChartData.series}
+              height={290}
+              xAxis={[{ data: barChartData.xAxis, scaleType: 'band' }]}
+              margin={{ top: 10, bottom: 30, left: 40, right: 10 }}
+            />
           </div>
         </ChartsContainer>
         <MovementsContainer>

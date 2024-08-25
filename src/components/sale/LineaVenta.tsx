@@ -47,7 +47,10 @@ export default function LineaVenta({lineaVenta, onClick, upQTY, downQTY, upQTY10
         </div>
         <div style={{height: '30%', padding: '0 15px'}}>
            <Input label='Cliente' name='cliente' value={cliente} onChange={(e:ChangeEvent<HTMLInputElement>)=>onChangeCliente(e)} type='text' />
-            <Total>Total: $ {total} </Total>
+            <div style={{display: 'flex', justifyContent: 'space-between'}} >
+              <Total>{lineaVenta.length} productos </Total>
+              <Total>Total: $ {total} </Total>
+            </div>
             <div style={{display: 'flex', justifyContent: 'center'}}>
               <Button text='Crear' onClick={()=>{
                 if (lineaVenta.length===0 || total <= 0) {

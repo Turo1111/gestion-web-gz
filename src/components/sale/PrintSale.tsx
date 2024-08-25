@@ -58,6 +58,7 @@ export default function PrintSale({id}:{id: string | Types.ObjectId | undefined}
         const imgWidth = pdfWidth;
         const imgHeight = pdfHeight;
         pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+        /* 100 y 200 */
       });
       if (index < [...Array(totalPartes)].length-1) {
         pdf.addPage()

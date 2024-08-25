@@ -11,13 +11,13 @@ interface Column {
   date?: boolean
 }
 
-export default function Table({data = [], columns, onClick, date=false, maxHeight = true, title}: 
-  {data: any[], columns: Column[], onClick: (item:any)=>void, date?: boolean, maxHeight: boolean, title?: string}) {
+export default function Table({data = [], columns, onClick, date=false, maxHeight = true, title, print = false}: 
+  {data: any[], columns: Column[], onClick: (item:any)=>void, date?: boolean, maxHeight: boolean, title?: string, print?: boolean}) {
   return (
     <div>
-      {title && <Tag>{title}</Tag>}
+      {title && <Tag $print={print}>{title}</Tag>}
       <List maxHeight={maxHeight || true}>
-          <TableHeader color={process.env.TEXT_COLOR}>
+          <TableHeader color={process.env.TEXT_COLOR} $print={print} >
               {columns.map((column: Column, index: number) => (
                 <div key={index} style={{ flexBasis: column.width, textAlign: column.align }}>
                   {column.label}
@@ -26,14 +26,14 @@ export default function Table({data = [], columns, onClick, date=false, maxHeigh
           </TableHeader>
           {
               data.length === 0 ?
-                  <TableRow>
+                  <TableRow $print={print}>
                       <div style={{textAlign: 'center'}} data-label="Sucursal">NO HAY ELEMENTOS</div>
                   </TableRow>
               :
               data.map((item:any,index:number)=>{
 
                 return(
-                  <TableRow key={index} onClick={()=>onClick(item)} color={process.env.TEXT_COLOR} >
+                  <TableRow key={index} onClick={()=>onClick(item)} color={process.env.TEXT_COLOR} $print={print} >
                       {columns.map((column: Column, columnIndex: number) =>{ 
                         // eslint-disable-next-line
                         const fecha = useDate(item[column.field]).date;
@@ -63,7 +63,7 @@ export default function Table({data = [], columns, onClick, date=false, maxHeigh
   )
 }
 
-const TableHeader = styled.li `
+const TableHeader = styled.li<{$print: boolean}> `
     border-radius: 3px;
     padding: 15px 30px;
     display: flex;
@@ -72,18 +72,19 @@ const TableHeader = styled.li `
     color: ${props=>props.color};
     background-color: #F9F5F6;
     font-size: 18px;
-    font-weight: 600;
+    font-weight: ${({ $print }) => ($print ? '400' : '600')};;
     text-transform: uppercase;
     letter-spacing: 0.03em;
 `
 
-const TableRow = styled.li `
+const TableRow = styled.li<{$print: boolean}> `
     border-radius: 3px;
     padding: 0px 30px;
     display: flex;
     justify-content: space-between;
     margin-bottom: 5px;
-    font-weight: 600;
+    font-weight: ${({ $print }) => ($print ? '400' : '600')};
+    text-transform: ${({ $print }) => ($print ? 'uppercase' : 'none')};;
     color: ${props=>props.color};
     font-size: 18px;
     background-color: #ffffff;
@@ -103,10 +104,11 @@ const List = styled.ul<List> `
   overflow-y: scroll;
 `
 
-const Tag = styled.h5 `
+const Tag = styled.h5<{$print: boolean}> `
     font-size: 18px;
     padding: 0 15px;
-    font-weight: 600;
+    font-weight: ${({ $print }) => ($print ? '400' : '600')};;
     margin: 5px 0;
     color: ${process.env.TEXT_COLOR};
+    text-transform: ${({ $print }) => ($print ? 'uppercase' : 'none')};;
 `
