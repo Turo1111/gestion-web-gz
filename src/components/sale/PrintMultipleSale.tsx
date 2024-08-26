@@ -53,6 +53,7 @@ export default function PrintMultipleSale({open, handleClose, salesIds}:{open:bo
     }
   
     const generatePdf = async () => {
+        dispatch(setLoading(true));
         const pdf = new jsPDF('p', 'mm', 'a4');
         const pageWidth = pdf.internal.pageSize.getWidth();
         const pageHeight = pdf.internal.pageSize.getHeight();
@@ -96,6 +97,7 @@ export default function PrintMultipleSale({open, handleClose, salesIds}:{open:bo
       
         const pdfName = `ventas.pdf`;
         pdf.save(pdfName);
+        dispatch(setLoading(false));
       };
       
   
