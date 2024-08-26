@@ -5,6 +5,8 @@ import { ExtendItemBuy, ItemBuy } from '@/interfaces/buy.interface'
 import { useFormik } from 'formik'
 import Input from '../Input'
 import Button from '../Button'
+import { useAppDispatch } from '@/redux/hook'
+import { setAlert } from '@/redux/alertSlice'
 
 export default function AddBuyItem({open, handleClose, item, onClickItem}:{open: boolean, handleClose: ()=>void, item: Product, onClickItem: (item:ExtendItemBuy)=>void}) {
 
@@ -17,11 +19,16 @@ export default function AddBuyItem({open, handleClose, item, onClickItem}:{open:
         NameCategoria: item.NameCategoria
     }
 
+    const dispatch = useAppDispatch();
+
     const formik = useFormik({
         initialValues: initialValue,
         onSubmit: (formValue:ExtendItemBuy) => {
             if (formValue.cantidad <= 0 && formValue.precio <= 0) {
-                console.log('entre')
+                dispatch(setAlert({
+                    message: `Falta ingresar cantida o precio`,
+                    type: 'warning'
+                }))
                 return
             }
             onClickItem(formValue)

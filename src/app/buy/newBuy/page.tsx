@@ -284,10 +284,12 @@ export default function NewBuy() {
         <AddBuyItem open={openAddProduct} handleClose={()=>setOpenAddProduct(false)} item={productSelected}
           onClickItem={(item:ExtendItemBuy)=>{
             setLineaCompra((prevData:ExtendItemBuy[])=>{
-                const exist = prevData.find((elem:ExtendItemBuy)=>elem._id===item._id)
+              console.log('newBuy', [...prevData, item])
+                const exist = prevData.find((elem:ExtendItemBuy)=>elem.idProducto===item.idProducto)
                 if (exist) {
+                  console.log('existe item')
                     return prevData.map((elem: ExtendItemBuy) =>
-                        elem._id === item._id ? item : elem
+                        elem.idProducto === item.idProducto ? item : elem
                     )
                 }
                 return [...prevData, item]
