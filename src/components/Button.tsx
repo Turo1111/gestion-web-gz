@@ -15,12 +15,12 @@ export default function Button({text, onClick, width='auto', to, type='button'}:
       {
         to ?
         <Link href={to}>
-          <Btn onClick={onClick} $width={width} type={type} >
+          <Btn onClick={onClick} $width={width} type={'button'} >
             {text}
           </Btn>
         </Link>
         :
-        <Btn onClick={onClick} $width={width} type={type}>
+        <Btn onClick={onClick} $width={width} type={'button'}>
           {text}
         </Btn>
       }
