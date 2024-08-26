@@ -16,10 +16,10 @@ export interface ItemBuy {
   idProducto?: Types.ObjectId
   cantidad: number
   total: number
+  precio: number
 }
 
 export interface ExtendItemBuy extends ItemBuy {
   descripcion?: string
   NameCategoria?: string
-  precioUnitario: number
 }

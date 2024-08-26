@@ -1,3 +1,4 @@
+import { ExtendItemBuy } from '@/interfaces/buy.interface'
 import { Product } from '@/interfaces/product.interface'
 import { ExtendItemSale, ItemSale } from '@/interfaces/sale.interface'
 import { Types } from 'mongoose'
@@ -8,7 +9,7 @@ import styled from 'styled-components'
 export default function ItemLineaVenta({elem, onClick, upQTY, downQTY, downQTY10, upQTY10}:
     {onClick:()=>void, upQTY:(id:string | Types.ObjectId| undefined)=>void, 
     downQTY: (id:string | Types.ObjectId | undefined)=>void, upQTY10:(id:string | Types.ObjectId | undefined)=>void, 
-    downQTY10:(id:string | Types.ObjectId | undefined)=>void, elem: ExtendItemSale}) {
+    downQTY10:(id:string | Types.ObjectId | undefined)=>void, elem: ExtendItemSale | ExtendItemBuy}) {
   return (
     <Item>
         <div>

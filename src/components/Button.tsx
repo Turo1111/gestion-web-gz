@@ -2,12 +2,12 @@ import Link from 'next/link'
 import React, { FormEvent, MouseEventHandler } from 'react'
 import styled from 'styled-components'
 
-export default function Button({text, onClick, width='auto', to, type}: {
+export default function Button({text, onClick, width='auto', to, type='button'}: {
   text: string;
   onClick: ()=>void;
   width?: string | undefined;
   to?: string;
-  type?: 'submit' 
+  type?: string 
 }) {
   
   return (

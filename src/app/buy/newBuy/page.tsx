@@ -18,11 +18,12 @@ import { getLoading, setLoading } from '@/redux/loadingSlice';
 import { setAlert } from '@/redux/alertSlice';
 import FindProductSale from '@/components/sale/FindProductSale';
 import { useResize } from '@/hooks/useResize';
-import { ExtendItemBuy } from '@/interfaces/buy.interface';
+import { ExtendItemBuy, ItemBuy } from '@/interfaces/buy.interface';
 import { Product } from '@/interfaces/product.interface';
 import { Types } from 'mongoose';
 import Confirm from '@/components/Confirm';
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
+import AddBuyItem from '@/components/buy/AddBuyItem';
 
 export default function NewBuy() {
 
@@ -35,6 +36,8 @@ export default function NewBuy() {
     const [openLVMobile, setOpenLVMobile] = useState<boolean>(false)
     const [newBuyStorage, setBuyStorage, clearBuy] = useLocalStorage("newBuy", "")
     const [openConfirm, setOpenConfirm] = useState<boolean>(false)
+    const [openAddProduct, setOpenAddProduct] = useState<boolean>(false)
+    const [productSelected, setProductSelected] = useState<Product | undefined>(undefined)
 
     const user = useSelector(getUser)
     const dispatch = useAppDispatch();
@@ -58,7 +61,10 @@ export default function NewBuy() {
     useEffect(()=>{
       if (lineaCompra.length !== 0 || proveedor !== '' || total !== 0) {
         setBuyStorage({lineaCompra:lineaCompra, proveedor:proveedor, total:total})
+        return
       }
+      clearBuy()
+      return
     },[lineaCompra, proveedor, total]) 
   
     useEffect(() => {
@@ -76,16 +82,9 @@ export default function NewBuy() {
           <ContainerListProduct>
             <FindProductSale
               onClickItem={(item:Product)=>{
-                setLineaCompra((prevData:ExtendItemBuy[])=>{
-                    const exist = prevData.find((elem:ExtendItemBuy)=>elem._id===item._id)
-                    if (exist) {
-                        return prevData.map((elem: ExtendItemBuy) =>
-                            elem._id === item._id ? {...item, cantidad: 1, total: item.precioUnitario} : elem
-                        )
-                    }
-                    return [...prevData, {...item, cantidad: 1, total: item.precioUnitario, idProducto: item._id}]
-                })
-            } }
+                setProductSelected(item)
+                setOpenAddProduct(true)
+              } }
             />
           </ContainerListProduct>
           <ContainerListLineaCompra>
@@ -94,28 +93,29 @@ export default function NewBuy() {
                   <ListProduct style={{ display: 'flex', flexDirection: 'column', padding: 15, maxHeight: '65vh'}}>
                       { 
                           lineaCompra.length === 0 ? 'No se selecciono productos' :
-                          lineaCompra.map((item:ExtendItemBuy, index:number)=><ItemLineaVenta key={index} elem={item}  onClick={()=>
-                            setLineaCompra((prevData:ExtendItemBuy[])=>prevData.filter((elem:ExtendItemBuy)=>elem._id!==item._id))
+                          lineaCompra.map((item:ExtendItemBuy, index:number)=><ItemLineaVenta key={index} elem={item}  
+                              onClick={()=>
+                                setLineaCompra((prevData:ExtendItemBuy[])=>prevData.filter((elem:ExtendItemBuy)=>elem._id!==item._id))
                               }
                               upQTY={(id:string | Types.ObjectId | undefined)=>setLineaCompra((prevData:ExtendItemBuy[])=>prevData.map((elem:ExtendItemBuy)=>{
-                                return elem._id===id ? {...elem, cantidad: elem.cantidad+1, total: parseFloat((elem.precioUnitario*(elem.cantidad+1)).toFixed(2))} : elem
+                                return elem._id===id ? {...elem, cantidad: elem.cantidad+1, total: parseFloat((elem.precio*(elem.cantidad+1)).toFixed(2))} : elem
                               }))}
                               downQTY={(id:string | Types.ObjectId | undefined)=>setLineaCompra((prevData:ExtendItemBuy[])=>prevData.map((elem:ExtendItemBuy)=>{
                                 if (elem._id===id) {
                                   if (elem.cantidad-1 > 1 ) {
-                                    return {...elem, cantidad: elem.cantidad-1, total: parseFloat((elem.precioUnitario*(elem.cantidad-1)).toFixed(2))}
+                                    return {...elem, cantidad: elem.cantidad-1, total: parseFloat((elem.precio*(elem.cantidad-1)).toFixed(2))}
                                   }
-                                  return {...elem, cantidad: 1, total: elem.precioUnitario}
+                                  return {...elem, cantidad: 1, total: elem.precio}
                                 }
                                 return elem
                               }))}
                               upQTY10={(id:string | Types.ObjectId | undefined)=>setLineaCompra((prevData:ExtendItemBuy[])=>prevData.map((elem:ExtendItemBuy)=>{
-                                return elem._id===id ? {...elem, cantidad: elem.cantidad+10, total: parseFloat((elem.precioUnitario*(elem.cantidad+10)).toFixed(2))} : elem
+                                return elem._id===id ? {...elem, cantidad: elem.cantidad+10, total: parseFloat((elem.precio*(elem.cantidad+10)).toFixed(2))} : elem
                               }))}
                               downQTY10={(id:string | Types.ObjectId | undefined)=>setLineaCompra((prevData:ExtendItemBuy[])=>prevData.map((elem:ExtendItemBuy)=>{
                                 if (elem._id===id) {
                                   if (elem.cantidad > 10 ) {
-                                    return {...elem, cantidad: elem.cantidad-10, total: parseFloat((elem.precioUnitario*(elem.cantidad-10)).toFixed(2))}
+                                    return {...elem, cantidad: elem.cantidad-10, total: parseFloat((elem.precio*(elem.cantidad-10)).toFixed(2))}
                                   }
                                   return elem
                                 }
@@ -173,16 +173,9 @@ export default function NewBuy() {
         <ContainerMobile>
           <FindProductSale
               onClickItem={(item:Product)=>{
-                setLineaCompra((prevData:ExtendItemBuy[])=>{
-                    const exist = prevData.find((elem:ExtendItemBuy)=>elem._id===item._id)
-                    if (exist) {
-                        return prevData.map((elem: ExtendItemBuy) =>
-                            elem._id === item._id ? {...item, cantidad: 1, total: item.precioUnitario} : elem
-                        )
-                    }
-                    return [...prevData, {...item, cantidad: 1, total: item.precioUnitario, idProducto: item._id}]
-                })
-            } }
+                setProductSelected(item)
+                setOpenAddProduct(true)
+              } }
             />
           <WrapperLineaVenta $openLVMobile={openLVMobile}>
             {
@@ -193,28 +186,29 @@ export default function NewBuy() {
                   <ListProduct style={{ display: 'flex', flexDirection: 'column', padding: 15, maxHeight: '65vh'}}>
                       { 
                           lineaCompra.length === 0 ? 'No se selecciono productos' :
-                          lineaCompra.map((item:ExtendItemBuy, index:number)=><ItemLineaVenta key={index} elem={item}  onClick={()=>
-                            setLineaCompra((prevData:ExtendItemBuy[])=>prevData.filter((elem:ExtendItemBuy)=>elem._id!==item._id))
+                          lineaCompra.map((item:ExtendItemBuy, index:number)=><ItemLineaVenta key={index} elem={item}  
+                              onClick={()=>
+                                setLineaCompra((prevData:ExtendItemBuy[])=>prevData.filter((elem:ExtendItemBuy)=>elem._id!==item._id))
                               }
                               upQTY={(id:string | Types.ObjectId | undefined)=>setLineaCompra((prevData:ExtendItemBuy[])=>prevData.map((elem:ExtendItemBuy)=>{
-                                return elem._id===id ? {...elem, cantidad: elem.cantidad+1, total: parseFloat((elem.precioUnitario*(elem.cantidad+1)).toFixed(2))} : elem
+                                return elem._id===id ? {...elem, cantidad: elem.cantidad+1, total: parseFloat((elem.precio*(elem.cantidad+1)).toFixed(2))} : elem
                               }))}
                               downQTY={(id:string | Types.ObjectId | undefined)=>setLineaCompra((prevData:ExtendItemBuy[])=>prevData.map((elem:ExtendItemBuy)=>{
                                 if (elem._id===id) {
                                   if (elem.cantidad-1 > 1 ) {
-                                    return {...elem, cantidad: elem.cantidad-1, total: parseFloat((elem.precioUnitario*(elem.cantidad-1)).toFixed(2))}
+                                    return {...elem, cantidad: elem.cantidad-1, total: parseFloat((elem.precio*(elem.cantidad-1)).toFixed(2))}
                                   }
-                                  return {...elem, cantidad: 1, total: elem.precioUnitario}
+                                  return {...elem, cantidad: 1, total: elem.precio}
                                 }
                                 return elem
                               }))}
                               upQTY10={(id:string | Types.ObjectId | undefined)=>setLineaCompra((prevData:ExtendItemBuy[])=>prevData.map((elem:ExtendItemBuy)=>{
-                                return elem._id===id ? {...elem, cantidad: elem.cantidad+10, total: parseFloat((elem.precioUnitario*(elem.cantidad+10)).toFixed(2))} : elem
+                                return elem._id===id ? {...elem, cantidad: elem.cantidad+10, total: parseFloat((elem.precio*(elem.cantidad+10)).toFixed(2))} : elem
                               }))}
                               downQTY10={(id:string | Types.ObjectId | undefined)=>setLineaCompra((prevData:ExtendItemBuy[])=>prevData.map((elem:ExtendItemBuy)=>{
                                 if (elem._id===id) {
                                   if (elem.cantidad > 10 ) {
-                                    return {...elem, cantidad: elem.cantidad-10, total: parseFloat((elem.precioUnitario*(elem.cantidad-10)).toFixed(2))}
+                                    return {...elem, cantidad: elem.cantidad-10, total: parseFloat((elem.precio*(elem.cantidad-10)).toFixed(2))}
                                   }
                                   return elem
                                 }
@@ -284,6 +278,23 @@ export default function NewBuy() {
           setTotal((prevData:number)=>newBuyStorage.total)
           setOpenConfirm(false)
         }} />
+      }
+      {
+        (openAddProduct && productSelected) &&
+        <AddBuyItem open={openAddProduct} handleClose={()=>setOpenAddProduct(false)} item={productSelected}
+          onClickItem={(item:ExtendItemBuy)=>{
+            setLineaCompra((prevData:ExtendItemBuy[])=>{
+                const exist = prevData.find((elem:ExtendItemBuy)=>elem._id===item._id)
+                if (exist) {
+                    return prevData.map((elem: ExtendItemBuy) =>
+                        elem._id === item._id ? item : elem
+                    )
+                }
+                return [...prevData, item]
+            })
+            setOpenAddProduct(false)
+          } }
+        />
       }
     </Container>
   )
