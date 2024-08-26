@@ -72,7 +72,7 @@ const TableHeader = styled.li<{$print: boolean}> `
     color: ${props=>props.color};
     background-color: #F9F5F6;
     font-size: 18px;
-    font-weight: ${({ $print }) => ($print ? '400' : '600')};;
+    font-weight: ${({ $print }) => ($print ? '400' : '600')};
     text-transform: uppercase;
     letter-spacing: 0.03em;
 `
@@ -86,7 +86,7 @@ const TableRow = styled.li<{$print: boolean}> `
     font-weight: ${({ $print }) => ($print ? '400' : '600')};
     text-transform: ${({ $print }) => ($print ? 'uppercase' : 'none')};;
     color: ${props=>props.color};
-    font-size: 18px;
+    font-size: ${({ $print }) => ($print ? '15px' : '18px')};
     background-color: #ffffff;
     cursor: ${props=>props.onClick && 'pointer'};
     :hover{

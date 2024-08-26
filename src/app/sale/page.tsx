@@ -170,8 +170,8 @@ export default function SaleScreen() {
                search !== '' ?
                 dataSearch.length !== 0 ?
                 dataSearch.map((item:Sale, index:number)=>{
-                return (<Item key={index} onClick={()=>addSaleArray(item)} $isSelect={selectSaleArray.find((elem: Sale) => elem._id === item._id) ? true : false} >
-                  <div style={{display: 'flex', justifyContent: 'space-between', width : '100%', alignItems: 'center', marginRight: 15}}>
+                return (<Item key={index}  $isSelect={selectSaleArray.find((elem: Sale) => elem._id === item._id) ? true : false} >
+                  <div style={{display: 'flex', justifyContent: 'space-between', width : '100%', alignItems: 'center', marginRight: 15}} onClick={()=>addSaleArray(item)}>
                     <h2 style={{fontSize: 18, color: '#252525'}}>{item.cliente}</h2>
                     <h2 style={{fontSize: 18, fontWeight: 600, color: '#FA9B50'}}>$ {item.total}</h2>
                   </div>
@@ -194,8 +194,8 @@ export default function SaleScreen() {
               :
                 data.length !== 0 ? 
                 data.map((item:Sale, index:number)=>
-                  <Item key={index} onClick={()=>addSaleArray(item)} $isSelect={selectSaleArray.find((elem: Sale) => elem._id === item._id) ? true : false} >
-                    <div style={{display: 'flex', justifyContent: 'space-between', width : '100%', alignItems: 'center', marginRight: 15}}>
+                  <Item key={index} $isSelect={selectSaleArray.find((elem: Sale) => elem._id === item._id) ? true : false} >
+                    <div style={{display: 'flex', justifyContent: 'space-between', width : '100%', alignItems: 'center', marginRight: 15}} onClick={()=>addSaleArray(item)} >
                       <div>
                         <h2 style={{fontSize: 18, color: '#252525'}}>{item.cliente}</h2>
                         <h2 style={{fontSize: 14, color: '#252525'}}>{item.createdAt.split("T")[0]}</h2>
