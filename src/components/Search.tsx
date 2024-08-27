@@ -19,7 +19,6 @@ export default function Search({ type, value, onChange, name, placeHolder, onCli
   };
 
   return (
-    <div style={{width: '100%'}} >
       <InputWrapper>
           <IconWrapper style={{left: 25}}>
               <IoMdSearch/>
@@ -40,7 +39,6 @@ export default function Search({ type, value, onChange, name, placeHolder, onCli
             </IconWrapper>
           }
       </InputWrapper>
-    </div>
   )
 }
 

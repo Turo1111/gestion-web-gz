@@ -151,7 +151,7 @@ export default function SaleScreen() {
 
   return (
     <main>
-        <div style={{display: 'flex', justifyContent: 'space-between', width: '100%', padding: '0px 15px', alignItems: 'center'}}>
+        <ContainerSearch>
           <Search name='search' placeHolder={'Buscar ventas'} type='text' value={search} onChange={(e:ChangeEvent<HTMLInputElement>)=>setSearch(e.target.value)} />
           {
             selectSaleArray.length === 0 ?
@@ -164,7 +164,7 @@ export default function SaleScreen() {
               <Button text='Imprimir' onClick={()=>setOpenMultipleSale(true)}/>
             </div>
           }
-        </div>
+        </ContainerSearch>
         <ListSale>
             {
                search !== '' ?
@@ -195,13 +195,13 @@ export default function SaleScreen() {
                 data.length !== 0 ? 
                 data.map((item:Sale, index:number)=>
                   <Item key={index} $isSelect={selectSaleArray.find((elem: Sale) => elem._id === item._id) ? true : false} >
-                    <div style={{display: 'flex', justifyContent: 'space-between', width : '100%', alignItems: 'center', marginRight: 15}} onClick={()=>addSaleArray(item)} >
+                    <ContainerTag onClick={()=>addSaleArray(item)} >
                       <div>
-                        <h2 style={{fontSize: 18, color: '#252525'}}>{item.cliente}</h2>
-                        <h2 style={{fontSize: 14, color: '#252525'}}>{item.createdAt.split("T")[0]}</h2>
+                        <Tag>{item.cliente}</Tag>
+                        <TagDate>{item.createdAt.split("T")[0]}</TagDate>
                       </div>
-                      <h2 style={{fontSize: 18, fontWeight: 600, color: '#FA9B50'}}>$ {item.total}</h2>
-                    </div>
+                      <Tag style={{fontWeight: 600, color: '#FA9B50'}}>$ {item.total}</Tag>
+                    </ContainerTag>
                     <div  style={{display: 'flex'}}>
                       <IconWrapper style={{color: '#A2CA71'}} onClick={()=>{
                         router.push(`/sale/editSale/${item._id}`);
@@ -259,6 +259,9 @@ const Item = styled.li<{$isSelect: boolean}> `
   justify-content: space-between;
   cursor: pointer;
   background-color: ${({ $isSelect }) => ($isSelect ? '#e4e2e2' : 'none')};
+  @media only screen and (max-width: 500px) {
+    padding: 15px 0px 15px 15px;
+  }
 `
 
 const IconWrapper = styled.div`
@@ -274,6 +277,11 @@ const IconWrapper = styled.div`
     &:hover {
         background-color: #d9d9d9;
     }
+    @media only screen and (max-width: 500px) {
+      font-size: 20px;
+      padding: 5px 10px;
+      margin: 0px 5px;
+    }
 `
 
 const ListSale = styled.ul `
@@ -284,4 +292,45 @@ const ListSale = styled.ul `
   padding: 0 15px;
   overflow: scroll;
   max-height: 82vh;
+  @media only screen and (max-width: 500px) {
+    padding: 0;
+  }
+`
+
+const ContainerTag = styled.div`
+  display: flex; 
+  justify-content: space-between; 
+  width : 100%; 
+  align-items: center;
+  margin-right: 15px;
+  @media only screen and (max-width: 500px) {
+    margin-right: 0px;
+  }
+`
+
+const Tag = styled.h2`
+  font-size: 18px;
+  color: #252525;
+  @media only screen and (max-width: 500px) {
+    font-size: 14px;
+  }
+`
+
+const TagDate = styled.h2`
+  font-size: 14px;
+  color: #252525;
+  @media only screen and (max-width: 500px) {
+    font-size: 12px;
+  }
+`
+
+const ContainerSearch = styled.div `
+  display: flex; 
+  justify-content: space-between; 
+  width: 100%; 
+  padding: 0px 15px; 
+  align-items: center;
+  @media only screen and (max-width: 500px) {
+    flex-direction: column;
+  }
 `

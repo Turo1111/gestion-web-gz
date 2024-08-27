@@ -25,15 +25,13 @@ export default function LineaVenta({lineaVenta, onClick, upQTY, downQTY, upQTY10
     const dispatch = useAppDispatch();
     const router: AppRouterInstance = useRouter()
     const [valueStorage , setValue] = useLocalStorage("user", "")
-    const [valueStorageSale , setValueSale, clearValueSale] = useLocalStorage("newSale", "")
-    const [newEditSaleStorage, setEditSaleStorage, clearEditSale] = useLocalStorage("newEditSale", "")
 
 
   return (
     <ContainerListLineaVenta>
         <div style={{display: 'flex', flex: 1, flexDirection: 'column', padding: 15}}>
             <h2 style={{fontSize: 18}} >Linea de Venta</h2>
-            <ListProduct style={{ display: 'flex', flexDirection: 'column', padding: 15}}>
+            <ListProduct>
                 { 
                     lineaVenta.length === 0 ? 'No se selecciono productos' :
                     lineaVenta.map((item: ExtendItemSale, index:number)=><ItemLineaVenta key={index} elem={item}
@@ -80,7 +78,6 @@ export default function LineaVenta({lineaVenta, onClick, upQTY, downQTY, upQTY10
                     message: `Venta creada correctamente`,
                     type: 'success'
                   }))
-                  clearValueSale()
                   router.back()
                 })
                 .catch((e)=>{
@@ -98,7 +95,6 @@ export default function LineaVenta({lineaVenta, onClick, upQTY, downQTY, upQTY10
                 })
                 .then((r)=>{
                   dispatch(setLoading(false))
-                  clearEditSale()
                   dispatch(setAlert({
                     message: `Venta modificada correctamente`,
                     type: 'success'
@@ -147,4 +143,7 @@ const ListProduct = styled.ul `
   overflow-y: scroll;
   max-height: 65vh;
   min-height: 60vh;
+  @media only screen and (max-width: 500px) {
+    padding: 0;
+  }
 `

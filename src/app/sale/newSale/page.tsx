@@ -19,7 +19,6 @@ import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.share
 export default function NewSale() {
 
     const [valueStorage , setValue] = useLocalStorage("user", "")
-    const [newSaleStorage, setValueStorage, clearValue] = useLocalStorage("newSale", "")
     const [lineaVenta, setLineaVenta] = useState<ExtendItemSale[]>([])
     const [total, setTotal] = useState<number>(0)
     const router: AppRouterInstance = useRouter()
@@ -55,21 +54,6 @@ export default function NewSale() {
     );
     setTotal(prevData => parseFloat(sum.toFixed(2)))
   },[lineaVenta])
-
-  useEffect(()=>{
-    if (lineaVenta.length !== 0 || cliente !== '' || total !== 0) {
-      setValueStorage({lineaVenta:lineaVenta, cliente:cliente, total:total})
-      return
-    }
-    clearValue()
-    return
-  },[lineaVenta, cliente, total]) 
-
-  useEffect(() => {
-    if (newSaleStorage) {
-      setOpenConfirm(true)
-    }
-  }, [])
 
   return (
     <Container>
@@ -166,7 +150,7 @@ export default function NewSale() {
                 />
               </div>
             }
-            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}} >
+            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: `${!openLVMobile ? '0px' : '15px'}`}} >
               <h2 style={{fontSize: 18}} > {lineaVenta.length} Productos </h2>
               <h2 style={{fontSize: 18}} >Total: $ {total} </h2>
               <h2 style={{fontSize: 18, color: '#3764A0'}} onClick={()=>setOpenLVMobile(!openLVMobile)} >{openLVMobile ? 'CERRAR':'ABRIR'}</h2>
@@ -174,30 +158,20 @@ export default function NewSale() {
           </WrapperLineaVenta>
         </ContainerMobile>
       }
-      {
-        openConfirm &&
-        <Confirm open={openConfirm} message='Hay elementos en el borrador, ¿Quieres continuar con el borrador?' handleClose={()=>setOpenConfirm(false)} handleConfirm={()=>{
-          setLineaVenta((prevData:ExtendItemSale[])=>newSaleStorage.lineaVenta)
-          setCliente((prevData:string)=>newSaleStorage.cliente)
-          setTotal((prevData:number)=>newSaleStorage.total)
-          setOpenConfirm(false)
-        }} />
-      }
     </Container>
   )
 }
 
 const WrapperLineaVenta = styled.div<{$openLVMobile: boolean;}> `
   position: absolute;
-  bottom: ${({ $openLVMobile }) => ($openLVMobile ? 'none' : '15px')};
-  top: ${({ $openLVMobile }) => ($openLVMobile ? '-25px' : 'none')};
+  top: ${({ $openLVMobile }) => ($openLVMobile ? '5px' : '90%')};
   width: 100%;
   background-color: #F7F7F8;
   border: 1px solid #d9d9d9;
   border-radius: 15px;
   padding: 15px;
+  padding: ${({ $openLVMobile }) => ($openLVMobile ? '0px' : '15px')};
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-  min-height: 80%;
 `
 
 const ContainerMobile = styled.div `

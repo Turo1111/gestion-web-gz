@@ -32,7 +32,6 @@ export default function NewProduct({open, handleClose}:{open: boolean, handleClo
     const loading = useSelector(getLoading)
     const dispatch = useAppDispatch();
     const [openConfirm, setOpenConfirm] = useState<boolean>(false)
-    const [newProductStorage, setProductStorage, clearProduct] = useLocalStorage("newProduct", "")
 
     const isDifferentFromInitial = (values: Product, initial: Product) => {
       return Object.keys(initial).some(key => values[key as keyof Product] !== initial[key as keyof Product]);
@@ -82,21 +81,6 @@ export default function NewProduct({open, handleClose}:{open: boolean, handleClo
         })
       }
     }) 
-
-    useEffect(()=>{
-      if (isDifferentFromInitial(formik.values, initialValue)) {
-        console.log('guardando')
-        setProductStorage({...formik.values})
-        return
-      }
-    },[formik.values]) 
-  
-    useEffect(() => {
-      if (newProductStorage) {
-        console.log(newProductStorage)
-        setOpenConfirm(true)
-      }
-    }, [])
   
     return (
       <Modal open={open} title={'Nuevo producto'} eClose={handleClose} height='85%' >
@@ -123,23 +107,6 @@ export default function NewProduct({open, handleClose}:{open: boolean, handleClo
         <div style={{display: 'flex', justifyContent: 'center'}}>
           <Button text='Crear' onClick={formik.handleSubmit} />
         </div>
-        {
-        openConfirm &&
-        <Confirm open={openConfirm} message='Hay elementos en el borrador, ¿Quieres continuar con el borrador?' handleClose={()=>{setOpenConfirm(false);clearProduct()}} handleConfirm={()=>{
-          formik.setFieldValue('descripcion', newProductStorage.descripcion);
-          formik.setFieldValue('codigoBarra', newProductStorage.codigoBarra);
-          formik.setFieldValue('precioBulto', newProductStorage.precioBulto);
-          formik.setFieldValue('precioCompra', newProductStorage.precioCompra);
-          formik.setFieldValue('precioUnitario', newProductStorage.precioUnitario);
-          formik.setFieldValue('stock', newProductStorage.stock);
-          formik.setFieldValue('sabor', newProductStorage.sabor);
-          formik.setFieldValue('bulto', newProductStorage.bulto);
-          formik.setFieldValue('categoria', newProductStorage.categoria);
-          formik.setFieldValue('marca', newProductStorage.marca);
-          formik.setFieldValue('proveedor', newProductStorage.proveedor);
-          setOpenConfirm(false)
-        }} />
-      }
       </Modal>
     )
 }

@@ -34,7 +34,6 @@ export default function NewBuy() {
     const router: AppRouterInstance = useRouter()
     let {ancho, alto} = useResize()
     const [openLVMobile, setOpenLVMobile] = useState<boolean>(false)
-    const [newBuyStorage, setBuyStorage, clearBuy] = useLocalStorage("newBuy", "")
     const [openConfirm, setOpenConfirm] = useState<boolean>(false)
     const [openAddProduct, setOpenAddProduct] = useState<boolean>(false)
     const [productSelected, setProductSelected] = useState<Product | undefined>(undefined)
@@ -58,20 +57,6 @@ export default function NewBuy() {
       setTotal(prevData => parseFloat(sum.toFixed(2)))
     },[lineaCompra])
 
-    useEffect(()=>{
-      if (lineaCompra.length !== 0 || proveedor !== '' || total !== 0) {
-        setBuyStorage({lineaCompra:lineaCompra, proveedor:proveedor, total:total})
-        return
-      }
-      clearBuy()
-      return
-    },[lineaCompra, proveedor, total]) 
-  
-    useEffect(() => {
-      if (newBuyStorage) {
-        setOpenConfirm(true)
-      }
-    }, [])
 
   return (
     <Container>
@@ -271,15 +256,6 @@ export default function NewBuy() {
         </ContainerMobile>
       }
       {
-        openConfirm &&
-        <Confirm open={openConfirm} message='Hay elementos en el borrador, ¿Quieres continuar con el borrador?' handleClose={()=>setOpenConfirm(false)} handleConfirm={()=>{
-          setLineaCompra((prevData:ExtendItemBuy[])=>newBuyStorage.lineaCompra)
-          setProveedor((prevData:string)=>newBuyStorage.proveedor)
-          setTotal((prevData:number)=>newBuyStorage.total)
-          setOpenConfirm(false)
-        }} />
-      }
-      {
         (openAddProduct && productSelected) &&
         <AddBuyItem open={openAddProduct} handleClose={()=>setOpenAddProduct(false)} item={productSelected}
           onClickItem={(item:ExtendItemBuy)=>{
@@ -302,10 +278,10 @@ export default function NewBuy() {
   )
 }
 
+
 const WrapperLineaVenta = styled.div<{$openLVMobile: boolean;}> `
   position: absolute;
-  bottom: ${({ $openLVMobile }) => ($openLVMobile ? 'none' : '15px')};
-  top: ${({ $openLVMobile }) => ($openLVMobile ? '-25px' : 'none')};
+  top: ${({ $openLVMobile }) => ($openLVMobile ? '25px' : '90%')};
   width: 100%;
   background-color: #F7F7F8;
   border: 1px solid #d9d9d9;

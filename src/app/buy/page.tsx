@@ -115,10 +115,10 @@ export default function BuyScreen() {
 
   return (
     <main>
-        <div style={{display: 'flex', justifyContent: 'space-between', width: '100%', padding: '0px 15px', alignItems: 'center'}}>
+        <ContainerSearch>
           <Search name='search' placeHolder={'Buscar compras'} type='text' value={search} onChange={(e:ChangeEvent<HTMLInputElement>)=>setSearch(e.target.value)} />
           <Button text='Nuevo' onClick={()=>{}} to='/buy/newBuy'/>
-        </div>
+        </ContainerSearch>
         <ListSale>
             {
               search !== '' ?
@@ -175,6 +175,17 @@ export default function BuyScreen() {
     </main>
   )
 }
+
+const ContainerSearch = styled.div `
+  display: flex; 
+  justify-content: space-between; 
+  width: 100%; 
+  padding: 0px 15px; 
+  align-items: center;
+  @media only screen and (max-width: 500px) {
+    flex-direction: column;
+  }
+`
 
 const Item = styled.li `
   list-style: none;

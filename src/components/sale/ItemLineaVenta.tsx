@@ -12,11 +12,11 @@ export default function ItemLineaVenta({elem, onClick, upQTY, downQTY, downQTY10
     downQTY10:(id:string | Types.ObjectId | undefined)=>void, elem: ExtendItemSale | ExtendItemBuy}) {
   return (
     <Item>
-        <div>
-            <h2 style={{fontSize: 18, color: '#252525'}}>{elem.descripcion}</h2>
+        <ContainerElem>
+            <Description>{elem.descripcion}</Description>
             <h2 style={{fontSize: 14, fontWeight: 400, color: '#7F8487'}}>{elem.NameCategoria}</h2>
-        </div>
-        <div style={{display: 'flex'}}>
+        </ContainerElem>
+        <ContainerHandler>
             <div>
                 <div style={{display: 'flex'}}>
                     <div style={{display: 'flex'}}>
@@ -34,10 +34,35 @@ export default function ItemLineaVenta({elem, onClick, upQTY, downQTY, downQTY10
             <IconWrapper  onClick={onClick}>
                 <BiTrash/>
             </IconWrapper>
-        </div>
+        </ContainerHandler>
     </Item>
   )
 }
+
+const Description = styled.h2 `
+    font-size: 18px;
+    color: #252525;
+    @media only screen and (max-width: 500px) { 
+        font-size: 16px
+    } 
+`
+
+const ContainerHandler = styled.div `
+    display: flex;
+    @media only screen and (max-width: 500px) { 
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 5px;
+    } 
+`
+
+const ContainerElem = styled.div`
+    @media only screen and (max-width: 500px) { 
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    } 
+`
 
 const Item = styled.li `
   list-style: none;
@@ -48,6 +73,11 @@ const Item = styled.li `
   display: flex;
   justify-content: space-between;
   cursor: pointer;
+  @media only screen and (max-width: 500px) {
+    flex-direction: column;
+    justify-content: center;
+    padding: 15px 0;
+  }
 `
 
 const IconWrapper = styled.div`
