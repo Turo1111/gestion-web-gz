@@ -40,7 +40,7 @@ export default function EditSale({ params }: { params: { id: string } }) {
     const [openLVMobile, setOpenLVMobile] = useState<boolean>(false)
     const { id } = params;
     const [cliente, setCliente] = useState<string>('')
-    const [newEditSaleStorage, setEditSaleStorage, clearEditSale] = useLocalStorage(`newEditSale-${id}`, "")
+    /* const [newEditSaleStorage, setEditSaleStorage, clearEditSale] = useLocalStorage(`newEditSale-${id}`, "") */
     const [openConfirm, setOpenConfirm] = useState<boolean>(false)
 
     const user = useSelector(getUser)
@@ -81,7 +81,7 @@ export default function EditSale({ params }: { params: { id: string } }) {
       setTotal(prevData => parseFloat(sum.toFixed(2)))
     },[lineaVenta])
 
-  useEffect(()=> {
+  /* useEffect(()=> {
 
     if (newEditSaleStorage) {
       if (newEditSaleStorage.id === id) {
@@ -113,7 +113,7 @@ export default function EditSale({ params }: { params: { id: string } }) {
       }
       clearEditSale()
     }
-  }, [])
+  }, []) */
 
   return (
     <Container>
@@ -254,7 +254,7 @@ export default function EditSale({ params }: { params: { id: string } }) {
           </WrapperLineaVenta>
         </ContainerMobile>
       }
-      {
+      {/* {
         openConfirm &&
         <Confirm open={openConfirm} message='Hay elementos en el borrador, ¿Quieres continuar con el borrador?' handleClose={async()=>{setOpenConfirm(false);await getSale()}} handleConfirm={()=>{
           setLineaVenta((prevData:ExtendItemSale[])=>newEditSaleStorage.lineaVenta)
@@ -262,7 +262,7 @@ export default function EditSale({ params }: { params: { id: string } }) {
           setTotal((prevData:number)=>newEditSaleStorage.total)
           setOpenConfirm(false)
         }} />
-      }
+      } */}
     </Container>
   )
 }

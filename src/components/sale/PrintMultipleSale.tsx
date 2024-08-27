@@ -51,6 +51,8 @@ export default function PrintMultipleSale({open, handleClose, salesIds}:{open:bo
         })
         .catch((e) => {console.log(e); dispatch(setLoading(false))});
     }
+
+    useEffect(()=>console.log("sales",sales),[sales]) 
   
     const generatePdf = async () => {
         dispatch(setLoading(true));
