@@ -19,7 +19,7 @@ export default function Table({data = [], columns, onClick, date=false, maxHeigh
       <List maxHeight={maxHeight || true}>
           <TableHeader color={process.env.TEXT_COLOR} $print={print} >
               {columns.map((column: Column, index: number) => (
-                <div key={index} style={{ flexBasis: column.width, textAlign: column.align }}>
+                <div key={index} style={{ flexBasis: column.width, textAlign: column.align, maxWidth: column.width }}>
                   {column.label}
                 </div>
               ))}
@@ -40,7 +40,7 @@ export default function Table({data = [], columns, onClick, date=false, maxHeigh
                         return(
                           <div
                             key={columnIndex}
-                            style={{ flexBasis: column.width, textAlign: column.align }}
+                            style={{ flexBasis: column.width, textAlign: column.align, maxWidth: column.width }}
                             data-label={column.label}
                           >
                             {column.date ? 

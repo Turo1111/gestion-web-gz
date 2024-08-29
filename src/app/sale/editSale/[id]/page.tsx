@@ -110,7 +110,7 @@ export default function EditSale({ params }: { params: { id: string } }) {
               
               if (id) {
                 dispatch(setLoading(true));
-                apiClient.patch(`/itemSale/${item._id}`, {estado: false},{
+                apiClient.delete(`/itemSale/${item._id}`,{
                   headers: {
                       Authorization: `Bearer ${valueStorage.token}`
                   },
@@ -122,6 +122,18 @@ export default function EditSale({ params }: { params: { id: string } }) {
                 .catch((e)=>{
                   dispatch(setLoading(false))
                 })
+                /* apiClient.patch(`/itemSale/${item._id}`, {estado: false},{
+                  headers: {
+                      Authorization: `Bearer ${valueStorage.token}`
+                  },
+                })
+                .then((r)=>{
+                  dispatch(setLoading(false));
+                  setLineaVenta((prevData:ExtendItemSale[])=>prevData.filter((elem:ExtendItemSale)=>elem._id!==item._id))
+                })
+                .catch((e)=>{
+                  dispatch(setLoading(false))
+                }) */
               }
             }}
             upQTY={(id:string | Types.ObjectId | undefined)=>setLineaVenta((prevData:ExtendItemSale[])=>prevData.map((elem:ExtendItemSale)=>{
@@ -174,7 +186,7 @@ export default function EditSale({ params }: { params: { id: string } }) {
                     
                     if (id) {
                       dispatch(setLoading(true));
-                      apiClient.patch(`/itemSale/${item._id}`, {estado: false},{
+                      apiClient.delete(`/itemSale/${item._id}`,{
                         headers: {
                             Authorization: `Bearer ${valueStorage.token}`
                         },
@@ -186,6 +198,18 @@ export default function EditSale({ params }: { params: { id: string } }) {
                       .catch((e)=>{
                         dispatch(setLoading(false))
                       })
+                      /* apiClient.patch(`/itemSale/${item._id}`, {estado: false},{
+                        headers: {
+                            Authorization: `Bearer ${valueStorage.token}`
+                        },
+                      })
+                      .then((r)=>{
+                        dispatch(setLoading(false));
+                        setLineaVenta((prevData:ExtendItemSale[])=>prevData.filter((elem:ExtendItemSale)=>elem._id!==item._id))
+                      })
+                      .catch((e)=>{
+                        dispatch(setLoading(false))
+                      }) */
                     }
                   }}
                   upQTY={(id:string | Types.ObjectId | undefined)=>setLineaVenta((prevData:ExtendItemSale[])=>prevData.map((elem:ExtendItemSale)=>{
