@@ -86,7 +86,7 @@ const TableRow = styled.li<{$print: boolean}> `
     font-weight: ${({ $print }) => ($print ? '400' : '600')};
     text-transform: ${({ $print }) => ($print ? 'uppercase' : 'none')};;
     color: ${props=>props.color};
-    font-size: ${({ $print }) => ($print ? '15px' : '18px')};
+    font-size: ${({ $print }) => ($print ? '18px' : '18px')};
     background-color: #ffffff;
     cursor: ${props=>props.onClick && 'pointer'};
     :hover{

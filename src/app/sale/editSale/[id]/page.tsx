@@ -110,7 +110,7 @@ export default function EditSale({ params }: { params: { id: string } }) {
               
               if (id) {
                 dispatch(setLoading(true));
-                apiClient.delete(`/itemSale/${item._id}`,{
+                apiClient.patch(`/itemSale/${item._id}`, {estado: false},{
                   headers: {
                       Authorization: `Bearer ${valueStorage.token}`
                   },
