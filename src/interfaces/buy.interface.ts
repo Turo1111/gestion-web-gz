@@ -17,6 +17,7 @@ export interface ItemBuy {
   cantidad: number
   total: number
   precio: number
+  estado: boolean
 }
 
 export interface ExtendItemBuy extends ItemBuy {

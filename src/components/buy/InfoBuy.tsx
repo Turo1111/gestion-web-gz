@@ -38,7 +38,7 @@ export default function InfoBuy({open, handleClose, id}:{open:boolean, handleClo
           Authorization: `Bearer ${valueStorage.token}`
       },
   })
-    .then(({data}:{data:ResponseSale})=>{setBuy(data);dispatch(setLoading(false));})
+    .then(({data}:{data:ResponseSale})=>{setBuy(data);console.log(data);dispatch(setLoading(false));})
     .catch((e)=>{console.log(e);dispatch(setLoading(false));})
   }
 
@@ -76,9 +76,10 @@ export default function InfoBuy({open, handleClose, id}:{open:boolean, handleClo
 }
 
 const columns: Column[] = [
-  { label: 'Producto', field: 'descripcion', width: '50%' },
+  { label: 'Producto', field: 'descripcion', width: '40%' },
   { label: 'Cantidad', field: 'cantidad', width: '20%', align: 'center' },
-  { label: 'Total', field: 'total', width: '30%', align: 'center', price: true },
+  { label: 'Precio', field: 'precio', width: '20%', align: 'center' },
+  { label: 'Total', field: 'total', width: '20%', align: 'center', price: true },
 ];
 
 

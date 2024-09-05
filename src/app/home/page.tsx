@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import apiClient from '@/utils/client';
 import { useDispatch } from 'react-redux';
 import { setLoading } from '@/redux/loadingSlice';
+import { useDate } from '@/hooks/useDate';
 
 interface Response {
   id: number
@@ -54,7 +55,9 @@ export default function Home() {
   const pieChartData = transformData(dataSet.simple);
   const barChartData = formatBarChartData(dataSet.graph);
 
-  console.log(barChartData)
+  const date = new Date()
+
+  console.log(date)
 
   useEffect(() => {
 
