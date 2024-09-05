@@ -16,7 +16,8 @@ export default function AddBuyItem({open, handleClose, item, onClickItem}:{open:
         total: 0,
         precio: 0,
         descripcion: item.descripcion,
-        NameCategoria: item.NameCategoria
+        NameCategoria: item.NameCategoria,
+        estado: true
     }
 
     const dispatch = useAppDispatch();
