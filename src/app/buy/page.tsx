@@ -17,7 +17,7 @@ import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.share
 import { useRouter } from 'next/navigation'
 import React, { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { BsPrinterFill } from 'react-icons/bs'
-import { MdInfo } from 'react-icons/md'
+import { MdEdit, MdInfo } from 'react-icons/md'
 import { useSelector } from 'react-redux'
 import styled from 'styled-components'
 
@@ -36,8 +36,6 @@ export default function BuyScreen() {
     const [openInfoBuy, setOpenInfoBuy] = useState<boolean>(false)
     const [query, setQuery] = useState<{skip: number, limit: number}>({skip: 0, limit: 25})
     const observer = useRef<IntersectionObserver | null>(null);
-
-    
 
     useEffect(()=>{
 
@@ -130,6 +128,11 @@ export default function BuyScreen() {
                     <h2 style={{fontSize: 18, fontWeight: 600, color: '#FA9B50'}}>$ {item.total}</h2>
                   </div>
                   <div  style={{display: 'flex'}}>
+                    <IconWrapper style={{color: '#A2CA71'}} onClick={()=>{
+                      router.push(`/buy/editBuy/${item._id}`);
+                    }}>
+                      <MdEdit />
+                    </IconWrapper>
                     <IconWrapper style={{color: '#6EACDA'}} onClick={()=>setOpenInfoBuy(true)}>
                       <MdInfo />
                     </IconWrapper>
@@ -146,6 +149,11 @@ export default function BuyScreen() {
                     <h2 style={{fontSize: 18, fontWeight: 600, color: '#FA9B50'}}>$ {item.total}</h2>
                   </div>
                   <div  style={{display: 'flex'}}>
+                    <IconWrapper style={{color: '#A2CA71'}} onClick={()=>{
+                      router.push(`/buy/editBuy/${item._id}`);
+                    }}>
+                        <MdEdit />
+                    </IconWrapper>
                     <IconWrapper style={{color: '#6EACDA'}} onClick={()=>setOpenInfoBuy(true)}>
                       <MdInfo />
                     </IconWrapper>

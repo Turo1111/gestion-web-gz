@@ -38,7 +38,7 @@ export default function InfoBuy({open, handleClose, id}:{open:boolean, handleClo
           Authorization: `Bearer ${valueStorage.token}`
       },
   })
-    .then(({data}:{data:ResponseSale})=>{setBuy(data);console.log(data);dispatch(setLoading(false));})
+    .then(({data}:{data:ResponseSale})=>{setBuy(data);console.log("get data buy",data);dispatch(setLoading(false));})
     .catch((e)=>{console.log(e);dispatch(setLoading(false));})
   }
 

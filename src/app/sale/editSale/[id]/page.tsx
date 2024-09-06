@@ -71,7 +71,6 @@ export default function EditSale({ params }: { params: { id: string } }) {
       }
       const sum = lineaVenta.reduce(
           (accumulator:number, currentValue: ItemSale) => {
-            console.log(accumulator, currentValue.total)
             return accumulator + currentValue.total
           }
           ,
@@ -93,7 +92,7 @@ export default function EditSale({ params }: { params: { id: string } }) {
             <FindProductSale
               onClickItem={(item:Product)=>{
                 setLineaVenta((prevData:ExtendItemSale[])=>{
-                    const exist = prevData.find((elem:ExtendItemSale)=>elem._id===item._id)
+                    const exist = prevData.find((elem:ExtendItemSale)=>elem._id===item._id || elem.idProducto===item._id)
                     if (exist) {
                         return prevData.map((elem: ExtendItemSale) =>
                             elem._id === item._id ? {...item, cantidad: 1, total: item.precioUnitario} : elem
@@ -110,18 +109,6 @@ export default function EditSale({ params }: { params: { id: string } }) {
               
               if (id) {
                 dispatch(setLoading(true));
-                /* apiClient.delete(`/itemSale/${item._id}`,{
-                  headers: {
-                      Authorization: `Bearer ${valueStorage.token}`
-                  },
-                })
-                .then((r)=>{
-                  dispatch(setLoading(false));
-                  setLineaVenta((prevData:ExtendItemSale[])=>prevData.filter((elem:ExtendItemSale)=>elem._id!==item._id))
-                })
-                .catch((e)=>{
-                  dispatch(setLoading(false))
-                }) */
                 apiClient.patch(`/itemSale/${item._id}`, {estado: false},{
                   headers: {
                       Authorization: `Bearer ${valueStorage.token}`
@@ -166,7 +153,7 @@ export default function EditSale({ params }: { params: { id: string } }) {
           <FindProductSale
               onClickItem={(item:Product)=>{
                 setLineaVenta((prevData:ExtendItemSale[])=>{
-                    const exist = prevData.find((elem:ExtendItemSale)=>elem._id===item._id)
+                    const exist = prevData.find((elem:ExtendItemSale)=>elem._id===item._id || elem.idProducto===item._id)
                     if (exist) {
                         return prevData.map((elem: ExtendItemSale) =>
                             elem._id === item._id ? {...item, cantidad: 1, total: item.precioUnitario} : elem
@@ -186,18 +173,6 @@ export default function EditSale({ params }: { params: { id: string } }) {
                     
                     if (id) {
                       dispatch(setLoading(true));
-                      /* apiClient.delete(`/itemSale/${item._id}`,{
-                        headers: {
-                            Authorization: `Bearer ${valueStorage.token}`
-                        },
-                      })
-                      .then((r)=>{
-                        dispatch(setLoading(false));
-                        setLineaVenta((prevData:ExtendItemSale[])=>prevData.filter((elem:ExtendItemSale)=>elem._id!==item._id))
-                      })
-                      .catch((e)=>{
-                        dispatch(setLoading(false))
-                      }) */
                       apiClient.patch(`/itemSale/${item._id}`, {estado: false},{
                         headers: {
                             Authorization: `Bearer ${valueStorage.token}`
