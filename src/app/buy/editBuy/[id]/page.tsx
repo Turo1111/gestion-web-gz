@@ -50,7 +50,6 @@ export default function EditBuy({ params }: { params: { id: string } }) {
     }
     const sum = lineaCompra.reduce(
         (accumulator:number, currentValue: ExtendItemBuy) => {
-          console.log(accumulator, currentValue.total)
           return accumulator + currentValue.total
         }
         ,
@@ -72,7 +71,6 @@ export default function EditBuy({ params }: { params: { id: string } }) {
         setLineaCompra((prevData)=>data.itemsBuy)
         setTotal(data.r.total)
         setProveedor(data.r.proveedor)
-        console.log(data)
       })
       .catch((e)=>{
         console.log(e);
@@ -317,10 +315,8 @@ return (
       <AddBuyItem open={openAddProduct} handleClose={()=>setOpenAddProduct(false)} item={productSelected}
         onClickItem={(item:ExtendItemBuy)=>{
           setLineaCompra((prevData:ExtendItemBuy[])=>{
-            console.log('newBuy', [...prevData, item])
               const exist = prevData.find((elem:ExtendItemBuy)=>elem.idProducto===item.idProducto)
               if (exist) {
-                console.log('existe item')
                   return prevData.map((elem: ExtendItemBuy) =>
                       elem.idProducto === item.idProducto ? item : elem
                   )

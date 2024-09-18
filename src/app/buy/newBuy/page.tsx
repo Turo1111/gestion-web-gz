@@ -24,6 +24,8 @@ import { Types } from 'mongoose';
 import Confirm from '@/components/Confirm';
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import AddBuyItem from '@/components/buy/AddBuyItem';
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
 export default function NewBuy() {
 
@@ -41,6 +43,8 @@ export default function NewBuy() {
     const user = useSelector(getUser)
     const dispatch = useAppDispatch();
 
+    const [date, setDate] = React.useState<Date>(new Date());
+
     useEffect(()=>{
       if (lineaCompra.length === 0) {
         setTotal(prevData=>0)
@@ -48,7 +52,6 @@ export default function NewBuy() {
       }
       const sum = lineaCompra.reduce(
           (accumulator:number, currentValue: ExtendItemBuy) => {
-            console.log(accumulator, currentValue.total)
             return accumulator + currentValue.total
           }
           ,
@@ -112,6 +115,17 @@ export default function NewBuy() {
               </div>
               <div style={{height: '30%', padding: '0 15px'}}>
                   <Input label='Proveedor' name='proveedor' value={proveedor} onChange={(e:ChangeEvent<HTMLInputElement>)=>setProveedor(e.target.value)} type='text' />
+                  <LocalizationProvider dateAdapter={AdapterDateFns}>
+                    <DatePicker
+                      label="Seleccionar fecha"
+                      value={date}
+                      onChange={(newValue) => {
+                        if (newValue) {
+                          setDate(newValue);
+                        }
+                      }}
+                    />
+                  </LocalizationProvider>
                   <h2 style={{fontSize: 18}} >Total: $ {total} </h2>
                   <Button text='Crear' onClick={()=>{
                     if (lineaCompra.length===0 || total <= 0) {
@@ -129,7 +143,7 @@ export default function NewBuy() {
                       return
                     }
                     dispatch(setLoading(true))
-                    apiClient.post('/buy', {itemsBuy: lineaCompra, proveedor: proveedor, total: total, estado: 'Entregado'},{
+                    apiClient.post('/buy', {itemsBuy: lineaCompra, proveedor: proveedor, total: total, estado: 'Entregado', createdAt: date},{
                       headers: {
                         Authorization: `Bearer ${valueStorage.token}` 
                       }
@@ -205,6 +219,17 @@ export default function NewBuy() {
               </div>
               <div style={{height: '30%', padding: '0 15px'}}>
                   <Input label='Proveedor' name='proveedor' value={proveedor} onChange={(e:ChangeEvent<HTMLInputElement>)=>setProveedor(e.target.value)} type='text' />
+                  <LocalizationProvider dateAdapter={AdapterDateFns}>
+                    <DatePicker
+                      label="Seleccionar fecha"
+                      value={date}
+                      onChange={(newValue) => {
+                        if (newValue) {
+                          setDate(newValue);
+                        }
+                      }}
+                    />
+                  </LocalizationProvider>
                   <h2 style={{fontSize: 18}} >Total: $ {total} </h2>
                   <Button text='Crear' onClick={()=>{
                     if (lineaCompra.length===0 || total <= 0) {
@@ -222,7 +247,7 @@ export default function NewBuy() {
                       return
                     }
                     dispatch(setLoading(true))
-                    apiClient.post('/buy', {itemsBuy: lineaCompra, proveedor: proveedor, total: total, estado: 'Entregado'},{
+                    apiClient.post('/buy', {itemsBuy: lineaCompra, proveedor: proveedor, total: total, estado: 'Entregado', createdAt: date},{
                       headers: {
                         Authorization: `Bearer ${valueStorage.token}` 
                       }
@@ -260,10 +285,8 @@ export default function NewBuy() {
         <AddBuyItem open={openAddProduct} handleClose={()=>setOpenAddProduct(false)} item={productSelected}
           onClickItem={(item:ExtendItemBuy)=>{
             setLineaCompra((prevData:ExtendItemBuy[])=>{
-              console.log('newBuy', [...prevData, item])
                 const exist = prevData.find((elem:ExtendItemBuy)=>elem.idProducto===item.idProducto)
                 if (exist) {
-                  console.log('existe item')
                     return prevData.map((elem: ExtendItemBuy) =>
                         elem.idProducto === item.idProducto ? item : elem
                     )

@@ -7,6 +7,7 @@ import apiClient from '@/utils/client';
 import { useDispatch } from 'react-redux';
 import { setLoading } from '@/redux/loadingSlice';
 import { useDate } from '@/hooks/useDate';
+import useInternetStatus from '@/hooks/useInternetStatus';
 
 interface Response {
   id: number
@@ -55,9 +56,11 @@ export default function Home() {
   const pieChartData = transformData(dataSet.simple);
   const barChartData = formatBarChartData(dataSet.graph);
 
-  const date = new Date()
+  const isConnected = useInternetStatus();
 
-  console.log(date)
+  useEffect(()=>{console.log("conectado ?",isConnected)}, [isConnected])
+
+  const date = new Date()
 
   useEffect(() => {
 
@@ -68,12 +71,14 @@ export default function Home() {
       .then(r=>{
         setDataSet(r.data);
         dispatch(setLoading(false))
-        console.log("response",r.data)
+        console.log(r.data)
       })
       .catch(e=>{console.log(e);dispatch(setLoading(false))})
     }
   
     getData()
+
+    console.log("conectado ?",isConnected)
   }, [interval])
 
   return (

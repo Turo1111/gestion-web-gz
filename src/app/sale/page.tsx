@@ -72,7 +72,6 @@ export default function SaleScreen() {
             return [...prevData, ...newData];
           })
           setLongArray(prevData=>response.data.longitud)
-          console.log(response.data.longitud)
           dispatch(setLoading(false))
       } catch (e) {
         console.log("error getSale",e);dispatch(setLoading(false))
@@ -122,7 +121,6 @@ export default function SaleScreen() {
       }
       const socket = io(process.env.NEXT_PUBLIC_DB_HOST)
       socket.on(`sale`, (socket) => {
-        console.log('escucho', socket)
         setData((prevData:Sale[])=>{
           return [...prevData, socket.data]
         })
@@ -138,7 +136,6 @@ export default function SaleScreen() {
         if (observer.current) observer.current.disconnect();
         observer.current = new IntersectionObserver(entries => {
           if (entries[0].isIntersecting) {
-            console.log("Elemento visible");
             if (data.length < longArray) {
               setQuery(prevData => ({ skip: prevData.skip + 25, limit: prevData.limit }));
             }
@@ -171,10 +168,13 @@ export default function SaleScreen() {
                 dataSearch.length !== 0 ?
                 dataSearch.map((item:Sale, index:number)=>{
                 return (<Item key={index}  $isSelect={selectSaleArray.find((elem: Sale) => elem._id === item._id) ? true : false} >
-                  <div style={{display: 'flex', justifyContent: 'space-between', width : '100%', alignItems: 'center', marginRight: 15}} onClick={()=>addSaleArray(item)}>
-                    <h2 style={{fontSize: 18, color: '#252525'}}>{item.cliente}</h2>
-                    <h2 style={{fontSize: 18, fontWeight: 600, color: '#FA9B50'}}>$ {item.total}</h2>
-                  </div>
+                  <ContainerTag onClick={()=>addSaleArray(item)} >
+                    <div>
+                      <Tag>{item.cliente}</Tag>
+                      <TagDate>{item.createdAt.split("T")[0]}</TagDate>
+                    </div>
+                    <Tag style={{fontWeight: 600, color: '#FA9B50'}}>$ {item.total}</Tag>
+                  </ContainerTag>
                   <div  style={{display: 'flex'}}>
                     <IconWrapper style={{color: '#A2CA71'}} onClick={()=>{
                       router.push(`/sale/editSale/${item._id}`);

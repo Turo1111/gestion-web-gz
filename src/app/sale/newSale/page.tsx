@@ -46,7 +46,6 @@ export default function NewSale() {
     }
     const sum = lineaVenta.reduce(
         (accumulator:number, currentValue: ItemSale) => {
-          console.log(accumulator, currentValue.total)
           return accumulator + currentValue.total
         }
         ,

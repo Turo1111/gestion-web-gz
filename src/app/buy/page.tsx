@@ -100,7 +100,6 @@ export default function BuyScreen() {
       if (observer.current) observer.current.disconnect();
       observer.current = new IntersectionObserver(entries => {
         if (entries[0].isIntersecting) {
-          console.log("Elemento visible");
           if (data.length < longArray) {
             setQuery(prevData => ({ skip: prevData.skip + 25, limit: prevData.limit }));
           }
@@ -123,10 +122,13 @@ export default function BuyScreen() {
                 dataSearch.length !== 0 ?
                 dataSearch.map((item:Buy, index:number)=>
                 <Item key={index} onClick={()=>setBuySelected(item._id)} >
-                  <div style={{display: 'flex', justifyContent: 'space-between', width : '100%', alignItems: 'center', marginRight: 15}}>
-                    <h2 style={{fontSize: 18, color: '#252525'}}>{item.proveedor}</h2>
-                    <h2 style={{fontSize: 18, fontWeight: 600, color: '#FA9B50'}}>$ {item.total}</h2>
-                  </div>
+                  <ContainerTag >
+                    <div>
+                      <Tag>{item.proveedor}</Tag>
+                      <TagDate>{item.createdAt.split("T")[0]}</TagDate>
+                    </div>
+                    <Tag style={{fontWeight: 600, color: '#FA9B50'}}>$ {item.total}</Tag>
+                  </ContainerTag>
                   <div  style={{display: 'flex'}}>
                     <IconWrapper style={{color: '#A2CA71'}} onClick={()=>{
                       router.push(`/buy/editBuy/${item._id}`);
@@ -144,10 +146,13 @@ export default function BuyScreen() {
                 data.length !== 0 ?
                 data.map((item:Buy, index:number)=>
                 <Item key={index} onClick={()=>setBuySelected(item._id)} >
-                  <div style={{display: 'flex', justifyContent: 'space-between', width : '100%', alignItems: 'center', marginRight: 15}}>
-                    <h2 style={{fontSize: 18, color: '#252525'}}>{item.proveedor}</h2>
-                    <h2 style={{fontSize: 18, fontWeight: 600, color: '#FA9B50'}}>$ {item.total}</h2>
-                  </div>
+                  <ContainerTag >
+                    <div>
+                      <Tag>{item.proveedor}</Tag>
+                      <TagDate>{item.createdAt.split("T")[0]}</TagDate>
+                    </div>
+                    <Tag style={{fontWeight: 600, color: '#FA9B50'}}>$ {item.total}</Tag>
+                  </ContainerTag>
                   <div  style={{display: 'flex'}}>
                     <IconWrapper style={{color: '#A2CA71'}} onClick={()=>{
                       router.push(`/buy/editBuy/${item._id}`);
@@ -229,4 +234,31 @@ const ListSale = styled.ul `
   padding: 0 15px;
   overflow: scroll;
   max-height: 82vh;
+`
+
+const ContainerTag = styled.div`
+  display: flex; 
+  justify-content: space-between; 
+  width : 100%; 
+  align-items: center;
+  margin-right: 15px;
+  @media only screen and (max-width: 500px) {
+    margin-right: 0px;
+  }
+`
+
+const Tag = styled.h2`
+  font-size: 18px;
+  color: #252525;
+  @media only screen and (max-width: 500px) {
+    font-size: 14px;
+  }
+`
+
+const TagDate = styled.h2`
+  font-size: 14px;
+  color: #252525;
+  @media only screen and (max-width: 500px) {
+    font-size: 12px;
+  }
 `

@@ -180,7 +180,6 @@ const InputSelectAdd = ({type = 'text', label, value, onChange, name, edit = fal
 
   const patchValue = () => {
       setLoading2(true)
-      console.log(idSelect)
       apiClient.patch(`/${path}/${idSelect}`, {_id: idSelect, descripcion: inputValue},
       {
         headers: {
@@ -189,8 +188,6 @@ const InputSelectAdd = ({type = 'text', label, value, onChange, name, edit = fal
       })
       .then((r)=>{
         onChange(r.data._id, r.data)
-        console.log('matias');
-        
         setLoading2(false)
       })
       .catch(e=>{

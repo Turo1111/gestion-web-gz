@@ -12,20 +12,30 @@ import useLocalStorage from '@/hooks/useLocalStorage';
 import { ExtendItemSale, ItemSale } from '@/interfaces/sale.interface';
 import { Types } from 'mongoose';
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import { LocalizationProvider } from '@mui/x-date-pickers';
 
-export default function LineaVenta({lineaVenta, onClick, upQTY, downQTY, upQTY10, downQTY10, total, edit=false, id, cliente, onChangeCliente}:
+export default function LineaVenta({lineaVenta, onClick, upQTY, downQTY, upQTY10, downQTY10, total, edit=false, id, cliente, onChangeCliente, dateEdit}:
   {
     lineaVenta:ExtendItemSale[], onClick:(item:ExtendItemSale)=>void, upQTY:(id:string | Types.ObjectId | undefined)=>void, 
     downQTY: (id:string | Types.ObjectId | undefined)=>void, upQTY10:(id:string | Types.ObjectId | undefined)=>void, 
     downQTY10:(id:string | Types.ObjectId | undefined)=>void, total:number, 
     edit?:boolean, id?:string, cliente?:string, onChangeCliente:(event: ChangeEvent<HTMLInputElement>)=>void
+    dateEdit?: Date
   }
 ) {
 
     const dispatch = useAppDispatch();
     const router: AppRouterInstance = useRouter()
     const [valueStorage , setValue] = useLocalStorage("user", "")
+    const [date, setDate] = React.useState<Date>(new Date());
 
+    useEffect(()=>{
+      if (dateEdit) {
+        setDate(dateEdit)
+      }
+    }, [dateEdit])
 
   return (
     <ContainerListLineaVenta>
@@ -45,12 +55,25 @@ export default function LineaVenta({lineaVenta, onClick, upQTY, downQTY, upQTY10
         </div>
         <div style={{height: '30%', padding: '0 15px'}}>
            <Input label='Cliente' name='cliente' value={cliente} onChange={(e:ChangeEvent<HTMLInputElement>)=>onChangeCliente(e)} type='text' />
-            <div style={{display: 'flex', justifyContent: 'space-between'}} >
+           <LocalizationProvider dateAdapter={AdapterDateFns}>
+              <DatePicker
+                label="Seleccionar fecha"
+                value={date}
+                onChange={(newValue) => {
+                  if (newValue) {
+                    setDate(newValue);
+                  }
+                }}
+              />
+            </LocalizationProvider>
+            <div style={{display: 'flex', justifyContent: 'space-between', marginTop: 10}} >
               <Total>{lineaVenta.length} productos </Total>
               <Total>Total: $ {total} </Total>
             </div>
             <div style={{display: 'flex', justifyContent: 'center'}}>
               <Button text='Crear' onClick={()=>{
+                /* console.log('date',date)
+                return */
                 if (lineaVenta.length===0 || total <= 0) {
                   dispatch(setAlert({
                     message: `No se agregaron productos al carrito`,
@@ -67,7 +90,7 @@ export default function LineaVenta({lineaVenta, onClick, upQTY, downQTY, upQTY10
                 }
                 dispatch(setLoading(true))
                 !edit?
-                apiClient.post('/sale', {itemsSale: lineaVenta, cliente: cliente, total: total, estado: 'Modificado'},{
+                apiClient.post('/sale', {itemsSale: lineaVenta, cliente: cliente, total: total, estado: 'Creado', createdAt: date},{
                   headers: {
                     Authorization: `Bearer ${valueStorage.token}` 
                   }
@@ -88,7 +111,7 @@ export default function LineaVenta({lineaVenta, onClick, upQTY, downQTY, upQTY10
                   type: 'error'
                   }))
                 }):
-                apiClient.patch(`/sale/${id}`, {itemsSale: lineaVenta, cliente: cliente, total: total, estado: 'Modificado'},{
+                apiClient.patch(`/sale/${id}`, {itemsSale: lineaVenta, cliente: cliente, total: total, estado: 'Modificado', createdAt: date},{
                   headers: {
                     Authorization: `Bearer ${valueStorage.token}` 
                   }

@@ -40,7 +40,7 @@ export default function Table({data = [], columns, onClick, date=false, maxHeigh
                         return(
                           <div
                             key={columnIndex}
-                            style={{ flexBasis: column.width, textAlign: column.align, maxWidth: column.width }}
+                            style={{ flexBasis: column.width, textAlign: column.align, maxWidth: column.width, wordWrap: 'break-word', whiteSpace: 'normal' }}
                             data-label={column.label}
                           >
                             {column.date ? 
@@ -71,7 +71,8 @@ const TableHeader = styled.li<{$print: boolean}> `
     margin-bottom: 5px;
     color: ${props=>props.color};
     background-color: #F9F5F6;
-    font-size: 18px;
+    /* font-size: 18px; */
+    font-size: ${({ $print }) => ($print ? '20px' : '18px')};
     font-weight: ${({ $print }) => ($print ? '400' : '600')};
     text-transform: uppercase;
     letter-spacing: 0.03em;
@@ -86,7 +87,7 @@ const TableRow = styled.li<{$print: boolean}> `
     font-weight: ${({ $print }) => ($print ? '400' : '600')};
     text-transform: ${({ $print }) => ($print ? 'uppercase' : 'none')};;
     color: ${props=>props.color};
-    font-size: ${({ $print }) => ($print ? '18px' : '18px')};
+    font-size: ${({ $print }) => ($print ? '20px' : '18px')};
     background-color: #ffffff;
     cursor: ${props=>props.onClick && 'pointer'};
     :hover{
@@ -105,7 +106,8 @@ const List = styled.ul<List> `
 `
 
 const Tag = styled.h5<{$print: boolean}> `
-    font-size: 18px;
+    /* font-size: 18px; */
+    font-size: ${({ $print }) => ($print ? '20px' : '18px')};
     padding: 0 15px;
     font-weight: ${({ $print }) => ($print ? '400' : '600')};;
     margin: 5px 0;

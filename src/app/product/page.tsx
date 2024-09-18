@@ -107,7 +107,6 @@ export default function ProductScreen() {
         try {
             const response = await apiClient.post(`/product/search`, {input, categoria: categorie, marca: brand, proveedor: provider});
             setDataSearch(response.data);
-            console.log(response.data)
             dispatch(setLoading(false));
         } catch (e) {
             console.log("error", e);

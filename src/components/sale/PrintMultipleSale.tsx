@@ -150,7 +150,7 @@ export default function PrintMultipleSale({open, handleClose, salesIds}:{open:bo
                       print={true}
                     />
                   </div>
-                  <Tag style={{ textAlign: 'end' }}>TOTAL : $ {sale.r.total}</Tag>
+                  <Tag style={{ textAlign: 'end', fontWeight: 600, fontSize: 25 }}>TOTAL : $ {sale.r.total}</Tag>
                   <p style={{ fontSize: 18, color: '#252525', fontWeight: 600 }}>*No valido como factura</p>
                   <p style={{ fontSize: 18, color: '#252525', textAlign: 'end', fontWeight: 500 }}>
                     Pagina {index + 1} de {totalParts[saleIndex]}
@@ -197,7 +197,7 @@ const columns: Column[] = [
   `;
   
   const Tag = styled.h5`
-    font-size: 18px;
+    font-size: 20px;
     padding: 0 15px;
     font-weight: 400;
     margin: 10px 0;

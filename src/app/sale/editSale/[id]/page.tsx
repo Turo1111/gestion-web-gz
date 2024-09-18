@@ -41,6 +41,8 @@ export default function EditSale({ params }: { params: { id: string } }) {
     const { id } = params;
     const [cliente, setCliente] = useState<string>('')
     const [openConfirm, setOpenConfirm] = useState<boolean>(false)
+    
+    const [date, setDate] = React.useState<Date>(new Date());
 
     const user = useSelector(getUser)
     const dispatch = useAppDispatch();
@@ -57,6 +59,8 @@ export default function EditSale({ params }: { params: { id: string } }) {
         setLineaVenta((prevData)=>data.itemsSale)
         setTotal(data.r.total)
         setCliente(data.r.cliente)
+        setDate(new Date(data.r.createdAt))
+        console.log(new Date(data.r.createdAt))
       })
       .catch((e)=>{
         console.log(e);
@@ -103,7 +107,7 @@ export default function EditSale({ params }: { params: { id: string } }) {
             } }
             />
           </ContainerListProduct>
-          <LineaVenta lineaVenta={lineaVenta} total={total} cliente={cliente} onChangeCliente={(e:ChangeEvent<HTMLInputElement>)=>setCliente((prevData:string)=>e.target.value)} 
+          <LineaVenta dateEdit={date} lineaVenta={lineaVenta} total={total} cliente={cliente} onChangeCliente={(e:ChangeEvent<HTMLInputElement>)=>setCliente((prevData:string)=>e.target.value)} 
             edit={true} id={id}
             onClick={(item:ExtendItemSale)=>{
               
@@ -167,7 +171,7 @@ export default function EditSale({ params }: { params: { id: string } }) {
             {
               openLVMobile && 
               <div>
-                <LineaVenta lineaVenta={lineaVenta} total={total} cliente={cliente} onChangeCliente={(e:ChangeEvent<HTMLInputElement>)=>setCliente((prevData:string)=>e.target.value)} 
+                <LineaVenta dateEdit={date} lineaVenta={lineaVenta} total={total} cliente={cliente} onChangeCliente={(e:ChangeEvent<HTMLInputElement>)=>setCliente((prevData:string)=>e.target.value)} 
                   edit={true} id={id}
                   onClick={(item:ExtendItemSale)=>{
                     
