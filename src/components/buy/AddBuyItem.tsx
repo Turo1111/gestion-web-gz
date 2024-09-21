@@ -41,7 +41,7 @@ export default function AddBuyItem({open, handleClose, item, onClickItem}:{open:
     },[formik.values.cantidad, formik.values.precio])
 
   return (
-    <Modal open={open} eClose={handleClose} title='Agregar producto a la compra'  >
+    <Modal open={open} eClose={handleClose} title='Agregar producto a la compra' width='40%' height='auto'  >
         <h2 style={{fontSize: 16, color: '#252525', margin: '15px 0'}}>{item.descripcion}</h2>
         <Input label={'Cantidad'} name={'cantidad'} value={formik.values.cantidad} onChange={formik.handleChange} type='number' />
         <Input label={'Precio compra'} name={'precio'} value={formik.values.precio} onChange={formik.handleChange} type='number' />

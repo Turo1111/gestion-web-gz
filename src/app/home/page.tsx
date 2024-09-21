@@ -143,15 +143,6 @@ export default function Home() {
           </MovementsList>
         </MovementsContainer>
       </MainContent>
-      <NotesContainer>
-        <NotesTitle>Notas de actualizacion</NotesTitle>
-        <NoteItem>
-          <NoteTitle>Parche 20/08</NoteTitle>
-          <NoteText>- Guardar en el borrador la creación de nuevos productos, nueva venta y edición de ventas.</NoteText>
-          <NoteText>- Inicio de sesión sin necesidad de que se ingrese el nombre con mayúsculas o minúsculas.</NoteText>
-          <NoteText>- Corrección de errores: creación múltiple ventas, tipo de datos en creación de productos.</NoteText>
-        </NoteItem>
-      </NotesContainer>
     </Container>
   );
 }
@@ -169,7 +160,6 @@ const Container = styled.div`
 
 const MainContent = styled.div`
   display: flex;
-  width: 70%;
   flex-direction: column;
   @media only screen and (max-width: 500px) {
     width: 100%;
