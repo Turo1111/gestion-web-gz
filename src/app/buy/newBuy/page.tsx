@@ -83,7 +83,10 @@ export default function NewBuy() {
                           lineaCompra.length === 0 ? 'No se selecciono productos' :
                           lineaCompra.map((item:ExtendItemBuy, index:number)=><ItemLineaVenta key={index} elem={item}  
                               onClick={()=>
-                                setLineaCompra((prevData:ExtendItemBuy[])=>prevData.filter((elem:ExtendItemBuy)=>elem._id!==item._id))
+                                setLineaCompra((prevData:ExtendItemBuy[])=>prevData.filter((elem:ExtendItemBuy)=>{
+                                  console.log(elem, item)
+                                  return elem.idProducto!==item.idProducto
+                                }))
                               }
                               upQTY={(id:string | Types.ObjectId | undefined)=>setLineaCompra((prevData:ExtendItemBuy[])=>prevData.map((elem:ExtendItemBuy)=>{
                                 return elem._id===id ? {...elem, cantidad: elem.cantidad+1, total: parseFloat((elem.precio*(elem.cantidad+1)).toFixed(2))} : elem
@@ -187,7 +190,7 @@ export default function NewBuy() {
                           lineaCompra.length === 0 ? 'No se selecciono productos' :
                           lineaCompra.map((item:ExtendItemBuy, index:number)=><ItemLineaVenta key={index} elem={item}  
                               onClick={()=>
-                                setLineaCompra((prevData:ExtendItemBuy[])=>prevData.filter((elem:ExtendItemBuy)=>elem._id!==item._id))
+                                setLineaCompra((prevData:ExtendItemBuy[])=>prevData.filter((elem:ExtendItemBuy)=>elem.idProducto!==item.idProducto))
                               }
                               upQTY={(id:string | Types.ObjectId | undefined)=>setLineaCompra((prevData:ExtendItemBuy[])=>prevData.map((elem:ExtendItemBuy)=>{
                                 return elem._id===id ? {...elem, cantidad: elem.cantidad+1, total: parseFloat((elem.precio*(elem.cantidad+1)).toFixed(2))} : elem
