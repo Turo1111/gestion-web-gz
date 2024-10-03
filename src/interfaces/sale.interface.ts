@@ -1,7 +1,7 @@
 import { ObjectId, Types } from 'mongoose'
 
 export interface Sale {
-  _id?: Types.ObjectId
+  _id?: Types.ObjectId | string
   estado: string
   user: ObjectId
   cliente: string

@@ -38,17 +38,24 @@ export default function SaleScreen() {
     const [openInfoSale, setOpenInfoSale] = useState<boolean>(false)
     const observer = useRef<IntersectionObserver | null>(null);
     const [query, setQuery] = useState<{skip: number, limit: number}>({skip: 0, limit: 25})
-    const [selectSaleArray, setSelectSaleArray] = useState<Sale[]>([])
+    const [selectSaleArray, setSelectSaleArray] = useState<(string | Types.ObjectId)[]>([])
     const [openMultipleSale, setOpenMultipleSale] = useState(false)
 
-    const addSaleArray = (item: Sale) => {
-      setSelectSaleArray(prevData=>{
+    const addSaleArray = (item: string | Types.ObjectId) => {
+      /* setSelectSaleArray(prevData=>{
         const exist = prevData.find((elem: Sale) => elem._id === item._id)
         if (exist) {
           return prevData.filter((elem: Sale) => elem._id !== item._id)
         }
-        return[...prevData, item]
-      })
+        return[...prevData, item._id]
+      }) */
+        setSelectSaleArray(prevData=>{
+          const exist = prevData.find((elem: (string | Types.ObjectId)) => elem === item)
+          if (exist) {
+            return prevData.filter((elem: (string | Types.ObjectId)) => elem !== item)
+          }
+          return[...prevData, item]
+        })
     }
 
     const getSale = async (skip: number, limit: number) => {
@@ -158,7 +165,29 @@ export default function SaleScreen() {
                 <MdClose/>
               </IconWrapper>
               <h2 style={{fontSize: 16, color: '#252525'}}>{selectSaleArray.length} Ventas seleccionadas</h2>
-              <Button text='Imprimir' onClick={()=>setOpenMultipleSale(true)}/>
+              <Button text='Imprimir' onClick={()=>{
+                /* setOpenMultipleSale(true) */
+                console.log(selectSaleArray)
+                apiClient.post(`/sale/print`, selectSaleArray, { responseType: 'blob' }) // Importante: usar 'blob' para recibir el PDF
+                          .then(response => {
+                            const blob = new Blob([response.data], { type: 'application/pdf' });
+                            const url = window.URL.createObjectURL(blob);
+                            
+                            // Crear un enlace temporal para descargar el archivo
+                            const link = document.createElement('a');
+                            link.href = url;
+                            link.setAttribute('download', `ventas.pdf`); // Nombre del archivo descargado
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                            
+                            // Liberar memoria
+                            window.URL.revokeObjectURL(url);
+                          })
+                          .catch(error => {
+                            console.error('Error descargando el PDF:', error);
+                          });
+              }}/>
             </div>
           }
         </ContainerSearch>
@@ -167,8 +196,8 @@ export default function SaleScreen() {
                search !== '' ?
                 dataSearch.length !== 0 ?
                 dataSearch.map((item:Sale, index:number)=>{
-                return (<Item key={index}  $isSelect={selectSaleArray.find((elem: Sale) => elem._id === item._id) ? true : false} >
-                  <ContainerTag onClick={()=>addSaleArray(item)} >
+                return (<Item key={index}  $isSelect={selectSaleArray.find((elem: (string | Types.ObjectId)) => elem === item._id) ? true : false} >
+                  <ContainerTag onClick={()=>item._id && addSaleArray(item._id)} >
                     <div>
                       <Tag>{item.cliente}</Tag>
                       <TagDate>{item.createdAt.split("T")[0]}</TagDate>
@@ -181,9 +210,29 @@ export default function SaleScreen() {
                     }}>
                         <MdEdit />
                     </IconWrapper>
-                    <IconWrapper style={{color: '#939185'}}  onClick={()=>{setOpenPrintSale(true); setSaleSelected(item._id)}}>
-                      <BsPrinterFill />
-                    </IconWrapper>
+                    <IconWrapper style={{color: '#939185'}} onClick={() => {
+                        apiClient.get(`/sale/print/${item._id}`, { responseType: 'blob' }) // Importante: usar 'blob' para recibir el PDF
+                          .then(response => {
+                            const blob = new Blob([response.data], { type: 'application/pdf' });
+                            const url = window.URL.createObjectURL(blob);
+                            
+                            // Crear un enlace temporal para descargar el archivo
+                            const link = document.createElement('a');
+                            link.href = url;
+                            link.setAttribute('download', `venta-${item.cliente}.pdf`); // Nombre del archivo descargado
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                            
+                            // Liberar memoria
+                            window.URL.revokeObjectURL(url);
+                          })
+                          .catch(error => {
+                            console.error('Error descargando el PDF:', error);
+                          });
+                      }}>
+                        <BsPrinterFill />
+                      </IconWrapper>
                     <IconWrapper style={{color: '#6EACDA'}} onClick={()=>{setOpenInfoSale(true);setSaleSelected(item._id)}}>
                       <MdInfo />
                     </IconWrapper>
@@ -194,8 +243,8 @@ export default function SaleScreen() {
               :
                 data.length !== 0 ? 
                 data.map((item:Sale, index:number)=>
-                  <Item key={index} $isSelect={selectSaleArray.find((elem: Sale) => elem._id === item._id) ? true : false} >
-                    <ContainerTag onClick={()=>addSaleArray(item)} >
+                  <Item key={index} $isSelect={selectSaleArray.find((elem: (string | Types.ObjectId)) => elem === item._id) ? true : false} >
+                    <ContainerTag onClick={()=>item._id && addSaleArray(item._id)} >
                       <div>
                         <Tag>{item.cliente}</Tag>
                         <TagDate>{item.createdAt.split("T")[0]}</TagDate>
@@ -208,9 +257,29 @@ export default function SaleScreen() {
                       }}>
                           <MdEdit />
                       </IconWrapper>
-                      <IconWrapper style={{color: '#939185'}}  onClick={()=>{setOpenPrintSale(true); setSaleSelected(item._id)}}>
-                      <BsPrinterFill />
-                    </IconWrapper>
+                      <IconWrapper style={{color: '#939185'}} onClick={() => {
+                        apiClient.get(`/sale/print/${item._id}`, { responseType: 'blob' }) // Importante: usar 'blob' para recibir el PDF
+                          .then(response => {
+                            const blob = new Blob([response.data], { type: 'application/pdf' });
+                            const url = window.URL.createObjectURL(blob);
+
+                            // Crear un enlace temporal para descargar el archivo
+                            const link = document.createElement('a');
+                            link.href = url;
+                            link.setAttribute('download', `venta-${item.cliente}.pdf`); // Nombre del archivo descargado
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+
+                            // Liberar memoria
+                            window.URL.revokeObjectURL(url);
+                          })
+                          .catch(error => {
+                            console.error('Error descargando el PDF:', error);
+                          });
+                      }}>
+                        <BsPrinterFill />
+                      </IconWrapper>
                     <IconWrapper style={{color: '#6EACDA'}} onClick={()=>{setOpenInfoSale(true);setSaleSelected(item._id)}}>
                       <MdInfo />
                     </IconWrapper>
@@ -241,10 +310,10 @@ export default function SaleScreen() {
           openInfoSale && 
           <InfoSale open={openInfoSale} handleClose={()=>setOpenInfoSale(false)} id={saleSelected} />
         }
-        {
+        {/* {
           openMultipleSale &&
           <PrintMultipleSale open={openMultipleSale} handleClose={()=>setOpenMultipleSale(false)} salesIds={selectSaleArray} />
-        }
+        } */}
     </main>
   )
 }
