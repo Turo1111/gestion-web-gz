@@ -8,10 +8,11 @@ interface LabelProps extends LabelHTMLAttributes<HTMLLabelElement> {
   active?: boolean;
 }
 
-const InputWrapper = styled.div`
+const InputWrapper = styled.div<{width: string}>`
   position: relative;
   margin: 15px 0;
-  width: -webkit-fill-available;
+  /* width: -webkit-fill-available; */
+  width: ${({width})=>width !== '' ? width : '-webkit-fill-available'};
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -36,7 +37,7 @@ const InputLabel = styled.label<{ $active?: boolean }>`
 
 const Prefix = styled.div`
   position: absolute;
-  top: 13px;
+  top: 8px;
   left: 10px;
   font-size: 16px;
   color: ${props => props.color};
@@ -59,7 +60,7 @@ const InputField = styled.input<{ $focused?: boolean; $hasPrefix?: boolean; }>`
   }
 `;
 
-const Input = ({ type, label, value, onChange, name, required, readOnly, prefix }: {
+const Input = ({ type, label, value, onChange, name, required, readOnly, prefix, width='' }: {
   type: TypeInput,
   label: string,
   value: any,
@@ -67,7 +68,8 @@ const Input = ({ type, label, value, onChange, name, required, readOnly, prefix 
   name: string,
   required?: boolean,
   readOnly?: boolean,
-  prefix?: string 
+  prefix?: string,
+  width?: string
 }) => {
   const [isActive, setIsActive] = useState<boolean>(type === 'date' ? true : false);
   const [isFocused, setIsFocused] = useState<boolean>(false);
@@ -93,7 +95,7 @@ const Input = ({ type, label, value, onChange, name, required, readOnly, prefix 
   }, [value]);
 
   return (
-    <InputWrapper>
+    <InputWrapper width={width}>
       {prefix && <Prefix color={'#716A6A'}>{prefix}</Prefix>}
       <InputLabel $active={isActive} color={process.env.TEXT_COLOR}>
         {label}
@@ -109,7 +111,7 @@ const Input = ({ type, label, value, onChange, name, required, readOnly, prefix 
         onBlur={handleInputBlur}
         $focused={isFocused}
         readOnly={readOnly}
-        $hasPrefix={!prefix}
+        $hasPrefix={prefix !== ''}
       />
     </InputWrapper>
   );

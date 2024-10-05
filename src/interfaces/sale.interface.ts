@@ -8,6 +8,7 @@ export interface Sale {
   total: number
   createdAt: string
   itemsSale: ItemSale[]
+  porcentaje?: number
 }
 
 export interface ItemSale {

@@ -26,6 +26,7 @@ export default function NewSale() {
     const [openLVMobile, setOpenLVMobile] = useState<boolean>(false)
     const [cliente, setCliente] = useState<string>('')
     const [openConfirm, setOpenConfirm] = useState<boolean>(false)
+    const [porcentaje, setPorcentaje] = useState<number>(0)
 
     const user = useSelector(getUser)
     const dispatch = useAppDispatch();
@@ -41,18 +42,22 @@ export default function NewSale() {
 
   useEffect(()=>{
     if (lineaVenta.length === 0) {
-      setTotal(prevData=>0)
+      setTotal(_prevData=>0)
       return
     }
     const sum = lineaVenta.reduce(
         (accumulator:number, currentValue: ItemSale) => {
-          return accumulator + currentValue.total
+          let suma = accumulator + currentValue.total
+          if (porcentaje > 0) {
+            return (suma + (suma * (porcentaje/100)))
+          }
+          return suma
         }
         ,
         0,
     );
-    setTotal(prevData => parseFloat(sum.toFixed(2)))
-  },[lineaVenta])
+    setTotal(_prevData => parseFloat(sum.toFixed(2)))
+  },[lineaVenta, porcentaje])
 
   return (
     <Container>
@@ -74,7 +79,8 @@ export default function NewSale() {
             } }
             />
           </ContainerListProduct>
-          <LineaVenta lineaVenta={lineaVenta} total={total} cliente={cliente} onChangeCliente={(e:ChangeEvent<HTMLInputElement>)=>setCliente((prevData:string)=>e.target.value)}
+          <LineaVenta lineaVenta={lineaVenta} total={total} cliente={cliente} onChangeCliente={(e:ChangeEvent<HTMLInputElement>)=>setCliente((_prevData:string)=>e.target.value)}
+            porcentaje={porcentaje} onChangePorcentaje={(e:ChangeEvent<HTMLInputElement>)=>setPorcentaje((_:number)=> parseFloat(e.target.value) >= 0 ? parseFloat(e.target.value) : 0)}
             onClick={(item:ExtendItemSale)=>setLineaVenta((prevData:ExtendItemSale[])=>prevData.filter((elem:ExtendItemSale)=>elem._id!==item._id))}
             upQTY={(id:string | Types.ObjectId | undefined)=>setLineaVenta((prevData:ExtendItemSale[])=>prevData.map((elem:ExtendItemSale)=>{
               return elem._id===id ? {...elem, cantidad: elem.cantidad+1, total: parseFloat((elem.precioUnitario*(elem.cantidad+1)).toFixed(2))} : elem
@@ -120,7 +126,8 @@ export default function NewSale() {
             {
               openLVMobile && 
               <div>
-                <LineaVenta lineaVenta={lineaVenta} total={total} cliente={cliente} onChangeCliente={(e:ChangeEvent<HTMLInputElement>)=>setCliente((prevData:string)=>e.target.value)}
+                <LineaVenta lineaVenta={lineaVenta} total={total} cliente={cliente} onChangeCliente={(e:ChangeEvent<HTMLInputElement>)=>setCliente((_prevData:string)=>e.target.value)}
+                  porcentaje={porcentaje} onChangePorcentaje={(e:ChangeEvent<HTMLInputElement>)=>setPorcentaje((_:number)=> parseFloat(e.target.value) >= 0 ? parseFloat(e.target.value) : 0)}
                   onClick={(item:ExtendItemSale)=>setLineaVenta((prevData:ExtendItemSale[])=>prevData.filter((elem:ExtendItemSale)=>elem._id!==item._id))}
                   upQTY={(id:string | Types.ObjectId | undefined)=>setLineaVenta((prevData:ExtendItemSale[])=>prevData.map((elem:ExtendItemSale)=>{
                     return elem._id===id ? {...elem, cantidad: elem.cantidad+1, total: parseFloat((elem.precioUnitario*(elem.cantidad+1)).toFixed(2))} : elem

@@ -41,7 +41,7 @@ export default function EditSale({ params }: { params: { id: string } }) {
     const { id } = params;
     const [cliente, setCliente] = useState<string>('')
     const [openConfirm, setOpenConfirm] = useState<boolean>(false)
-    
+    const [porcentaje, setPorcentaje] = useState<number>(0)
     const [date, setDate] = React.useState<Date>(new Date());
 
     const user = useSelector(getUser)
@@ -60,7 +60,7 @@ export default function EditSale({ params }: { params: { id: string } }) {
         setTotal(data.r.total)
         setCliente(data.r.cliente)
         setDate(new Date(data.r.createdAt))
-        console.log(new Date(data.r.createdAt))
+        setPorcentaje((_: number)=>data.r.porcentaje !== undefined ? data.r.porcentaje : 0)
       })
       .catch((e)=>{
         console.log(e);
@@ -70,18 +70,22 @@ export default function EditSale({ params }: { params: { id: string } }) {
 
     useEffect(()=>{
       if (lineaVenta.length === 0) {
-        setTotal(prevData=>0)
+        setTotal(_prevData=>0)
         return
       }
       const sum = lineaVenta.reduce(
           (accumulator:number, currentValue: ItemSale) => {
-            return accumulator + currentValue.total
+            let suma = accumulator + currentValue.total
+            if (porcentaje > 0) {
+              return (suma + (suma * (porcentaje/100)))
+            }
+            return suma
           }
           ,
           0,
       );
-      setTotal(prevData => parseFloat(sum.toFixed(2)))
-    },[lineaVenta])
+      setTotal(_prevData => parseFloat(sum.toFixed(2)))
+    },[lineaVenta, porcentaje])
 
   useEffect(()=> {
     getSale()
@@ -109,6 +113,7 @@ export default function EditSale({ params }: { params: { id: string } }) {
           </ContainerListProduct>
           <LineaVenta dateEdit={date} lineaVenta={lineaVenta} total={total} cliente={cliente} onChangeCliente={(e:ChangeEvent<HTMLInputElement>)=>setCliente((prevData:string)=>e.target.value)} 
             edit={true} id={id}
+            porcentaje={porcentaje} onChangePorcentaje={(e:ChangeEvent<HTMLInputElement>)=>setPorcentaje((_:number)=> parseFloat(e.target.value) >= 0 ? parseFloat(e.target.value) : 0)}
             onClick={(item:ExtendItemSale)=>{
               
               if (id) {
@@ -173,6 +178,7 @@ export default function EditSale({ params }: { params: { id: string } }) {
               <div>
                 <LineaVenta dateEdit={date} lineaVenta={lineaVenta} total={total} cliente={cliente} onChangeCliente={(e:ChangeEvent<HTMLInputElement>)=>setCliente((prevData:string)=>e.target.value)} 
                   edit={true} id={id}
+                  porcentaje={porcentaje} onChangePorcentaje={(e:ChangeEvent<HTMLInputElement>)=>setPorcentaje((_:number)=> parseFloat(e.target.value) >= 0 ? parseFloat(e.target.value) : 0)}
                   onClick={(item:ExtendItemSale)=>{
                     
                     if (id) {

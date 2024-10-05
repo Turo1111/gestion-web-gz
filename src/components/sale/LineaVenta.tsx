@@ -16,13 +16,16 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { LocalizationProvider } from '@mui/x-date-pickers';
 
-export default function LineaVenta({lineaVenta, onClick, upQTY, downQTY, upQTY10, downQTY10, total, edit=false, id, cliente, onChangeCliente, dateEdit}:
+export default function LineaVenta({
+    lineaVenta, onClick, upQTY, downQTY, upQTY10, downQTY10, total, edit=false, id, cliente, onChangeCliente, dateEdit,
+    porcentaje, onChangePorcentaje
+  }:
   {
     lineaVenta:ExtendItemSale[], onClick:(item:ExtendItemSale)=>void, upQTY:(id:string | Types.ObjectId | undefined)=>void, 
     downQTY: (id:string | Types.ObjectId | undefined)=>void, upQTY10:(id:string | Types.ObjectId | undefined)=>void, 
     downQTY10:(id:string | Types.ObjectId | undefined)=>void, total:number, 
     edit?:boolean, id?:string, cliente?:string, onChangeCliente:(event: ChangeEvent<HTMLInputElement>)=>void
-    dateEdit?: Date
+    dateEdit?: Date, porcentaje: number, onChangePorcentaje: (event: ChangeEvent<HTMLInputElement>)=>void
   }
 ) {
 
@@ -55,17 +58,20 @@ export default function LineaVenta({lineaVenta, onClick, upQTY, downQTY, upQTY10
         </div>
         <div style={{height: '30%', padding: '0 15px'}}>
            <Input label='Cliente' name='cliente' value={cliente} onChange={(e:ChangeEvent<HTMLInputElement>)=>onChangeCliente(e)} type='text' />
-           <LocalizationProvider dateAdapter={AdapterDateFns}>
-              <DatePicker
-                label="Seleccionar fecha"
-                value={date}
-                onChange={(newValue) => {
-                  if (newValue) {
-                    setDate(newValue);
-                  }
-                }}
-              />
-            </LocalizationProvider>
+            <div style={{display: 'flex', justifyContent: 'space-around'}} >
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <DatePicker
+                  label="Seleccionar fecha"
+                  value={date}
+                  onChange={(newValue) => {
+                    if (newValue) {
+                      setDate(newValue);
+                    }
+                  }}
+                />
+              </LocalizationProvider>
+              <Input label='Porcentaje' name='porcentaje' value={porcentaje} onChange={(e:ChangeEvent<HTMLInputElement>)=>onChangePorcentaje(e)} type='number' width='20%' prefix='%' />
+            </div>
             <div style={{display: 'flex', justifyContent: 'space-between', marginTop: 10}} >
               <Total>{lineaVenta.length} productos </Total>
               <Total>Total: $ {total} </Total>
@@ -90,7 +96,7 @@ export default function LineaVenta({lineaVenta, onClick, upQTY, downQTY, upQTY10
                 }
                 dispatch(setLoading(true))
                 !edit?
-                apiClient.post('/sale', {itemsSale: lineaVenta, cliente: cliente, total: total, estado: 'Creado', createdAt: date},{
+                apiClient.post('/sale', {itemsSale: lineaVenta, cliente: cliente, total: total, estado: 'Creado', createdAt: date, porcentaje: porcentaje},{
                   headers: {
                     Authorization: `Bearer ${valueStorage.token}` 
                   }
@@ -111,7 +117,7 @@ export default function LineaVenta({lineaVenta, onClick, upQTY, downQTY, upQTY10
                   type: 'error'
                   }))
                 }):
-                apiClient.patch(`/sale/${id}`, {itemsSale: lineaVenta, cliente: cliente, total: total, estado: 'Modificado', createdAt: date},{
+                apiClient.patch(`/sale/${id}`, {itemsSale: lineaVenta, cliente: cliente, total: total, estado: 'Modificado', createdAt: date, porcentaje: porcentaje},{
                   headers: {
                     Authorization: `Bearer ${valueStorage.token}` 
                   }

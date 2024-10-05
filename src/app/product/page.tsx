@@ -173,7 +173,31 @@ export default function ProductScreen() {
               <WrapperSearch>
                 <Search name='search' placeHolder={'Buscar productos'} type='text' value={search} onChange={searchProduct} onClickFilter={()=>setOpenModalFilter(true)} />
                 <WrapperButtons>
-                  <Button text='Imprimir' onClick={()=>setOpenPrintProduct(true)}/>
+                  <Button text='Imprimir' onClick={()=>{
+                    apiClient.get(`/product/print/print`, { responseType: 'blob',
+                      headers: {
+                        Authorization: `Bearer ${valueStorage.token}`
+                      },
+                     }) // Importante: usar 'blob' para recibir el PDF
+                    .then(response => {
+                      const blob = new Blob([response.data], { type: 'application/pdf' });
+                      const url = window.URL.createObjectURL(blob);
+
+                      // Crear un enlace temporal para descargar el archivo
+                      const link = document.createElement('a');
+                      link.href = url;
+                      link.setAttribute('download', `ListaDePrecios.pdf`); // Nombre del archivo descargado
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+
+                      // Liberar memoria
+                      window.URL.revokeObjectURL(url);
+                    })
+                    .catch(error => {
+                      console.error('Error descargando el PDF:', error);
+                    });
+                  }}/>
                   <Button text='Actualizar' onClick={()=>setOpenUpdatePrice(true)}/>
                   <Button text='Nuevo' onClick={()=>setOpenNewProduct(true)}/>
                 </WrapperButtons>

@@ -161,6 +161,7 @@ const Container = styled.div`
 const MainContent = styled.div`
   display: flex;
   flex-direction: column;
+  flex: 1;
   @media only screen and (max-width: 500px) {
     width: 100%;
   }
