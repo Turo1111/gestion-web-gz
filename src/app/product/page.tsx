@@ -174,7 +174,8 @@ export default function ProductScreen() {
                 <Search name='search' placeHolder={'Buscar productos'} type='text' value={search} onChange={searchProduct} onClickFilter={()=>setOpenModalFilter(true)} />
                 <WrapperButtons>
                   <Button text='Imprimir' onClick={()=>{
-                    apiClient.get(`/product/print/print`, { responseType: 'blob',
+                    setOpenPrintProduct(true)
+                    /* apiClient.get(`/product/print/print`, { responseType: 'blob',
                       headers: {
                         Authorization: `Bearer ${valueStorage.token}`
                       },
@@ -196,7 +197,7 @@ export default function ProductScreen() {
                     })
                     .catch(error => {
                       console.error('Error descargando el PDF:', error);
-                    });
+                    }); */
                   }}/>
                   <Button text='Actualizar' onClick={()=>setOpenUpdatePrice(true)}/>
                   <Button text='Nuevo' onClick={()=>setOpenNewProduct(true)}/>
