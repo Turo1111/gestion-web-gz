@@ -8,12 +8,14 @@ import { useDispatch } from 'react-redux';
 import { setLoading } from '@/redux/loadingSlice';
 import { useDate } from '@/hooks/useDate';
 import useInternetStatus from '@/hooks/useInternetStatus';
+import CustomDataSet from '@/components/CustomDataSet'
 
 interface Response {
   id: number
   totalSales: number;
   salesCount: number;
-  label: string
+  label: string,
+  date: string,
 }
 
 const getTotalCardData = (dataSet: Response[], label: string) => {
@@ -55,10 +57,9 @@ export default function Home() {
   const buyData = getTotalCardData(dataSet.simple, 'buy')
   const pieChartData = transformData(dataSet.simple);
   const barChartData = formatBarChartData(dataSet.graph);
+  const [openCustomDataSet, setOpenCustomDataSet] = useState(false)
 
   const isConnected = useInternetStatus();
-
-  useEffect(()=>{console.log("conectado ?",isConnected)}, [isConnected])
 
   const date = new Date()
 
@@ -90,19 +91,21 @@ export default function Home() {
             <IntervalOption $isActive={interval === 'SEMANAL'} onClick={()=>setInterval('SEMANAL')}>SEMANAL</IntervalOption>
             <IntervalOption $isActive={interval === 'MENSUAL'} onClick={()=>setInterval('MENSUAL')}>MENSUAL</IntervalOption>
             <IntervalOption $isActive={interval === 'ANUAL'} onClick={()=>setInterval('ANUAL')}>ANUAL</IntervalOption>
-            <IntervalOption $isActive={interval === 'PERSONALIZADA'} /* onClick={()=>setInterval('PERSONALIZADA')} */>PERSONALIZADA</IntervalOption>
+            <IntervalOption $isActive={interval === 'PERSONALIZADA'} onClick={()=>{/* setInterval('PERSONALIZADA') */;setOpenCustomDataSet(true)}}>PERSONALIZADA</IntervalOption>
           </IntervalContainerOption>
         </IntervalContainer>
         <CardsContainer>
           <Card $bgColor="#99BC85">
             <CardTitle>Ventas</CardTitle>
             <CardData>{salesData ? salesData.salesCount : 0} ventas</CardData>
-            <CardData>$ {salesData ? salesData.totalSales : 0}</CardData>
+            <CardData>$ {salesData ? (salesData.totalSales).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 0}</CardData>
+            <CardData style={{fontSize: 14}}>{salesData ? salesData.date : ''}</CardData>
           </Card>
           <Card $bgColor="#DC8686">
             <CardTitle>Compras</CardTitle>
             <CardData>{buyData ? buyData.salesCount : 0} compras</CardData>
-            <CardData>$ {buyData ? buyData.totalSales : 0}</CardData>
+            <CardData>$ {buyData ? (buyData.totalSales).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 0}</CardData>
+            <CardData style={{fontSize: 14}}>{salesData ? salesData.date : ''}</CardData>
           </Card>
         </CardsContainer>
         <ChartsContainer>
@@ -143,6 +146,10 @@ export default function Home() {
           </MovementsList>
         </MovementsContainer>
       </MainContent>
+      {
+        openCustomDataSet &&
+        <CustomDataSet open={openCustomDataSet} handleClose={()=>setOpenCustomDataSet(false)} />
+      }
     </Container>
   );
 }

@@ -74,6 +74,7 @@ export default function PrintProduct({open, handleClose}:{open: boolean, handleC
         </div>
         <div style={{display: 'flex', justifyContent: 'center'}} >
           <Button text='Imprimir' onClick={()=>{
+            dispatch(setLoading(true))
             let filterCategorie = selectCategorie.map(item=>item._id !== 0 && item.descripcion)
             apiClient.post(`/product/print/print`, {categories: filterCategorie[0] !== false ? filterCategorie : undefined}, { responseType: 'blob',
               headers: {
@@ -94,9 +95,11 @@ export default function PrintProduct({open, handleClose}:{open: boolean, handleC
 
               // Liberar memoria
               window.URL.revokeObjectURL(url);
+              dispatch(setLoading(false))
             })
             .catch(error => {
               console.error('Error descargando el PDF:', error);
+              dispatch(setLoading(false))
             });
           }} />
         </div>

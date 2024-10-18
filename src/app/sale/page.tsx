@@ -167,7 +167,7 @@ export default function SaleScreen() {
               <h2 style={{fontSize: 16, color: '#252525'}}>{selectSaleArray.length} Ventas seleccionadas</h2>
               <Button text='Imprimir' onClick={()=>{
                 /* setOpenMultipleSale(true) */
-                console.log(selectSaleArray)
+                dispatch(setLoading(true))
                 apiClient.post(`/sale/print`, selectSaleArray, { responseType: 'blob' }) // Importante: usar 'blob' para recibir el PDF
                           .then(response => {
                             const blob = new Blob([response.data], { type: 'application/pdf' });
@@ -180,12 +180,13 @@ export default function SaleScreen() {
                             document.body.appendChild(link);
                             link.click();
                             document.body.removeChild(link);
-                            
                             // Liberar memoria
                             window.URL.revokeObjectURL(url);
+                            dispatch(setLoading(false))
                           })
                           .catch(error => {
                             console.error('Error descargando el PDF:', error);
+                            dispatch(setLoading(false))
                           });
               }}/>
             </div>
@@ -211,6 +212,7 @@ export default function SaleScreen() {
                         <MdEdit />
                     </IconWrapper>
                     <IconWrapper style={{color: '#939185'}} onClick={() => {
+                      dispatch(setLoading(true))
                         apiClient.get(`/sale/print/${item._id}`, { responseType: 'blob' }) // Importante: usar 'blob' para recibir el PDF
                           .then(response => {
                             const blob = new Blob([response.data], { type: 'application/pdf' });
@@ -226,9 +228,11 @@ export default function SaleScreen() {
                             
                             // Liberar memoria
                             window.URL.revokeObjectURL(url);
+                            dispatch(setLoading(false))
                           })
                           .catch(error => {
                             console.error('Error descargando el PDF:', error);
+                            dispatch(setLoading(false))
                           });
                       }}>
                         <BsPrinterFill />
@@ -258,6 +262,7 @@ export default function SaleScreen() {
                           <MdEdit />
                       </IconWrapper>
                       <IconWrapper style={{color: '#939185'}} onClick={() => {
+                        dispatch(setLoading(true))
                         apiClient.get(`/sale/print/${item._id}`, { responseType: 'blob' }) // Importante: usar 'blob' para recibir el PDF
                           .then(response => {
                             const blob = new Blob([response.data], { type: 'application/pdf' });
@@ -273,9 +278,11 @@ export default function SaleScreen() {
 
                             // Liberar memoria
                             window.URL.revokeObjectURL(url);
+                            dispatch(setLoading(false))
                           })
                           .catch(error => {
                             console.error('Error descargando el PDF:', error);
+                            dispatch(setLoading(false))
                           });
                       }}>
                         <BsPrinterFill />
