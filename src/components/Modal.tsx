@@ -29,7 +29,7 @@ const Modal = ({
 
   const modalRef = useRef(null);
 
-  outside && useOutsideClick(modalRef, eClose);
+  useOutsideClick(modalRef, eClose);
 
   return (
     <CSSTransition in={open} timeout={300} classNames="modal-transition" unmountOnExit>
@@ -38,7 +38,7 @@ const Modal = ({
           $borderRadius={borderRadius}
           width={width}
           height={height}
-          ref={modalRef}
+          ref={outside ? modalRef : null}
         >
           <ModalHeader title={title}>
             <Header>
