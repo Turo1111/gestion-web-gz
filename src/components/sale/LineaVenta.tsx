@@ -18,14 +18,15 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 
 export default function LineaVenta({
     lineaVenta, onClick, upQTY, downQTY, upQTY10, downQTY10, total, edit=false, id, cliente, onChangeCliente, dateEdit,
-    porcentaje, onChangePorcentaje
+    porcentaje, onChangePorcentaje, onChangePrecioUnitario
   }:
   {
     lineaVenta:ExtendItemSale[], onClick:(item:ExtendItemSale)=>void, upQTY:(id:string | Types.ObjectId | undefined)=>void, 
     downQTY: (id:string | Types.ObjectId | undefined)=>void, upQTY10:(id:string | Types.ObjectId | undefined)=>void, 
     downQTY10:(id:string | Types.ObjectId | undefined)=>void, total:number, 
     edit?:boolean, id?:string, cliente?:string, onChangeCliente:(event: ChangeEvent<HTMLInputElement>)=>void
-    dateEdit?: Date, porcentaje: number, onChangePorcentaje: (event: ChangeEvent<HTMLInputElement>)=>void
+    dateEdit?: Date, porcentaje: number, onChangePorcentaje: (event: ChangeEvent<HTMLInputElement>)=>void,
+    onChangePrecioUnitario: (value:string, idProduct: any)=>void
   }
 ) {
 
@@ -48,6 +49,7 @@ export default function LineaVenta({
                 { 
                     lineaVenta.length === 0 ? 'No se selecciono productos' :
                     lineaVenta.map((item: ExtendItemSale, index:number)=><ItemLineaVenta key={index} elem={item}
+                    onChangePrecioUnitario={(value:string, idProduct: string)=>onChangePrecioUnitario(value, idProduct)}
                     onClick={() => onClick(item)}
                     upQTY={(id: string | Types.ObjectId | undefined) => upQTY(id)}
                     downQTY={(id: string | Types.ObjectId | undefined) => downQTY(id)}
@@ -70,7 +72,7 @@ export default function LineaVenta({
                   }}
                 />
               </LocalizationProvider>
-              <Input label='Porcentaje' name='porcentaje' value={porcentaje} onChange={(e:ChangeEvent<HTMLInputElement>)=>onChangePorcentaje(e)} type='number' width='20%' prefix='%' />
+              {/* <Input label='Porcentaje' name='porcentaje' value={porcentaje} onChange={(e:ChangeEvent<HTMLInputElement>)=>onChangePorcentaje(e)} type='number' width='20%' prefix='%' /> */}
             </div>
             <div style={{display: 'flex', justifyContent: 'space-between', marginTop: 10}} >
               <Total>{lineaVenta.length} productos </Total>

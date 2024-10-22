@@ -68,6 +68,7 @@ export default function NewSale() {
             <FindProductSale
               onClickItem={(item:Product)=>{
                 setLineaVenta((prevData: ExtendItemSale[])=>{
+                    console.log("item",item)
                     const exist = prevData.find((elem:ExtendItemSale)=>elem._id===item._id)
                     if (exist) {
                         return prevData.map((elem: ExtendItemSale) =>
@@ -82,6 +83,21 @@ export default function NewSale() {
           <LineaVenta lineaVenta={lineaVenta} total={total} cliente={cliente} onChangeCliente={(e:ChangeEvent<HTMLInputElement>)=>setCliente((_prevData:string)=>e.target.value)}
             porcentaje={porcentaje} onChangePorcentaje={(e:ChangeEvent<HTMLInputElement>)=>setPorcentaje((_:number)=> parseFloat(e.target.value) >= 0 ? parseFloat(e.target.value) : 0)}
             onClick={(item:ExtendItemSale)=>setLineaVenta((prevData:ExtendItemSale[])=>prevData.filter((elem:ExtendItemSale)=>elem._id!==item._id))}
+            onChangePrecioUnitario={(value:string, idProduct: any)=>{
+              let parseValue = parseFloat(value)
+              if (value === '') {
+                parseValue = 0
+              }
+              setLineaVenta((prevData:ExtendItemSale[])=>{
+                const itemSale = prevData.find(elem=>elem._id === idProduct)
+                if(!itemSale){
+                  return prevData
+                }
+                const newItemSale = {...itemSale, precioUnitario: parseValue, total: itemSale?.cantidad*parseValue}
+                const prevFiltered = prevData.map((elem:ExtendItemSale)=>elem._id===idProduct ? newItemSale : elem)
+                return prevFiltered
+              })
+            }}
             upQTY={(id:string | Types.ObjectId | undefined)=>setLineaVenta((prevData:ExtendItemSale[])=>prevData.map((elem:ExtendItemSale)=>{
               return elem._id===id ? {...elem, cantidad: elem.cantidad+1, total: parseFloat((elem.precioUnitario*(elem.cantidad+1)).toFixed(2))} : elem
             }))}
@@ -129,6 +145,21 @@ export default function NewSale() {
                 <LineaVenta lineaVenta={lineaVenta} total={total} cliente={cliente} onChangeCliente={(e:ChangeEvent<HTMLInputElement>)=>setCliente((_prevData:string)=>e.target.value)}
                   porcentaje={porcentaje} onChangePorcentaje={(e:ChangeEvent<HTMLInputElement>)=>setPorcentaje((_:number)=> parseFloat(e.target.value) >= 0 ? parseFloat(e.target.value) : 0)}
                   onClick={(item:ExtendItemSale)=>setLineaVenta((prevData:ExtendItemSale[])=>prevData.filter((elem:ExtendItemSale)=>elem._id!==item._id))}
+                  onChangePrecioUnitario={(value:string, idProduct: any)=>{
+                    let parseValue = parseFloat(value)
+                    if (value === '') {
+                      parseValue = 0
+                    }
+                    setLineaVenta((prevData:ExtendItemSale[])=>{
+                      const itemSale = prevData.find(elem=>elem._id === idProduct)
+                      if(!itemSale){
+                        return prevData
+                      }
+                      const newItemSale = {...itemSale, precioUnitario: parseValue, total: itemSale?.cantidad*parseValue}
+                      const prevFiltered = prevData.map((elem:ExtendItemSale)=>elem._id===idProduct ? newItemSale : elem)
+                      return prevFiltered
+                    })
+                  }}
                   upQTY={(id:string | Types.ObjectId | undefined)=>setLineaVenta((prevData:ExtendItemSale[])=>prevData.map((elem:ExtendItemSale)=>{
                     return elem._id===id ? {...elem, cantidad: elem.cantidad+1, total: parseFloat((elem.precioUnitario*(elem.cantidad+1)).toFixed(2))} : elem
                   }))}

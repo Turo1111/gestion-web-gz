@@ -132,6 +132,21 @@ export default function EditSale({ params }: { params: { id: string } }) {
                 })
               }
             }}
+            onChangePrecioUnitario={(value:string, idProduct: any)=>{
+              let parseValue = parseFloat(value)
+              if (value === '') {
+                parseValue = 0
+              }
+              setLineaVenta((prevData:ExtendItemSale[])=>{
+                const itemSale = prevData.find(elem=>elem._id === idProduct)
+                if(!itemSale){
+                  return prevData
+                }
+                const newItemSale = {...itemSale, precioUnitario: parseValue, total: itemSale?.cantidad*parseValue}
+                const prevFiltered = prevData.map((elem:ExtendItemSale)=>elem._id===idProduct ? newItemSale : elem)
+                return prevFiltered
+              })
+            }}
             upQTY={(id:string | Types.ObjectId | undefined)=>setLineaVenta((prevData:ExtendItemSale[])=>prevData.map((elem:ExtendItemSale)=>{
               return elem._id===id ? {...elem, cantidad: elem.cantidad+1, total: parseFloat((elem.precioUnitario*(elem.cantidad+1)).toFixed(2))} : elem
             }))}
@@ -196,6 +211,21 @@ export default function EditSale({ params }: { params: { id: string } }) {
                         dispatch(setLoading(false))
                       })
                     }
+                  }}
+                  onChangePrecioUnitario={(value:string, idProduct: any)=>{
+                    let parseValue = parseFloat(value)
+                    if (value === '') {
+                      parseValue = 0
+                    }
+                    setLineaVenta((prevData:ExtendItemSale[])=>{
+                      const itemSale = prevData.find(elem=>elem._id === idProduct)
+                      if(!itemSale){
+                        return prevData
+                      }
+                      const newItemSale = {...itemSale, precioUnitario: parseValue, total: itemSale?.cantidad*parseValue}
+                      const prevFiltered = prevData.map((elem:ExtendItemSale)=>elem._id===idProduct ? newItemSale : elem)
+                      return prevFiltered
+                    })
                   }}
                   upQTY={(id:string | Types.ObjectId | undefined)=>setLineaVenta((prevData:ExtendItemSale[])=>prevData.map((elem:ExtendItemSale)=>{
                     return elem._id===id ? {...elem, cantidad: elem.cantidad+1, total: parseFloat((elem.precioUnitario*(elem.cantidad+1)).toFixed(2))} : elem

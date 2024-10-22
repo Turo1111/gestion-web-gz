@@ -23,4 +23,5 @@ export interface ItemBuy {
 export interface ExtendItemBuy extends ItemBuy {
   descripcion?: string
   NameCategoria?: string
+  precioUnitario?: number
 }

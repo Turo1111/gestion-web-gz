@@ -2,20 +2,32 @@ import { ExtendItemBuy } from '@/interfaces/buy.interface'
 import { Product } from '@/interfaces/product.interface'
 import { ExtendItemSale, ItemSale } from '@/interfaces/sale.interface'
 import { Types } from 'mongoose'
-import React from 'react'
+import React, { ChangeEvent } from 'react'
 import { BiTrash } from 'react-icons/bi'
 import styled from 'styled-components'
 
-export default function ItemLineaVenta({elem, onClick, upQTY, downQTY, downQTY10, upQTY10}:
+export default function ItemLineaVenta({elem, onClick, upQTY, downQTY, downQTY10, upQTY10, onChangePrecioUnitario}:
     {onClick:()=>void, upQTY:(id:string | Types.ObjectId| undefined)=>void, 
+        onChangePrecioUnitario?: (value:string, idProduct: any)=>void
     downQTY: (id:string | Types.ObjectId | undefined)=>void, upQTY10:(id:string | Types.ObjectId | undefined)=>void, 
     downQTY10:(id:string | Types.ObjectId | undefined)=>void, elem: ExtendItemSale | ExtendItemBuy}) {
+
+        console.log(elem)
   return (
     <Item>
-        <ContainerElem>
-            <Description>{elem.descripcion}</Description>
-            <h2 style={{fontSize: 14, fontWeight: 400, color: '#7F8487'}}>{elem.NameCategoria}</h2>
-        </ContainerElem>
+        <div>
+            <ContainerElem>
+                <Description>{elem.descripcion}</Description>
+                <h2 style={{fontSize: 14, fontWeight: 400, color: '#7F8487'}}>{elem.NameCategoria}</h2>
+            </ContainerElem>
+            {
+                onChangePrecioUnitario &&
+                <div style={{display: 'flex', alignItems: 'center'}} >
+                    <label style={{fontSize: 14, fontWeight: 400, color: '#7F8487', marginRight: 5}}>Precio u. : $</label>
+                    <Input value={elem.precioUnitario} onChange={(e:ChangeEvent<HTMLInputElement>)=>onChangePrecioUnitario(e.target.value, elem._id)} />
+                </div>
+            }
+        </div>
         <ContainerHandler>
             <div>
                 <div style={{display: 'flex'}}>
@@ -38,6 +50,21 @@ export default function ItemLineaVenta({elem, onClick, upQTY, downQTY, downQTY10
     </Item>
   )
 }
+
+const Input = styled.input<{ $focused?: boolean; $hasPrefix?: boolean; }>`
+  padding: 5px 10px;
+  font-size: 16px;
+  max-width: 100px;
+  color: ${props => props.color};
+  border-radius: 10px;
+  border: ${({ $focused }) => ($focused ? '2px solid #7286D3' : '1px solid #d9d9d9')};
+  transition: border-color 0.2s ease-in-out;
+  padding-left: ${({ $hasPrefix }) => ($hasPrefix ? '30px' : '10px')};
+
+  &:focus {
+    outline: none;
+  }
+`;
 
 const Description = styled.h2 `
     font-size: 18px;

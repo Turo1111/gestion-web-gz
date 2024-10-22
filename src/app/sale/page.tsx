@@ -201,7 +201,7 @@ export default function SaleScreen() {
                   <ContainerTag onClick={()=>item._id && addSaleArray(item._id)} >
                     <div>
                       <Tag>{item.cliente}</Tag>
-                      <TagDate>{item.createdAt.split("T")[0]}</TagDate>
+                      <TagDate>{item.createdAt.split("T")[0] || 'undefined'}</TagDate>
                     </div>
                     <Tag style={{fontWeight: 600, color: '#FA9B50'}}>$ {item.total}</Tag>
                   </ContainerTag>
