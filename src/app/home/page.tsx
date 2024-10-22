@@ -9,6 +9,7 @@ import { setLoading } from '@/redux/loadingSlice';
 import { useDate } from '@/hooks/useDate';
 import useInternetStatus from '@/hooks/useInternetStatus';
 import CustomDataSet from '@/components/CustomDataSet'
+import { setAlert } from '@/redux/alertSlice';
 
 interface Response {
   id: number
@@ -27,6 +28,7 @@ const formatBarChartData = (data: { sales: Response[], buy: Response[] }) => {
   // Suponiendo que quieres mostrar `sales` y `buy` en las series del gráfico de barras
   const salesData = data.sales.map(item => item.totalSales);
   const buyData = data.buy.map(item => item.totalSales);
+
   
   // Extraer etiquetas del primer conjunto de datos
   const labels = data.sales.map(item => item.label);
@@ -43,7 +45,7 @@ const formatBarChartData = (data: { sales: Response[], buy: Response[] }) => {
 const transformData = (data: Response[]): { id: number; value: number; label: string }[] => {
   return data.map(item => ({
     id: item.id,
-    value: item.totalSales, // O usa salesCount si prefieres ese valor
+    value: item.totalSales,
     label: item.label === "sale" ? 'VENTAS' : 'COMPRAS',
     color: item.label === "sale" ? '#99BC85' : '#DC8686',
   }));
@@ -59,6 +61,25 @@ export default function Home() {
   const barChartData = formatBarChartData(dataSet.graph);
   const [openCustomDataSet, setOpenCustomDataSet] = useState(false)
 
+  const handleSubmit = (startDate: Date, endDate: Date ) => {
+    if (startDate >= endDate) {
+      dispatch(setAlert({
+        message: `La fecha DESDE no puede ser posterior a Hasta`,
+        type: 'warning'
+      }))
+      return
+    }
+    dispatch(setLoading(true))
+    apiClient.get(`/dataset/custom/${startDate}/${endDate}`)
+    .then(r=>{
+      setDataSet(r.data);
+      dispatch(setLoading(false))
+      setOpenCustomDataSet(false)
+      console.log("dataset",r.data)
+    })
+    .catch(e=>{console.log(e);dispatch(setLoading(false))})
+  }
+
   const isConnected = useInternetStatus();
 
   const date = new Date()
@@ -72,12 +93,15 @@ export default function Home() {
       .then(r=>{
         setDataSet(r.data);
         dispatch(setLoading(false))
-        console.log(r.data)
+        console.log("dataset",r.data)
       })
       .catch(e=>{console.log(e);dispatch(setLoading(false))})
     }
+
+    if (interval !== 'PERSONALIZADA') {
+      getData()
+    }
   
-    getData()
 
     console.log("conectado ?",isConnected)
   }, [interval])
@@ -91,7 +115,7 @@ export default function Home() {
             <IntervalOption $isActive={interval === 'SEMANAL'} onClick={()=>setInterval('SEMANAL')}>SEMANAL</IntervalOption>
             <IntervalOption $isActive={interval === 'MENSUAL'} onClick={()=>setInterval('MENSUAL')}>MENSUAL</IntervalOption>
             <IntervalOption $isActive={interval === 'ANUAL'} onClick={()=>setInterval('ANUAL')}>ANUAL</IntervalOption>
-            <IntervalOption $isActive={interval === 'PERSONALIZADA'} onClick={()=>{/* setInterval('PERSONALIZADA') */;setOpenCustomDataSet(true)}}>PERSONALIZADA</IntervalOption>
+            <IntervalOption $isActive={interval === 'PERSONALIZADA'} onClick={()=>{setInterval('PERSONALIZADA');setOpenCustomDataSet(true)}}>PERSONALIZADA</IntervalOption>
           </IntervalContainerOption>
         </IntervalContainer>
         <CardsContainer>
@@ -109,7 +133,7 @@ export default function Home() {
           </Card>
         </CardsContainer>
         <ChartsContainer>
-          {dataSet.simple.length === 0 ? (
+          {(dataSet.simple.length === 0 || (dataSet.simple[0].totalSales === 0 && dataSet.simple[1].totalSales === 0)) ? (
             <NoDataMessage>No hay datos para mostrar en el gráfico</NoDataMessage>
           ) : (
             <div style={{ display: 'flex', flex: 1 }}>
@@ -148,7 +172,7 @@ export default function Home() {
       </MainContent>
       {
         openCustomDataSet &&
-        <CustomDataSet open={openCustomDataSet} handleClose={()=>setOpenCustomDataSet(false)} />
+        <CustomDataSet open={openCustomDataSet} handleClose={()=>setOpenCustomDataSet(false)} handleSubmit={handleSubmit} />
       }
     </Container>
   );
@@ -339,6 +363,7 @@ const NoDataMessage = styled.div`
   justify-content: center;
   align-items: center;
   height: 200px;
+  margin: 0 15px;
  `
 
 function translateIntervalToEnglish(interval: string): string {

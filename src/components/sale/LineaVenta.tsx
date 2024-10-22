@@ -64,6 +64,7 @@ export default function LineaVenta({
               <LocalizationProvider dateAdapter={AdapterDateFns}>
                 <DatePicker
                   label="Seleccionar fecha"
+                  format="dd/mm/yyyy"
                   value={date}
                   onChange={(newValue) => {
                     if (newValue) {

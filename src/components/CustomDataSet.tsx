@@ -1,44 +1,63 @@
 import React, { useEffect, useState } from "react";
 import Modal from './Modal'
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import Button from "./Button";
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { setAlert } from "@/redux/alertSlice";
+import { useAppDispatch } from "@/redux/hook";
+import { format } from "path";
+import apiClient from "@/utils/client";
+import { setLoading } from "@/redux/loadingSlice";
 
-export default function CustomDataSet({open, handleClose,}:{open:boolean, handleClose: ()=>void}) {
+const formatDate = (date: Date): string => {
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Los meses van de 0 a 11
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+};
 
-  const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
-    null,
-    null,
-  ]);
+export default function CustomDataSet({open, handleClose, handleSubmit}:{open:boolean, handleClose: ()=>void, handleSubmit: (startDate: Date, endDate: Date)=>void}) {
 
-  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
-  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
-
-  useEffect(() => {
-    if (dateRange[0]) {
-      setStartDate(dateRange[0]);
-    } else {
-      setStartDate(undefined);
-    }
-
-    if (dateRange[1]) {
-      setEndDate(dateRange[1]);
-    } else {
-      setEndDate(undefined);
-    }
-  }, [dateRange]);
   
+  const [startDate, setStartDate] = React.useState<Date>(new Date());
+  const [endDate, setEndDate] = React.useState<Date>(new Date());
+
   return (
-    <Modal open={open} title='Elegir fecha' eClose={handleClose} height='auto' width='60%' >
-        <div>
-          <DatePicker
-            selectsRange={true} // Date range selecting enabled
-            startDate={startDate}
-            endDate={endDate}
-            onChange={(update) => {
-              setDateRange(update);
-            }}
-            calendarStartDay={1} // Starts from Monday
-          />
+    <Modal open={open} title='Elegir fecha' eClose={handleClose} height='auto' width='auto' outside={false} >
+        <div style={{padding: 15}}>
+          <h2 style={{fontSize: 18, fontWeight: 500, marginBottom: 15}} >Selecciona un rango de fechas</h2>
+          <div style={{display: "flex", justifyContent: 'space-around', alignItems: "center"}} >
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+              <DatePicker
+                label="Desde"
+                value={startDate}
+                format="dd/mm/yyyy"
+                onChange={(newValue) => {
+                  if (newValue) {
+                    setStartDate(newValue);
+                  }
+                }}
+              />
+            </LocalizationProvider>
+            <label style={{fontSize: 18, fontWeight: 500, margin: '0 15px'}} >a</label>
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+              <DatePicker
+                label="Hasta"
+                format="dd/mm/yyyy"
+                value={endDate}
+                onChange={(newValue) => {
+                  if (newValue) {
+                    setEndDate(newValue);
+                  }
+                }}
+              />
+            </LocalizationProvider>
+          </div>
+          <div style={{display: "flex", justifyContent: 'space-around', alignItems: "center"}}>
+            <Button text="Cancelar" onClick={handleClose} />
+            <Button text="Aplicar" onClick={()=>handleSubmit(startDate, endDate)} />
+          </div>
         </div>
     </Modal>
   )

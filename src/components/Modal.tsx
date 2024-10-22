@@ -11,7 +11,8 @@ const Modal = ({
   title,
   borderRadius = false,
   width = "30%",
-  height = "35%"
+  height = "35%",
+  outside = true
 }:{
   children?: React.ReactNode,
   open: boolean,
@@ -23,11 +24,12 @@ const Modal = ({
   borderRadius?: boolean,
   width?: string,
   height?: string
+  outside?: boolean
 }) => {
 
   const modalRef = useRef(null);
 
-  useOutsideClick(modalRef, eClose);
+  outside && useOutsideClick(modalRef, eClose);
 
   return (
     <CSSTransition in={open} timeout={300} classNames="modal-transition" unmountOnExit>
