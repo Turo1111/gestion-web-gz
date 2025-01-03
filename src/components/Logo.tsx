@@ -9,7 +9,7 @@ export default function Logo({ small = false }:{small?: boolean}) {
             <ColorBlue style={{ fontSize: `${small ? '25px' : '40px'}`, fontWeight: 'bold' }} suppressHydrationWarning={true}>GOLO</ColorBlue>
             <ColorOrange style={{ fontSize: `${small ? '25px' : '40px'}`, fontWeight: 'bold' }} suppressHydrationWarning={true}>ZUR</ColorOrange>
           </Golozur>
-          <Distri style={{ marginTop: `${small ? '-5px' : '-10px'}`}} suppressHydrationWarning={true}>
+          <Distri style={{ marginTop: `${small ? '-5px' : '-5px'}`}} suppressHydrationWarning={true}>
             <ColorBlue style={{ fontSize: `${small ? '8px' : '16px'}`, fontWeight: 'bold' }} suppressHydrationWarning={true}>DISTRI</ColorBlue>
             <ColorOrange style={{ fontSize: `${small ? '8px' : '16px'}`, fontWeight: 'bold' }} suppressHydrationWarning={true}>BUIDORA</ColorOrange>
           </Distri>

@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import { BarChart } from '@mui/x-charts/BarChart';
+/* import { BarChart } from '@mui/x-charts/BarChart'; */
 import { PieChart } from '@mui/x-charts';
 import styled from 'styled-components';
 import apiClient from '@/utils/client';
@@ -10,6 +10,22 @@ import { useDate } from '@/hooks/useDate';
 import useInternetStatus from '@/hooks/useInternetStatus';
 import CustomDataSet from '@/components/CustomDataSet'
 import { setAlert } from '@/redux/alertSlice';
+import { AiOutlineDollar } from 'react-icons/ai';
+import { MdOutlineListAlt } from 'react-icons/md';
+import { motion, AnimatePresence, Variants } from "framer-motion";
+import { BarChart, Bar, Rectangle, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { AnimatedNumber } from '@/components/AnimatedNumber';
+import Button from '@/components/Button';
+
+const containerVariants: Variants = {
+  sales: { backgroundColor: "#99BC85", transition: { duration: 0.5 } },
+  purchases: { backgroundColor: "#DC8686", transition: { duration: 0.5 } },
+};
+
+const itemVariants: Variants = {
+  visible: { y: 0, opacity: 1, transition: { duration: 0.2 } },
+  hidden: { y: 10, opacity: 0 },
+}
 
 interface Response {
   id: number
@@ -25,18 +41,16 @@ const getTotalCardData = (dataSet: Response[], label: string) => {
 };
 
 const formatBarChartData = (data: { sales: Response[], buy: Response[] }) => {
-  // Suponiendo que quieres mostrar `sales` y `buy` en las series del gráfico de barras
   const salesData = data.sales.map(item => item.totalSales);
   const buyData = data.buy.map(item => item.totalSales);
 
   
-  // Extraer etiquetas del primer conjunto de datos
   const labels = data.sales.map(item => item.label);
 
   return {
     series: [
-      { data: salesData, color: '#99BC85' }, // Color para `sales`
-      { data: buyData, color: '#DC8686' },   // Color para `buy`
+      { data: salesData, color: '#99BC85' }, 
+      { data: buyData, color: '#DC8686' },   
     ],
     xAxis: labels,
   };
@@ -51,15 +65,18 @@ const transformData = (data: Response[]): { id: number; value: number; label: st
   }));
 };
 
+const intervals = ['DIARIO', 'SEMANAL', 'MENSUAL', 'ANUAL', 'CUSTOM'];
+
 export default function Home() {
   const [interval, setInterval] = useState<string>('DIARIO');
-  const [dataSet, setDataSet] = useState<{simple: Response[], graph: {sales: Response[], buy: Response[]}}>({simple: [], graph: {sales: [], buy: []}})
+  const [dataSet, setDataSet] = useState<{simple: Response[], graph: any}>({simple: [], graph: undefined})
   const dispatch = useDispatch()
   const salesData = getTotalCardData(dataSet.simple, 'sale')
   const buyData = getTotalCardData(dataSet.simple, 'buy')
   const pieChartData = transformData(dataSet.simple);
-  const barChartData = formatBarChartData(dataSet.graph);
+  /* const barChartData = formatBarChartData(dataSet.graph); */
   const [openCustomDataSet, setOpenCustomDataSet] = useState(false)
+  const [switchData, setSwitchData] = useState(true)
 
   const handleSubmit = (startDate: Date, endDate: Date ) => {
     if (startDate >= endDate) {
@@ -98,7 +115,7 @@ export default function Home() {
       .catch(e=>{console.log(e);dispatch(setLoading(false))})
     }
 
-    if (interval !== 'PERSONALIZADA') {
+    if (interval !== 'CUSTOM') {
       getData()
     }
   
@@ -109,31 +126,99 @@ export default function Home() {
   return (
     <Container>
       <MainContent>
-        <IntervalContainer>
-          <IntervalContainerOption>
-            <IntervalOption $isActive={interval === 'DIARIO'} onClick={()=>setInterval('DIARIO')}>DIARIO</IntervalOption>
-            <IntervalOption $isActive={interval === 'SEMANAL'} onClick={()=>setInterval('SEMANAL')}>SEMANAL</IntervalOption>
-            <IntervalOption $isActive={interval === 'MENSUAL'} onClick={()=>setInterval('MENSUAL')}>MENSUAL</IntervalOption>
-            <IntervalOption $isActive={interval === 'ANUAL'} onClick={()=>setInterval('ANUAL')}>ANUAL</IntervalOption>
-            <IntervalOption $isActive={interval === 'PERSONALIZADA'} onClick={()=>{setInterval('PERSONALIZADA');setOpenCustomDataSet(true)}}>PERSONALIZADA</IntervalOption>
-          </IntervalContainerOption>
-        </IntervalContainer>
-        <CardsContainer>
-          <Card $bgColor="#99BC85">
-            <CardTitle>Ventas</CardTitle>
-            <CardData>{salesData ? salesData.salesCount : 0} ventas</CardData>
-            <CardData>$ {salesData ? (salesData.totalSales).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 0}</CardData>
-            <CardData style={{fontSize: 14}}>{salesData ? salesData.date : ''}</CardData>
-          </Card>
-          <Card $bgColor="#DC8686">
-            <CardTitle>Compras</CardTitle>
-            <CardData>{buyData ? buyData.salesCount : 0} compras</CardData>
-            <CardData>$ {buyData ? (buyData.totalSales).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 0}</CardData>
-            <CardData style={{fontSize: 14}}>{salesData ? salesData.date : ''}</CardData>
-          </Card>
-        </CardsContainer>
+        <div style={{display: 'flex', justifyContent: 'center'}} >
+          <IntervalContainer>
+            {intervals.map((label, index) => (
+              <IntervalLabel key={label}
+                style={{
+                  borderLeft: '1px solid #d9d9d9',
+                  borderRadius: `${index === 0 && '9999px'}`
+                }}
+              >
+                <IntervalInput
+                  type="radio"
+                  name="interval-radio"
+                  value={label}
+                  checked={interval === label}
+                  onChange={() => {
+                    setInterval(label);
+                    if (label === 'CUSTOM') {
+                      setOpenCustomDataSet(true);
+                    }
+                  }}
+                />
+                <span>{label}</span>
+              </IntervalLabel>
+            ))}
+            <Selection $position={intervals.indexOf(interval)} />
+          </IntervalContainer>
+        </div>
+        <Button text='MODALS' to='/modals' onClick={()=>console.log('nada')} />
+        <CardContainer>
+          <WrapperContainer $switchData={switchData}>
+              <div style={{maxWidth: '15%'}}>
+                <IconWrapperCard style={{backgroundColor: '#99BC85', borderTopLeftRadius: 15}} $switchData={switchData}
+                  onClick={()=>setSwitchData(true)}
+                >
+                  <AiOutlineDollar/>
+                </IconWrapperCard>
+                <IconWrapperCard style={{backgroundColor: '#DC8686', borderBottomLeftRadius: 15}} $switchData={switchData}
+                  onClick={()=>setSwitchData(false)}
+                >
+                  <MdOutlineListAlt/>
+                </IconWrapperCard>
+              </div>
+              <ContainerCardData $switchData={switchData}>
+                <WrapperContainerCardData $switchData={switchData}>
+                  <Card>
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                      <CardData style={{color: '#000', fontWeight: 'bold', fontSize: 22}} >
+                        {
+                          switchData ?
+                            salesData ? <AnimatedNumber value={salesData.salesCount} /> : <AnimatedNumber value={0} />
+                          :
+                            buyData ? <AnimatedNumber value={buyData.salesCount} /> : <AnimatedNumber value={0} />
+
+                        }
+
+                      </CardData>
+                      <CardData style={{color: '#99BC85', fontWeight: 'bold', fontSize: 18}} >+ 4 %</CardData>
+                    </div>
+                    <CardData style={{color: '#181C14', fontSize: 14}} >CANTIDAD</CardData>
+                  </Card>
+                  <Card>
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                      <CardData style={{color: '#000', fontWeight: 'bold', fontSize: 22}}  >$ 
+                        {
+                          switchData ?
+                            salesData ? <AnimatedNumber value={salesData.totalSales} />  : <AnimatedNumber value={0} />
+                          :
+                            buyData ? <AnimatedNumber value={buyData.totalSales} />: <AnimatedNumber value={0} />
+                        }
+                      </CardData>
+                      <CardData style={{color: '#99BC85', fontWeight: 'bold', fontSize: 18}} >+ 4 %</CardData>
+                    </div>
+                    <CardData style={{color: '#181C14', fontSize: 14}} >TOTAL</CardData>
+                  </Card>
+                  <Card>
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                      <CardData style={{color: '#000', fontWeight: 'bold', fontSize: 18}}  >
+                        {
+                          switchData ?
+                            salesData ? salesData.date : ''
+                          :
+                           buyData ? buyData.date : ''
+                        }
+                      </CardData>
+                    </div>
+                    <CardData style={{color: '#181C14', fontSize: 14}} >INTERVALO</CardData>
+                  </Card>
+                </WrapperContainerCardData>
+              </ContainerCardData>
+          </WrapperContainer>
+        </CardContainer>
         <ChartsContainer>
-          {(dataSet.simple.length === 0 || (dataSet.simple[0].totalSales === 0 && dataSet.simple[1].totalSales === 0)) ? (
+          {/* {(dataSet.simple.length === 0 || (dataSet.simple[0].totalSales === 0 && dataSet.simple[1].totalSales === 0)) ? (
             <NoDataMessage>No hay datos para mostrar en el gráfico</NoDataMessage>
           ) : (
             <div style={{ display: 'flex', flex: 1 }}>
@@ -147,14 +232,35 @@ export default function Home() {
                 height={200}
               /> 
             </div>
-          )}
-          <div style={{ display: 'flex', flex: 1 }}>
-            <BarChart
+          )} */}
+          <div style={{ display: 'flex', flex: 1, justifyContent: 'center' }}>
+            {/* <BarChart
               series={barChartData.series}
               height={290}
               xAxis={[{ data: barChartData.xAxis, scaleType: 'band' }]}
               margin={{ top: 10, bottom: 30, left: 40, right: 10 }}
-            />
+            /> */}
+            <BarChart width={730} height={350} data={dataSet.graph?.data}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="label" />
+              <YAxis  
+                tickFormatter={(value) => {
+                  if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
+                  if (value >= 1000) return `${(value / 1000).toFixed(1)}k`;
+                  return value;
+                }} 
+              />
+              <Tooltip 
+                formatter={(value: number) => {
+                  if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
+                  if (value >= 1000) return `${(value / 1000).toFixed(1)}k`;
+                  return value;
+                }}
+              />
+              <Legend />
+              <Bar dataKey="ventas" fill="#99BC85" />
+              <Bar dataKey="compras" fill="#DC8686" />
+            </BarChart>
           </div>
         </ChartsContainer>
         <MovementsContainer>
@@ -178,6 +284,79 @@ export default function Home() {
   );
 }
 
+const CardContainer = styled.div `
+  display: flex;
+  justify-content: center;
+`
+
+const WrapperContainer = styled.div<{$switchData: boolean}>`
+  margin-top: 15px;
+  border-radius: 15px;
+  background-color: ${({ $switchData }) => ($switchData ? '#99BC85' : '#DC8686')};
+  border: 1px solid #d9d9d9;
+  display: flex;
+  z-index: 1;
+  
+  transition: background-color ease-in .5s ;
+`
+
+const IconWrapperCard = styled.div<{$switchData: boolean}>`
+  font-size: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 15px;
+  color: #fff;
+  border-top-right-radius: ${({ $switchData }) => ($switchData ? '15px' : '0px')};
+  border-bottom-right-radius: ${({ $switchData }) => (!$switchData ? '15px' : '0px')};
+  cursor: pointer;
+`
+
+const ContainerCardData = styled.div<{$switchData: boolean}> `
+  display: flex;
+  flex: 1;
+  background-color: ${({ $switchData }) => ($switchData ? '#DC8686' : '#99BC85')};
+  border-top-right-radius: 15px;
+  border-bottom-right-radius: 15px;
+  align-items: center;
+  justify-content: space-around;
+  transition: background-color ease-in .5s ;
+`
+
+const WrapperContainerCardData = styled.div<{$switchData: boolean}>`
+   display: flex;
+  flex: 1;
+  background-color: ${({ $switchData }) => ($switchData ? '#99BC85' : '#DC8686')};
+  border-top-right-radius: 15px;
+  border-bottom-right-radius: 15px;
+  align-items: center;
+  padding: 15px;
+  justify-content: space-around;
+  border-top-left-radius: ${({ $switchData }) => (!$switchData ? '15px' : '0')};
+  border-bottom-left-radius: ${({ $switchData }) => ($switchData ? '15px' : '0')};
+  height: 100%;
+  transition: background-color ease-in .5s ;
+`
+
+const Card = styled.div `
+  background: #fff;
+  border-radius: 10px;
+  margin: 0 15px;
+  padding: 0px 15px;
+  align-items: center;
+  border: 2px solid #d9d9d9;
+  background-image: url('/bgcircle.jpg');
+  background-size: 800px;
+  background-position: 20%;
+`
+
+const CardData = styled.h2`
+  font-size: 18px;
+  font-weight: 500;
+  margin: 10px 15px;
+  color: white;
+  z-index: 1;
+`;
 
 const Container = styled.div`
   display: flex;
@@ -199,81 +378,54 @@ const MainContent = styled.div`
 `;
 
 const IntervalContainer = styled.div`
+  --container-width: 465px;
+  position: relative;
   display: flex;
-  justify-content: center;
   align-items: center;
+  width: var(--container-width);
+  border-radius: 9999px;
+  background-color: #fff;
+  color: #000;
+  overflow: hidden;
+  border: 1px solid rgba(53, 52, 52, 0.226);
 `;
 
-const IntervalContainerOption = styled.div `
-   display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow-x: scroll;
-`
-
-const IntervalLabel = styled.h2`
-  font-size: 18px;
-  font-weight: bold;
-  margin: 5px 15px;
-  color: #252525;
-  @media only screen and (max-width: 1025px) {
-    font-size: 14px;
-  }
-`;
-
-const IntervalOption = styled.h2<{$isActive: boolean}>`
-  font-size: 16px;
-  font-weight: 500;
-  /* margin: 5px 15px; */
-  padding: 5px;
-  /* border-radius: ${({ $isActive }) => ($isActive ? '10px' : '0px')};; */
-  color: ${({ $isActive }) => ($isActive ? 'white' : '#252525')};
-  background-color: ${({ $isActive }) => ($isActive ? '#3764A0' : 'white')};
- /*  border: ${({ $isActive }) => ($isActive ? '1px solid #d9d9d9' : 'none')}; */
-  border-right: ${({ $isActive }) => ($isActive ? 'none' : '3px solid #d9d9d9')};
+const IntervalLabel = styled.label`
+  width: 100%;
+  padding: 15px; /* Puedes ajustar el padding aquí */
   cursor: pointer;
-  &:hover{
-    color: white;
-    background-color: #3764A0;
-    border: 1px solid #d9d9d9;
-  }
-  @media only screen and (max-width: 1025px) {
-    font-size: 12px;
-  }
-`;
-
-const CardsContainer = styled.div`
   display: flex;
-  justify-content: space-evenly;
-  margin: 15px 0;
+  justify-content: center;
+  z-index: 1;
+  font-weight: 600;
+  letter-spacing: -1px;
+  font-size: 14px;
+  color: #000;
+  position: relative;
+
+  &:has(input:checked) {
+    color: #fff;
+  }
 `;
 
-const Card = styled.div<{$bgColor: string}>`
-  background-color: ${({ $bgColor }) => $bgColor};
-  border-radius: 15px;
-  border: 1px solid #d9d9d9;
-  min-width: 150px;
-  text-align: center;
+const IntervalInput = styled.input`
+  display: none;
 `;
 
-const CardTitle = styled.h2`
-  font-size: 22px;
-  font-weight: bold;
-  color: #252525;
-  padding: 5px;
-  background-color: white;
-  text-align: center;
-  border: 1px solid #d9d9d9;
-  border-top-left-radius: 15px;
-  border-top-right-radius: 15px;
+const Selection = styled.span<{ $position: number }>`
+  display: inline-block;
+  position: absolute;
+  height: 100%; /* Ahora toma la altura del contenedor */
+  width: calc(var(--container-width) / 5);
+  background: linear-gradient(145deg, #325a90, #3b6bab);
+  box-shadow: inset 4px 4px 10px rgba(0, 0, 0, 0.2), inset -4px -4px 10px rgba(255, 255, 255, 0.1);
+  z-index: 0;
+  top: 0;
+  left: 0;
+  transition: 0.15s ease;
+  transform: ${({ $position }) => `translateX(calc(var(--container-width) * ${$position} / 5))`};
 `;
 
-const CardData = styled.h2`
-  font-size: 18px;
-  font-weight: 500;
-  margin: 10px 15px;
-  color: white;
-`;
 
 const ChartsContainer = styled.div`
   display: flex;
@@ -319,44 +471,7 @@ const MovementText = styled.h2`
   font-size: 18px;
   font-weight: 500;
   color: ${({ color }) => color || '#252525'};
-`;
-
-const NotesContainer = styled.div`
-  display: flex;
-  background-color: #f1f1f1;
-  width: 30%;
-  padding: 15px;
-  border-radius: 15px;
-  overflow-y: scroll;
-  flex-direction: column;
-  @media only screen and (max-width: 500px) {
-    display: none;
-  }
-`;
-
-const NotesTitle = styled.h2`
-  font-size: 18px;
-  text-align: center;
-  font-weight: bold;
-  margin-bottom: 15px;
-`;
-
-const NoteItem = styled.div`
-  border-bottom: 1px solid #fff;
-  padding: 5px 0;
-`;
-
-const NoteTitle = styled.h2`
-  font-size: 16px;
-  font-weight: 600;
-  margin: 5px 0;
-`;
-
-const NoteText = styled.p`
-  font-size: 14px;
-  font-weight: 500;
-  margin: 5px 0;
-`;
+`; 
 
 const NoDataMessage = styled.div`
   display: flex;

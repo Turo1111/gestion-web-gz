@@ -13,15 +13,19 @@ import { MdMenuOpen } from 'react-icons/md';
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import { UserWithToken } from '@/interfaces/auth.interface';
 import { setLoading } from '@/redux/loadingSlice';
+import { MdExitToApp } from "react-icons/md";
+import { RandomAvatar } from "react-random-avatars";
+import { GoHome, GoPackage } from "react-icons/go";
+import { AiOutlineDollar } from 'react-icons/ai';
+import { LiaClipboardListSolid } from "react-icons/lia";
 
 export default function Dashboard({children}: {children: ReactNode} ) {
 
-    /* const itemsLi = ["HOME", "PRODUCT", "SALE", "BUY"] */
     const itemsLi = [
-        {path: 'HOME', name: 'INICIO'},
-        {path: 'PRODUCT', name: 'PRODUCTOS'},
-        {path: 'SALE', name: 'VENTAS'},
-        {path: 'BUY', name: 'COMPRAS'}
+        {path: 'HOME', name: 'INICIO', icon: <GoHome /> },
+        {path: 'PRODUCT', name: 'PRODUCTOS', icon: <GoPackage />},
+        {path: 'SALE', name: 'VENTAS', icon: <AiOutlineDollar />},
+        {path: 'BUY', name: 'COMPRAS', icon: <LiaClipboardListSolid />}
     ]
     const pathname = usePathname()
     let {ancho, alto} = useResize()
@@ -77,14 +81,36 @@ export default function Dashboard({children}: {children: ReactNode} ) {
                 {
                     pathname !== '/' &&
                     <LeftDash>
-                        <Logo/>
+                        <div style={{padding: 15, display: 'flex', justifyContent: 'center'}} >
+                            {
+                                ancho > 1240 ?
+                                <Logo />
+                                :
+                                <div style={{display: 'flex', textAlign: 'center'}}>
+                                    <h2 style={{color: '#3764A0', fontSize: 40}}>G</h2>
+                                    <h2 style={{color: '#FA9B50', fontSize: 40}}>Z</h2>
+                                </div>
+                            }
+                        </div>
+                        <WrapperUserContainer>
+                            <UserContainer suppressHydrationWarning={true}>
+                                <RandomAvatar name={'sergio'} size={ ancho < 940 ? 25 : 50} mode='pattern' square={true} />
+                                {(ancho > 1240) && <label style={{fontSize: 16, fontWeight: 600}} suppressHydrationWarning={true}>{valueStorage.user || user.nickname || undefined}</label>}
+                                <SignOut onClick={() => {clearValue(); router.push('/')}}><MdExitToApp /></SignOut>
+                            </UserContainer>
+                        </WrapperUserContainer>
                         <ul>
                             {
                                 itemsLi.map((item, index)=>{
                                     return(
                                     <Link href={"/"+(item.path.toLowerCase().split(' ').join(''))} style={{textDecoration: 'none'}}  key={index}> 
                                         <ItemLi $isSelect={pathname === "/"+(item.path.toLowerCase().split(' ').join(''))}>
-                                            {item.name}
+                                            <IconWrapper2>
+                                                {item.icon}
+                                            </IconWrapper2>
+                                            <LabelItemLi>
+                                                {item.name}
+                                            </LabelItemLi>
                                         </ItemLi>
                                     </Link>
 
@@ -93,23 +119,11 @@ export default function Dashboard({children}: {children: ReactNode} ) {
                         </ul>
                     </LeftDash>
                 }
-                <div style={{display: 'flex', flexDirection: 'column', flex: 1}} suppressHydrationWarning={true}>
-                    {
-                        pathname !== '/' &&
-                        <div style={{display: 'flex', backgroundColor: '#f1f1f1', justifyContent: 'space-between', padding: 15, alignItems: 'center', color: '#252525'}} suppressHydrationWarning={true}>
-                            <h2>{pathname}</h2>
-                            {
-                                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}} suppressHydrationWarning={true}>
-                                    <label style={{fontSize: 18, fontWeight: 600, marginRight: 15}} suppressHydrationWarning={true}>Bienvenido {valueStorage.user || user.nickname || undefined}</label>
-                                    <SignOut onClick={() => {clearValue(); router.push('/')}}>Cerrar sesion</SignOut>
-                                </div>
-                            }
-                        </div>
-                    }
-                    <div style={{display: 'flex', flex: 1, flexDirection: 'column', overflowY: 'scroll'}} suppressHydrationWarning={true}>
+                <ContainerChildren suppressHydrationWarning={true}>
+                    <Children suppressHydrationWarning={true}>
                         {children}
-                    </div>
-                </div>
+                    </Children>
+                </ContainerChildren>
             </ContainerBig>
             :
             <ContainerSmall suppressHydrationWarning={true}>
@@ -133,21 +147,31 @@ export default function Dashboard({children}: {children: ReactNode} ) {
                 {
                     openMenu &&
                     <LeftDash suppressHydrationWarning={true}>
-                        <ul suppressHydrationWarning={true}>
+                        <WrapperUserContainer>
+                            <UserContainer suppressHydrationWarning={true}>
+                                <RandomAvatar name={'sergio'} size={50} mode='pattern' square={true} />
+                                {ancho > 1240 && <label style={{fontSize: 18, fontWeight: 600}} suppressHydrationWarning={true}>{valueStorage.user || user.nickname || undefined}</label>}
+                                <SignOut onClick={() => {clearValue(); router.push('/')}}><MdExitToApp /></SignOut>
+                            </UserContainer>
+                        </WrapperUserContainer>
+                        <ul>
                             {
                                 itemsLi.map((item, index)=>{
-                                    const isSelect = pathname === "/"+(item.path.toLowerCase().split(' ').join(''))
                                     return(
-                                    <Link href={"/"+(item.path.toLowerCase().split(' ').join(''))} style={{textDecoration: 'none'}}  key={index} onClick={()=>setOpenMenu(false)} suppressHydrationWarning={true}> 
-                                        <ItemLi $isSelect={isSelect} >{item.name}</ItemLi>
+                                    <Link href={"/"+(item.path.toLowerCase().split(' ').join(''))} style={{textDecoration: 'none'}}  key={index} onClick={()=>setOpenMenu(false)}> 
+                                        <ItemLi $isSelect={pathname === "/"+(item.path.toLowerCase().split(' ').join(''))}>
+                                            <IconWrapper2>
+                                                {item.icon}
+                                            </IconWrapper2>
+                                            <LabelItemLi>
+                                                {item.name}
+                                            </LabelItemLi>
+                                        </ItemLi>
                                     </Link>
+
                                 )})
                             }
                         </ul>
-                        <SignOut onClick={async () => {
-                            await clearValue();
-                            setOpenMenu(false)
-                        }} suppressHydrationWarning={true}>Cerrar sesion</SignOut>
                     </LeftDash>
                 }
                 <div style={{display: 'flex', flex: 1, flexDirection: 'column', overflowY: 'scroll'}} suppressHydrationWarning={true}>
@@ -158,6 +182,40 @@ export default function Dashboard({children}: {children: ReactNode} ) {
     </div>
   )
 }
+
+const ContainerChildren = styled.div `
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 5px;
+    background-color: #f1f1f1;
+`
+
+const Children = styled.div`
+    display: flex; 
+    flex: 1; 
+    flex-direction: column; 
+    overflow-y: scroll;
+`
+
+const WrapperUserContainer = styled.div `
+    padding: 0 15px;
+    margin-top: 15px;
+    margin-bottom: 50px;
+    @media only screen and (max-width: 940px) {
+        margin-bottom: 25px;
+    }
+`
+
+const UserContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #d9d9d9;
+  border-bottom: 1px solid #d9d9d9;
+  padding: 10px 0;
+  
+`;
 
 const Header = styled.div`
     width: 100%;
@@ -192,6 +250,20 @@ const IconWrapper = styled.div`
     &:hover {
         background-color: #d9d9d9;
     }
+    
+`
+
+const IconWrapper2 = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 25px;
+    padding: 5px 15px;
+    margin: 0px 5px;
+    cursor: pointer;
+    @media only screen and (max-width: 940px) {
+        font-size: 22px;
+    }
 `
 
 const ContainerBig = styled.div `
@@ -206,9 +278,9 @@ const ContainerBig = styled.div `
 `
 
 const SignOut = styled.h2`
-    font-size: 14px;
-    font-weight: 400;
-    color: '#7F8487';
+    font-size: 25px;
+    color: #7F8487;
+    margin-top: 5px;
     cursor: pointer;
     &:hover{
         color: #8294C4;
@@ -217,8 +289,8 @@ const SignOut = styled.h2`
 
 const LeftDash = styled.div `
     height: 100vh;
-    background-color: #d9d9d9;
-    padding: 5px 0px;
+    background: #f5f5f5;
+    border-right: 1px solid #E2DAD6;
     position: relative;
     @media only screen and (max-width: 940px) {
         position: absolute;
@@ -232,17 +304,33 @@ interface ItemLiProps {
 }
 
 const ItemLi = styled.li<ItemLiProps>`
+    display: flex;
+    align-items: center;
     list-style: none;
-    font-weight: 600;
-    font-size: 16px;
-    margin: 15px 0;
-    padding: 15px;
-    border-bottom: 1px solid white;
+    margin: 10px 0;
+    padding: 10px 15px;
+    border-bottom: 1px solid #d9d9d9;
     background-color: ${({ $isSelect }) => ($isSelect ? '#3764A0' : 'none')};
     color: ${({ $isSelect }) => ($isSelect ? 'white' : '#252525')};
+    transition: background-color .5s ease-in-out;
     cursor: pointer;
     &:hover {
         background-color: #3764A0;
         color: white;
     }
+    @media only screen and (max-width: 1240px) {
+        flex-direction: column;
+    }
+    @media only screen and (max-width: 940px) {
+        margin: 5px 0;
+        padding: 5px;
+    }
 `;
+
+const LabelItemLi = styled.label `
+    font-weight: 600;
+    font-size: 14px;
+    @media only screen and (max-width: 940px) {
+        font-size: 12px;
+    }
+`

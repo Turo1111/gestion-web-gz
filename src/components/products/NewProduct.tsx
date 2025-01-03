@@ -12,6 +12,7 @@ import { useAppDispatch } from '@/redux/hook'
 import { setAlert } from '@/redux/alertSlice'
 import { Product } from '@/interfaces/product.interface'
 import Confirm from '../Confirm'
+import ButtonUI from '../ButtonUI'
 
 let initialValue: Product = {
   descripcion: '',
@@ -83,7 +84,7 @@ export default function NewProduct({open, handleClose}:{open: boolean, handleClo
     }) 
   
     return (
-      <Modal open={open} title={'Nuevo producto'} eClose={handleClose} height='85%' >
+      <Modal open={open} title={'Nuevo producto'} eClose={handleClose} height='auto' >
         <Input label={'Descripcion'} name={'descripcion'} value={formik.values.descripcion} onChange={formik.handleChange} type='text' />
         {/* <Input label={'Codigo de barra'} name={'codigoBarra'} value={formik.values.codigoBarra} onChange={formik.handleChange} type='text' />
         <Input label={'Precio bulto'} name={'precioBulto'} value={formik.values.precioBulto} onChange={formik.handleChange} type='text' /> */}
@@ -104,8 +105,8 @@ export default function NewProduct({open, handleClose}:{open: boolean, handleClo
             formik.setFieldValue('proveedor', id)
             formik.setFieldValue('NameProveedor', item.descripcion)
           }} />
-        <div style={{display: 'flex', justifyContent: 'center'}}>
-          <Button text='Crear' onClick={formik.handleSubmit} />
+        <div style={{display: 'flex', justifyContent: 'center', marginBottom: 15}} >
+          <ButtonUI label='Crear' onClick={formik.handleSubmit}/>
         </div>
       </Modal>
     )

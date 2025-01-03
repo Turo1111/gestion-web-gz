@@ -2,6 +2,7 @@
 'use client'
 
 import Button from '@/components/Button'
+import ButtonUI from '@/components/ButtonUI'
 import InfoSale from '@/components/sale/InfoSale'
 import ModalPrintSale from '@/components/sale/ModalPrintSale'
 import PrintMultipleSale from '@/components/sale/PrintMultipleSale'
@@ -159,13 +160,13 @@ export default function SaleScreen() {
           <Search name='search' placeHolder={'Buscar ventas'} type='text' value={search} onChange={(e:ChangeEvent<HTMLInputElement>)=>setSearch(e.target.value)} />
           {
             selectSaleArray.length === 0 ?
-            <Button text='Nuevo' onClick={()=>{}} to='/sale/newSale'/>:
+            <ButtonUI label='Nuevo' onClick={()=>{}} to='/sale/newSale'/>:
             <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0px 15px'}}>
               <IconWrapper onClick={()=>setSelectSaleArray(prevData=>[])}>
                 <MdClose/>
               </IconWrapper>
               <h2 style={{fontSize: 16, color: '#252525'}}>{selectSaleArray.length} Ventas seleccionadas</h2>
-              <Button text='Imprimir' onClick={()=>{
+              <ButtonUI label='Imprimir' onClick={()=>{
                 /* setOpenMultipleSale(true) */
                 dispatch(setLoading(true))
                 apiClient.post(`/sale/print`, selectSaleArray, { responseType: 'blob' }) // Importante: usar 'blob' para recibir el PDF
@@ -206,41 +207,35 @@ export default function SaleScreen() {
                     <Tag style={{fontWeight: 600, color: '#FA9B50'}}>$ {item.total}</Tag>
                   </ContainerTag>
                   <div  style={{display: 'flex'}}>
-                    <IconWrapper style={{color: '#A2CA71'}} onClick={()=>{
-                      router.push(`/sale/editSale/${item._id}`);
-                    }}>
-                        <MdEdit />
-                    </IconWrapper>
-                    <IconWrapper style={{color: '#939185'}} onClick={() => {
-                      dispatch(setLoading(true))
-                        apiClient.get(`/sale/print/${item._id}`, { responseType: 'blob' }) // Importante: usar 'blob' para recibir el PDF
-                          .then(response => {
-                            const blob = new Blob([response.data], { type: 'application/pdf' });
-                            const url = window.URL.createObjectURL(blob);
+                      <ButtonUI label='EDITAR' onClick={()=>{
+                        router.push(`/sale/editSale/${item._id}`);
+                      }}/>
+                      <ButtonUI label='IMPRIMIR' onClick={() => {
+                          dispatch(setLoading(true))
+                          apiClient.get(`/sale/print/${item._id}`, { responseType: 'blob' }) // Importante: usar 'blob' para recibir el PDF
+                            .then(response => {
+                              const blob = new Blob([response.data], { type: 'application/pdf' });
+                              const url = window.URL.createObjectURL(blob);
                             
-                            // Crear un enlace temporal para descargar el archivo
-                            const link = document.createElement('a');
-                            link.href = url;
-                            link.setAttribute('download', `venta-${item.cliente}.pdf`); // Nombre del archivo descargado
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
+                              // Crear un enlace temporal para descargar el archivo
+                              const link = document.createElement('a');
+                              link.href = url;
+                              link.setAttribute('download', `venta-${item.cliente}.pdf`); // Nombre del archivo descargado
+                              document.body.appendChild(link);
+                              link.click();
+                              document.body.removeChild(link);
                             
-                            // Liberar memoria
-                            window.URL.revokeObjectURL(url);
-                            dispatch(setLoading(false))
-                          })
-                          .catch(error => {
-                            console.error('Error descargando el PDF:', error);
-                            dispatch(setLoading(false))
-                          });
-                      }}>
-                        <BsPrinterFill />
-                      </IconWrapper>
-                    <IconWrapper style={{color: '#6EACDA'}} onClick={()=>{setOpenInfoSale(true);setSaleSelected(item._id)}}>
-                      <MdInfo />
-                    </IconWrapper>
-                </div>
+                              // Liberar memoria
+                              window.URL.revokeObjectURL(url);
+                              dispatch(setLoading(false))
+                            })
+                            .catch(error => {
+                              console.error('Error descargando el PDF:', error);
+                              dispatch(setLoading(false))
+                            });
+                      }} />
+                      <ButtonUI label='+INFO' onClick={()=>{setOpenInfoSale(true);setSaleSelected(item._id)}}/>
+                    </div>
                 </Item>)})
                 :
                 'no hay ventas'
@@ -256,41 +251,35 @@ export default function SaleScreen() {
                       <Tag style={{fontWeight: 600, color: '#FA9B50'}}>$ {item.total}</Tag>
                     </ContainerTag>
                     <div  style={{display: 'flex'}}>
-                      <IconWrapper style={{color: '#A2CA71'}} onClick={()=>{
+                      <ButtonUI label='EDITAR' onClick={()=>{
                         router.push(`/sale/editSale/${item._id}`);
-                      }}>
-                          <MdEdit />
-                      </IconWrapper>
-                      <IconWrapper style={{color: '#939185'}} onClick={() => {
-                        dispatch(setLoading(true))
-                        apiClient.get(`/sale/print/${item._id}`, { responseType: 'blob' }) // Importante: usar 'blob' para recibir el PDF
-                          .then(response => {
-                            const blob = new Blob([response.data], { type: 'application/pdf' });
-                            const url = window.URL.createObjectURL(blob);
+                      }}/>
+                      <ButtonUI label='IMPRIMIR' onClick={() => {
+                          dispatch(setLoading(true))
+                          apiClient.get(`/sale/print/${item._id}`, { responseType: 'blob' }) // Importante: usar 'blob' para recibir el PDF
+                            .then(response => {
+                              const blob = new Blob([response.data], { type: 'application/pdf' });
+                              const url = window.URL.createObjectURL(blob);
 
-                            // Crear un enlace temporal para descargar el archivo
-                            const link = document.createElement('a');
-                            link.href = url;
-                            link.setAttribute('download', `venta-${item.cliente}.pdf`); // Nombre del archivo descargado
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
+                              // Crear un enlace temporal para descargar el archivo
+                              const link = document.createElement('a');
+                              link.href = url;
+                              link.setAttribute('download', `venta-${item.cliente}.pdf`); // Nombre del archivo descargado
+                              document.body.appendChild(link);
+                              link.click();
+                              document.body.removeChild(link);
 
-                            // Liberar memoria
-                            window.URL.revokeObjectURL(url);
-                            dispatch(setLoading(false))
-                          })
-                          .catch(error => {
-                            console.error('Error descargando el PDF:', error);
-                            dispatch(setLoading(false))
-                          });
-                      }}>
-                        <BsPrinterFill />
-                      </IconWrapper>
-                    <IconWrapper style={{color: '#6EACDA'}} onClick={()=>{setOpenInfoSale(true);setSaleSelected(item._id)}}>
-                      <MdInfo />
-                    </IconWrapper>
-                  </div>
+                              // Liberar memoria
+                              window.URL.revokeObjectURL(url);
+                              dispatch(setLoading(false))
+                            })
+                            .catch(error => {
+                              console.error('Error descargando el PDF:', error);
+                              dispatch(setLoading(false))
+                            });
+                      }} />
+                      <ButtonUI label='+INFO' onClick={()=>{setOpenInfoSale(true);setSaleSelected(item._id)}}/>
+                    </div>
                   </Item>)
                   :
                   'no hay ventas'
@@ -330,11 +319,23 @@ const Item = styled.li<{$isSelect: boolean}> `
   padding: 15px;
   font-weight: 600;
   width: 100%;
-  border-bottom: 1px solid #d1d1d1;
-  display: flex;
-  justify-content: space-between;
+  border:  ${({ $isSelect }) => ($isSelect ? '1px solid #6A5BCD' : '1px solid #fff')};;
+  margin-bottom: 5px;
+  margin-top: 5px;
+  display: flex; 
+  justify-content: center; 
+  align-items: center;
+  border-radius: 10px;
+  min-height: 70px;  
+  height: auto;  
   cursor: pointer;
-  background-color: ${({ $isSelect }) => ($isSelect ? '#e4e2e2' : 'none')};
+  background-color: ${({ $isSelect }) => ($isSelect ? '#e4e2e2' : '#FFF')};
+  box-shadow: 5px 5px 5px #e0e0e0;
+  transition: background-color .5s linear, border-color .1s ease;
+  &:hover {
+    border: 1px solid #6A5BCD;
+    background-color: rgba(217, 217, 217, 0.3);
+  }
   @media only screen and (max-width: 500px) {
     padding: 15px 0px 15px 15px;
   }
@@ -346,12 +347,14 @@ const IconWrapper = styled.div`
     justify-content: center;
     font-size: 25px;
     color: #716A6A;
-    padding: 5px 15px;
+    padding: 5px;
     margin: 0px 5px;
     border-left: 1px solid #d9d9d9;
     cursor: pointer;
     &:hover {
-        background-color: #d9d9d9;
+      border-radius: 100%;
+      background-color: #d9d9d9;
+      color: #6A5BCD;
     }
     @media only screen and (max-width: 500px) {
       font-size: 20px;

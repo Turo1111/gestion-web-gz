@@ -6,6 +6,7 @@ import styled from 'styled-components'
 import Button from '../Button'
 import { useAppDispatch } from '@/redux/hook'
 import { setLoading } from '@/redux/loadingSlice'
+import SelectBox from '../SelectBox'
 
 interface CBP {
   _id: (string | number) 
@@ -13,7 +14,7 @@ interface CBP {
 }
 
 export default function FilterProduct({open, handleClose, activeCategorie, activeBrand, activeProvider, selectCategorie, selectBrand, selectProvider}:
-    {open: boolean, handleClose: ()=>void, activeCategorie: (string | number), activeBrand: (string | number), activeProvider: (string | number), 
+    {open: boolean, handleClose: ()=>void, activeCategorie: CBP, activeBrand: CBP, activeProvider: CBP, 
       selectCategorie: (item: CBP)=>void, selectBrand: (item: CBP)=>void, selectProvider: (item: CBP)=>void}) {
 
     const [categorie, setCategorie] = useState<CBP[]>([])
@@ -61,7 +62,7 @@ export default function FilterProduct({open, handleClose, activeCategorie, activ
     }
 
     useEffect(()=>{
-        if (open) {
+        if (true) {
           getCategorie()
           getBrand()
           getProvider()
@@ -69,9 +70,11 @@ export default function FilterProduct({open, handleClose, activeCategorie, activ
     }, [open])
 
   return (
-    <Modal open={open} title={'Filtrar productos'} eClose={handleClose} width='60%' height='auto'>
-        <div style={{padding: 15}}>
-            <TitleText>CATEGORIAS</TitleText>
+        <Container>
+          <SelectBox text='Categorias' selected={activeCategorie} list={categorie} onClick={(item) => selectCategorie(item)} />
+          <SelectBox text='Marcas' selected={activeBrand} list={brand} onClick={(item) => selectBrand(item)} />
+          <SelectBox text='Proveedores' selected={activeProvider} list={provider} onClick={(item) => selectProvider(item)} />
+          {/* <TitleText>CATEGORIAS</TitleText>
             <HorizontalList>
             {categorie.map((item: CBP) => (
                 <ItemListText
@@ -112,11 +115,19 @@ export default function FilterProduct({open, handleClose, activeCategorie, activ
         <ButtonContainer>
             <Button text={'Cancelar'} onClick={handleClose} />
             <Button text={'Aceptar'} onClick={handleClose} />
-        </ButtonContainer>
-        </div>
-    </Modal>
+        </ButtonContainer> */}
+      </Container>
   )
 }
+
+const Container = styled.div `
+  display: flex; 
+  width: 100%; 
+  margin-bottom: 10px;
+  @media only screen and (max-width: 500px) {
+    flex-wrap: wrap;
+  }
+`
 
 // Estilos para los componentes de texto y listas
 const TitleText = styled.h2`

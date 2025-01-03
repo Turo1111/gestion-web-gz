@@ -13,6 +13,7 @@ import { getLoading, setLoading } from '@/redux/loadingSlice';
 import { useSelector } from 'react-redux';
 import { useAppDispatch } from '@/redux/hook';
 import { Product } from '@/interfaces/product.interface';
+import ButtonUI from '../ButtonUI';
 
 interface CBP {
   _id: (string | number) 
@@ -72,8 +73,8 @@ export default function PrintProduct({open, handleClose}:{open: boolean, handleC
             </ItemCategorie>)
           }
         </div>
-        <div style={{display: 'flex', justifyContent: 'center'}} >
-          <Button text='Imprimir' onClick={()=>{
+        <div style={{display: 'flex', justifyContent: 'center', marginBottom: 15}} >
+          <ButtonUI label='Imprimir' onClick={()=>{
             dispatch(setLoading(true))
             let filterCategorie = selectCategorie.map(item=>item._id !== 0 && item.descripcion)
             apiClient.post(`/product/print/print`, {categories: filterCategorie[0] !== false ? filterCategorie : undefined}, { responseType: 'blob',

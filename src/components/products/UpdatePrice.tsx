@@ -12,6 +12,7 @@ import InputSelect from '../InputSelect'
 import Input from '../Input'
 import { Brand, Categorie, Provider } from '@/interfaces/product.interface'
 import { setLoading } from '@/redux/loadingSlice'
+import ButtonUI from '../ButtonUI'
 
 interface ValueUpdate {
   categoria: string,
@@ -96,7 +97,9 @@ export default function UpdatePrice({open, handleClose}:{open: boolean, handleCl
             name={'Marca'} path={'brand'}
         />
         <Input label={'Porcentaje'} name={'porcentaje'} value={formik.values.porcentaje} onChange={formik.handleChange} type='number' />
-        <Button text='Actualizar' onClick={formik.handleSubmit}/>
+        <div style={{display: 'flex', justifyContent: 'center'}} >
+          <ButtonUI label='Actualizar' onClick={formik.handleSubmit}/>
+        </div>
     </Modal>
   )
 }

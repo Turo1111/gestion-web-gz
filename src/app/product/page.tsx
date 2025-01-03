@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 import Button from '@/components/Button';
+import ButtonUI from '@/components/ButtonUI';
 import Loading from '@/components/Loading';
 import FilterProduct from '@/components/products/FilterProduct';
 import ItemsProducts from '@/components/products/ItemsProducts';
@@ -171,9 +172,9 @@ export default function ProductScreen() {
         <>
           <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1}} >
               <WrapperSearch>
-                <Search name='search' placeHolder={'Buscar productos'} type='text' value={search} onChange={searchProduct} onClickFilter={()=>setOpenModalFilter(true)} />
+                <Search name='search' placeHolder={'Buscar productos'} type='text' value={search} onChange={searchProduct}/*  onClickFilter={()=>setOpenModalFilter(true)} */ />
                 <WrapperButtons>
-                  <Button text='Imprimir' onClick={()=>{
+                  <ButtonUI label='IMPRIMIR' onClick={()=>{
                     setOpenPrintProduct(true)
                     /* apiClient.get(`/product/print/print`, { responseType: 'blob',
                       headers: {
@@ -199,11 +200,38 @@ export default function ProductScreen() {
                       console.error('Error descargando el PDF:', error);
                     }); */
                   }}/>
-                  <Button text='Actualizar' onClick={()=>setOpenUpdatePrice(true)}/>
-                  <Button text='Nuevo' onClick={()=>setOpenNewProduct(true)}/>
+                  <ButtonUI label='ACTUALIZAR' onClick={()=>setOpenUpdatePrice(true)} />
+                  <ButtonUI label='NUEVO' onClick={()=>setOpenNewProduct(true)} />
                 </WrapperButtons>
               </WrapperSearch>
-              <ListProduct>
+              <FilterProduct open={openModalFilter} handleClose={()=>setOpenModalFilter(false)} 
+              activeBrand={activeBrand} activeCategorie={activeCategorie} activeProvider={activeProvider}
+              selectCategorie={(item: CBP)=>setActiveCategorie(prevData=>item)}
+              selectBrand={(item: CBP)=>setActiveBrand(prevData=>item)}
+              selectProvider={(item: CBP)=>setActiveProvider(prevData=>item)}
+              />
+              {/* <ListProduct>
+                  {
+                    search !== '' || activeBrand._id !== 1 || activeCategorie._id !== 1 || activeProvider._id !== 1 ?
+                      dataSearch.length !== 0 ? 
+                        dataSearch.map((item: Product, index: number)=>{
+                          return <ItemsProducts  key={index} item={item} onClick={()=>{setSelectProduct(item);setOpenModalProduct(true)}}/>
+                        })
+                        : 'NO HAY PRODUCTOS'
+                    :
+                      data.length !== 0 ? 
+                      data.map((item: Product, index: number)=>{
+                        return <ItemsProducts  key={index} item={item} onClick={()=>{setSelectProduct(item);setOpenModalProduct(true)}}/>
+                      })
+                      : 'NO HAY PRODUCTOS'
+                  }
+                  {
+                    search !== '' || activeBrand._id !== 1 || activeCategorie._id !== 1 || activeProvider._id !== 1 ?
+                    <></>:
+                    <li style={{listStyle: 'none', padding: 0, margin: 0, minHeight: '1px'}} ref={lastElementRef}></li>
+                  }
+              </ListProduct> */}
+              <ListProduct >
                   {
                     search !== '' || activeBrand._id !== 1 || activeCategorie._id !== 1 || activeProvider._id !== 1 ?
                       dataSearch.length !== 0 ? 
@@ -226,7 +254,7 @@ export default function ProductScreen() {
               </ListProduct>
           </div>
           {
-            (openModalProduct && selectProduct !== undefined) &&
+            (selectProduct !== undefined) &&
             <ModalProduct open={openModalProduct} handleClose={()=>setOpenModalProduct(false)} product={selectProduct} ></ModalProduct>
           }
           {
@@ -234,22 +262,21 @@ export default function ProductScreen() {
             <NewProduct open={openNewProduct} handleClose={()=>setOpenNewProduct(false)} ></NewProduct>
           }
           {
-            openUpdatePrice && 
+            openUpdatePrice &&
             <UpdatePrice open={openUpdatePrice} handleClose={()=>setOpenUpdatePrice(false)} />
           }
           {
-            openPrintProduct && 
+             openPrintProduct &&
             <PrintProduct open={openPrintProduct} handleClose={()=>setOpenPrintProduct(false)} />
           }
-          {
-            openModalFilter &&
+          {/* {
             <FilterProduct open={openModalFilter} handleClose={()=>setOpenModalFilter(false)} 
               activeBrand={activeBrand._id} activeCategorie={activeCategorie._id} activeProvider={activeProvider._id}
               selectCategorie={(item: CBP)=>setActiveCategorie(prevData=>item)}
               selectBrand={(item: CBP)=>setActiveBrand(prevData=>item)}
               selectProvider={(item: CBP)=>setActiveProvider(prevData=>item)}
             />
-          }
+          } */} 
         </>
       }
     </main>
@@ -270,9 +297,11 @@ const WrapperButtons = styled.div `
   display: flex; 
   padding: 0px 15px; 
   align-items: center;
+  
   @media only screen and (max-width: 500px) {
     width: 100%; 
     justify-content: center;
+    margin: 5px 0;
   }
 `
 

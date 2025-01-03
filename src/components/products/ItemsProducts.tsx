@@ -2,6 +2,7 @@ import { Product } from '@/interfaces/product.interface';
 import React, { useState } from 'react'
 import { MdEdit, MdInfo } from 'react-icons/md';
 import styled from 'styled-components';
+import ButtonUI from '../ButtonUI';
 
 export default function ItemsProducts({item, onClick, select = true, onClickItem, line = true}:{item: Product, onClick?: ()=>void, select?:boolean, onClickItem?: ()=>void, line?:boolean}) {
     const [openInfo, setOpenInfo] = useState(false);
@@ -20,14 +21,16 @@ export default function ItemsProducts({item, onClick, select = true, onClickItem
                     </Row>
                 </Column>
                 {select && 
-                    <div style={{display: 'flex'}}>
-                        <IconWrapper style={{color: '#A2CA71'}} onClick={onClick}>
+                    <ContainerButton>
+                        {/* <IconWrapper style={{color: '#A2CA71'}} onClick={onClick}>
                             <MdEdit />
                         </IconWrapper>
                         <IconWrapper style={{color: '#6EACDA'}} onClick={() => setOpenInfo(!openInfo)}>
                             <MdInfo />
-                        </IconWrapper>
-                    </div>
+                        </IconWrapper> */}
+                      <ButtonUI label='EDITAR' onClick={()=>onClick} />
+                      <ButtonUI label='+ INFO' onClick={()=>onClick} />
+                    </ContainerButton>
                 }
             </Container>
             {openInfo && 
@@ -50,18 +53,37 @@ interface ItemProduct {
     $line?: boolean;
 }
 
+const ContainerButton = styled.div `
+  display: flex;
+  @media (max-width: 480px) {  
+    justify-content: center;
+    margin-top: 10px;
+  }
+`
+
 const ItemProduct = styled.li <ItemProduct> `
   list-style: none;
   padding: 15px;
   font-weight: 600;
   width: 100%;
-  border-bottom: ${({ $line }) => ($line ? '1px solid #d1d1d1' : 'none')};
+  /* border: ${({ $line }) => ($line ? '1px solid #d1d1d1' : 'none')}; */
+  border: 1px solid #fff;
+  margin-bottom: 5px;
+  margin-top: 5px;
+  border-radius: 10px;
   display: flex;
   flex-direction: column;
-  flex-shrink: 0;  /* Evita que el item se encoja demasiado */
-  justify-content: center;  /* Centra el contenido verticalmente */
-  min-height: 60px;  /* Altura mínima para que no crezca mucho con pocos elementos */
-  height: auto;  /* Altura automática basada en el contenido */
+  flex-shrink: 0;  
+  justify-content: center; 
+  min-height: 60px;  
+  height: auto;  
+  background-color: #fff;
+  box-shadow: 5px 5px 5px #e0e0e0;
+  transition: background-color .5s linear, border-color .1s ease;
+  &:hover {
+    border: 1px solid #6A5BCD;
+    background-color: rgba(217, 217, 217, 0.3);
+  }
   @media only screen and (max-width: 500px) {
     padding: 8px;
   }
@@ -89,6 +111,9 @@ const IconWrapper = styled.div`
 const Container = styled.div`
   display: flex;
   flex: 1;
+  @media (max-width: 480px) {
+    flex-direction: column;
+  }
 `;
 
 const Column = styled.div`

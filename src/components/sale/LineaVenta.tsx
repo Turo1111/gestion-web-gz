@@ -15,6 +15,7 @@ import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.share
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { LocalizationProvider } from '@mui/x-date-pickers';
+import ButtonUI from '../ButtonUI';
 
 export default function LineaVenta({
     lineaVenta, onClick, upQTY, downQTY, upQTY10, downQTY10, total, edit=false, id, cliente, onChangeCliente, dateEdit,
@@ -80,7 +81,7 @@ export default function LineaVenta({
               <Total>Total: $ {total} </Total>
             </div>
             <div style={{display: 'flex', justifyContent: 'center'}}>
-              <Button text='Crear' onClick={()=>{
+              <ButtonUI label='Crear' onClick={()=>{
                 /* console.log('date',date)
                 return */
                 if (lineaVenta.length===0 || total <= 0) {

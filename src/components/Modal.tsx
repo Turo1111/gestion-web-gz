@@ -1,6 +1,6 @@
-import React, { useRef } from "react"
+import React, { useEffect, useRef } from "react"
 import { AiOutlineClose } from "react-icons/ai"
-import styled, { keyframes } from "styled-components"
+import styled, { css, keyframes } from "styled-components"
 import { CSSTransition } from "react-transition-group"
 import useOutsideClick from "@/hooks/useOutsideClick"
 
@@ -29,61 +29,94 @@ const Modal = ({
 
   const modalRef = useRef(null);
 
-  useOutsideClick(modalRef, eClose);
+  useOutsideClick(modalRef, eClose)
 
   return (
-    <CSSTransition in={open} timeout={300} classNames="modal-transition" unmountOnExit>
-      <Container >
-        <Content
-          $borderRadius={borderRadius}
-          width={width}
-          height={height}
-          ref={outside ? modalRef : null}
-        >
-          <ModalHeader title={title}>
-            <Header>
-              <Title>
-                {title}
-              </Title>
-            </Header>
-            <IconWrapper onClick={eClose}>
-              <AiOutlineClose/>
-            </IconWrapper>
-          </ModalHeader>
-          <ModalContent>
-            {children}
-          </ModalContent>
-        </Content>
+      <Container $open={open} >
+        <ModalBackground>
+          <Content
+            $borderRadius={borderRadius}
+            width={width}
+            height={height}
+            ref={outside ? modalRef : null}
+            $open={open}
+            className={`modal`}
+          >
+            <ModalHeader title={title}>
+              <Header>
+                <Title>
+                  {title}
+                </Title>
+              </Header>
+              <IconWrapper onClick={eClose}>
+                <AiOutlineClose/>
+              </IconWrapper>
+            </ModalHeader>
+            <ModalContent>
+              {children}
+            </ModalContent>
+          </Content>
+        </ModalBackground>
       </Container>
-    </CSSTransition>
   )
 }
 
 export default Modal
 
-const slideIn = keyframes`
-  from {
-    opacity: 0;
-    transform: translateY(100%);
+const unfoldIn = keyframes`
+  0% {
+    transform: scaleY(0.005) scaleX(0);
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  50% {
+    transform: scaleY(0.005) scaleX(1);
   }
-`;
-
-const slideOut = keyframes`
-  from {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  to {
-    opacity: 0;
-    transform: translateY(100%);
+  100% {
+    transform: scaleY(1) scaleX(1);
   }
 `;
 
-const Container = styled.div`
+
+const unfoldOut = keyframes`
+  0% {
+    transform: scaleY(1) scaleX(1);
+  }
+  50% {
+    transform: scaleY(0.005) scaleX(1);
+  }
+  100% {
+    transform: scaleY(0.005) scaleX(0);
+  }
+`;
+
+const zoomIn = keyframes`
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+`;
+
+const zoomOut = keyframes`
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0);
+  }
+`;
+
+const ModalBackground = styled.div`
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  flex: 1;
+`;
+
+const Container = styled.div<{$open: boolean}>`
   display: flex;
   position: fixed;
   z-index: 2;
@@ -91,16 +124,20 @@ const Container = styled.div`
   top: 0;
   width: 100%;
   height: 100%;
-  overflow: auto;
-  background-color: rgba(0, 0, 0, 0.4);
+  /* overflow: auto; */
   justify-content: center;
   align-items: center;
+  transform: scale(0);
+  transform: scaleY(0.01) scaleX(0);
+  animation: ${({$open})=>$open ? css`${unfoldIn} 1s cubic-bezier(0.165, 0.84, 0.44, 1) forwards`
+  :css`${unfoldOut} 1s 0.3s cubic-bezier(0.165, 0.84, 0.44, 1) forwards`};
 `;
 
 interface ContentProps {
   $borderRadius?: boolean;
   width?: string;
   height?: string;
+  $open: boolean
 }
 
 const Content = styled.div<ContentProps>`
@@ -110,22 +147,14 @@ const Content = styled.div<ContentProps>`
   height: ${props => props.height && props.height};
   border-radius: ${props => (props.$borderRadius ? "10px" : "0")};
   position: relative;
-  max-width: 1240px;
-  max-height: 720px;
+  max-width: 90%;
+  max-height: 90%;
   border-radius: 15px;
   display: flex;
   flex-direction: column;
-  animation-duration: 1s;
-  animation-fill-mode: forwards;
-
-  &.modal-transition-enter {
-    animation-name: ${slideIn};
-  }
-
-  &.modal-transition-exit {
-    animation-name: ${slideOut};
-  }
-
+  transform: scale(0);
+  animation: ${({$open})=>$open ? css`${zoomIn} 0.5s 0.8s cubic-bezier(0.165, 0.84, 0.44, 1) forwards`
+  :css`${zoomOut} 0.5s cubic-bezier(0.165, 0.84, 0.44, 1) forwards`};
   @media only screen and (max-width: 1024px) {
     width: 80%;
   }
@@ -138,12 +167,21 @@ const Content = styled.div<ContentProps>`
 `;
 
 const IconWrapper = styled.div`
-  margin: 0 10px;
-  font-size: 15px;
+  font-size: 22px;
   text-align: end;
+  font-weight: bold;
   cursor: pointer;
-  :hover {
-    color: #ff7878;
+  background-color: #ff7878;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5px;
+  border-radius: 50%;
+  transition: all .5s ease;
+  &:hover {
+    font-size: 20px;
+    padding: 10px;
   }
 `;
 
@@ -181,7 +219,6 @@ const ModalHeader = styled.div<ModalHeaderProps>`
   align-items: center;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
-  border-bottom: 1px solid #d9d9d9;
   @media only screen and (max-width: 1023px) {
     padding: 5px;
   }
@@ -203,7 +240,7 @@ const Title = styled.div`
   margin: 0 10px;
   display: flex;
   align-items: center;
-  color: #716a6a;
+  /* color: #716a6a; */
   font-weight: bold;
   @media only screen and (max-width: 1440px) {
     font-size: 23px;
