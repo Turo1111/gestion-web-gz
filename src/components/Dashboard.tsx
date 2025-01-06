@@ -187,7 +187,6 @@ const ContainerChildren = styled.div `
     display: flex;
     flex-direction: column;
     flex: 1;
-    padding: 5px;
     background-color: #f1f1f1;
 `
 

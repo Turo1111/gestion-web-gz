@@ -9,6 +9,7 @@ import { useAppDispatch } from "@/redux/hook";
 import { format } from "path";
 import apiClient from "@/utils/client";
 import { setLoading } from "@/redux/loadingSlice";
+import ButtonUI from "./ButtonUI";
 
 const formatDate = (date: Date): string => {
   const day = String(date.getDate()).padStart(2, '0');
@@ -27,12 +28,12 @@ export default function CustomDataSet({open, handleClose, handleSubmit}:{open:bo
     <Modal open={open} title='Elegir fecha' eClose={handleClose} height='auto' width='auto' outside={false} >
         <div style={{padding: 15}}>
           <h2 style={{fontSize: 18, fontWeight: 500, marginBottom: 15}} >Selecciona un rango de fechas</h2>
-          <div style={{display: "flex", justifyContent: 'space-around', alignItems: "center"}} >
+          <div style={{display: "flex", justifyContent: 'space-around', alignItems: "center", marginBottom: 25}} >
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <DatePicker
                 label="Desde"
                 value={startDate}
-                format="dd/mm/yyyy"
+                format="dd/MM/yyyy"
                 onChange={(newValue) => {
                   if (newValue) {
                     setStartDate(newValue);
@@ -44,7 +45,7 @@ export default function CustomDataSet({open, handleClose, handleSubmit}:{open:bo
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <DatePicker
                 label="Hasta"
-                format="dd/mm/yyyy"
+                /* format="dd/mm/yyyy" */
                 value={endDate}
                 onChange={(newValue) => {
                   if (newValue) {
@@ -55,8 +56,8 @@ export default function CustomDataSet({open, handleClose, handleSubmit}:{open:bo
             </LocalizationProvider>
           </div>
           <div style={{display: "flex", justifyContent: 'space-around', alignItems: "center"}}>
-            <Button text="Cancelar" onClick={handleClose} />
-            <Button text="Aplicar" onClick={()=>handleSubmit(startDate, endDate)} />
+            <ButtonUI label="Cancelar" onClick={handleClose} />
+            <ButtonUI label="Aplicar" onClick={()=>handleSubmit(startDate, endDate)} />
           </div>
         </div>
     </Modal>

@@ -1,6 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client'
+import { AnimatedNumber } from '@/components/AnimatedNumber'
 import Button from '@/components/Button'
+import ButtonUI from '@/components/ButtonUI'
 import AddBuyItem from '@/components/buy/AddBuyItem'
 import Input from '@/components/Input'
 import FindProductSale from '@/components/sale/FindProductSale'
@@ -99,8 +101,9 @@ return (
         </ContainerListProduct>
         <ContainerListLineaCompra>
             <div style={{display: 'flex', flex: 1, flexDirection: 'column', padding: 15}}>
-                <h2 style={{fontSize: 18}} >Linea de Compra</h2>
-                <ListProduct style={{ display: 'flex', flexDirection: 'column', padding: 15, maxHeight: '65vh'}}>
+              <h2 style={{fontSize: 18, color: '#6B7280', marginTop: 15, textAlign: 'center'}} >CARRITO</h2>
+              <div style={{borderBottom: '2px solid #d9d9d9', margin: '15px', borderRadius: '100%'}} ></div>
+                <ListProduct>
                     { 
                         lineaCompra.length === 0 ? 'No se selecciono productos' :
                         lineaCompra.map((item:ExtendItemBuy, index:number)=><ItemLineaVenta key={index} elem={item}  
@@ -150,47 +153,53 @@ return (
                     }
                 </ListProduct>
             </div>
-            <div style={{height: '30%', padding: '0 15px'}}>
+            <div style={{display: 'flex', justifyContent: 'center', flexDirection: 'column', padding: '0 15px'}}>
                 <Input label='Proveedor' name='proveedor' value={proveedor} onChange={(e:ChangeEvent<HTMLInputElement>)=>setProveedor(e.target.value)} type='text' />
-                <h2 style={{fontSize: 18}} >Total: $ {total} </h2>
-                <Button text='Crear' onClick={()=>{
-                  if (lineaCompra.length===0 || total <= 0) {
-                    dispatch(setAlert({
-                      message: `No se agregaron productos al carrito`,
-                      type: 'warning'
-                    }))
-                    return
-                  }
-                  if (proveedor==='' || proveedor === undefined) {
-                    dispatch(setAlert({
-                      message: `No se ingreso ningun proveedor`,
-                      type: 'warning'
-                    }))
-                    return
-                  }
-                  dispatch(setLoading(true))
-                  apiClient.patch(`/buy/${id}`, {itemsBuy: lineaCompra, proveedor: proveedor, total: total, estado: 'Entregado'},{
-                    headers: {
-                      Authorization: `Bearer ${valueStorage.token}` 
+                <div style={{display: 'flex', justifyContent: 'space-between', margin:'15px 0'}} >
+                  <Total><AnimatedNumber value={lineaCompra.length} /> productos </Total>
+                  <Total>Total: $ <AnimatedNumber value={total} /> </Total>
+                </div>
+                <div style={{display: 'flex', justifyContent: 'center',  margin: '15px 0'}}>
+
+                  <ButtonUI label='Crear' onClick={()=>{
+                    if (lineaCompra.length===0 || total <= 0) {
+                      dispatch(setAlert({
+                        message: `No se agregaron productos al carrito`,
+                        type: 'warning'
+                      }))
+                      return
                     }
-                  })
-                  .then((r)=>{
-                    dispatch(setLoading(false))
-                    dispatch(setAlert({
-                      message: `Compra modificada correctamente`,
-                      type: 'success'
-                    }))
-                    router.back()
-                  })
-                  .catch((e)=>{
-                    console.log(e.response)
-                    dispatch(setLoading(false))
-                    dispatch(setAlert({
-                    message: `${e.response.data.error}`,
-                    type: 'error'
-                    }))
-                  })
-                }} />
+                    if (proveedor==='' || proveedor === undefined) {
+                      dispatch(setAlert({
+                        message: `No se ingreso ningun proveedor`,
+                        type: 'warning'
+                      }))
+                      return
+                    }
+                    dispatch(setLoading(true))
+                    apiClient.patch(`/buy/${id}`, {itemsBuy: lineaCompra, proveedor: proveedor, total: total, estado: 'Entregado'},{
+                      headers: {
+                        Authorization: `Bearer ${valueStorage.token}` 
+                      }
+                    })
+                    .then((r)=>{
+                      dispatch(setLoading(false))
+                      dispatch(setAlert({
+                        message: `Compra modificada correctamente`,
+                        type: 'success'
+                      }))
+                      router.back()
+                    })
+                    .catch((e)=>{
+                      console.log(e.response)
+                      dispatch(setLoading(false))
+                      dispatch(setAlert({
+                      message: `${e.response.data.error}`,
+                      type: 'error'
+                      }))
+                    })
+                  }} />
+                </div>
             </div>
         </ContainerListLineaCompra>
       </div>
@@ -208,7 +217,7 @@ return (
             <ContainerListLineaCompra>
             <div style={{display: 'flex', flex: 1, flexDirection: 'column', padding: 15}}>
                 <h2 style={{fontSize: 18}} >Linea de Compra</h2>
-                <ListProduct style={{ display: 'flex', flexDirection: 'column', padding: 15, maxHeight: '65vh'}}>
+                <ListProduct>
                     { 
                         lineaCompra.length === 0 ? 'No se selecciono productos' :
                         lineaCompra.map((item:ExtendItemBuy, index:number)=><ItemLineaVenta key={index} elem={item}  
@@ -258,54 +267,55 @@ return (
                     }
                 </ListProduct>
             </div>
-            <div style={{height: '30%', padding: '0 15px'}}>
+            <div style={{display: 'flex', justifyContent: 'center', flexDirection: 'column', padding: '0 15px'}}>
                 <Input label='Proveedor' name='proveedor' value={proveedor} onChange={(e:ChangeEvent<HTMLInputElement>)=>setProveedor(e.target.value)} type='text' />
-                <h2 style={{fontSize: 18}} >Total: $ {total} </h2>
-                <Button text='Crear' onClick={()=>{
-                  if (lineaCompra.length===0 || total <= 0) {
-                    dispatch(setAlert({
-                      message: `No se agregaron productos al carrito`,
-                      type: 'warning'
-                    }))
-                    return
-                  }
-                  if (proveedor==='' || proveedor === undefined) {
-                    dispatch(setAlert({
-                      message: `No se ingreso ningun proveedor`,
-                      type: 'warning'
-                    }))
-                    return
-                  }
-                  dispatch(setLoading(true))
-                  apiClient.patch(`/buy/${id}`, {itemsBuy: lineaCompra, proveedor: proveedor, total: total, estado: 'Entregado'},{
-                    headers: {
-                      Authorization: `Bearer ${valueStorage.token}` 
+                <div style={{display: 'flex', justifyContent: 'center',  margin: '15px 0'}}>
+                  <ButtonUI label='Crear' onClick={()=>{
+                    if (lineaCompra.length===0 || total <= 0) {
+                      dispatch(setAlert({
+                        message: `No se agregaron productos al carrito`,
+                        type: 'warning'
+                      }))
+                      return
                     }
-                  })
-                  .then((r)=>{
-                    dispatch(setLoading(false))
-                    dispatch(setAlert({
-                      message: `Compra modificada correctamente`,
-                      type: 'success'
-                    }))
-                    router.back()
-                  })
-                  .catch((e)=>{
-                    console.log(e.response)
-                    dispatch(setLoading(false))
-                    dispatch(setAlert({
-                    message: `${e.response.data.error}`,
-                    type: 'error'
-                    }))
-                  })
-                }} />
+                    if (proveedor==='' || proveedor === undefined) {
+                      dispatch(setAlert({
+                        message: `No se ingreso ningun proveedor`,
+                        type: 'warning'
+                      }))
+                      return
+                    }
+                    dispatch(setLoading(true))
+                    apiClient.patch(`/buy/${id}`, {itemsBuy: lineaCompra, proveedor: proveedor, total: total, estado: 'Entregado'},{
+                      headers: {
+                        Authorization: `Bearer ${valueStorage.token}` 
+                      }
+                    })
+                    .then((r)=>{
+                      dispatch(setLoading(false))
+                      dispatch(setAlert({
+                        message: `Compra modificada correctamente`,
+                        type: 'success'
+                      }))
+                      router.back()
+                    })
+                    .catch((e)=>{
+                      console.log(e.response)
+                      dispatch(setLoading(false))
+                      dispatch(setAlert({
+                      message: `${e.response.data.error}`,
+                      type: 'error'
+                      }))
+                    })
+                  }} />
+                </div>
             </div>
         </ContainerListLineaCompra>
           }
-          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}} >
+          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: `${!openLVMobile ? '0px' : '15px'}`}} >
             <h2 style={{fontSize: 18}} > {lineaCompra.length} Productos </h2>
-            <h2 style={{fontSize: 18}} >Total: $ {total} </h2>
-            <h2 style={{fontSize: 18, color: '#3764A0'}} onClick={()=>setOpenLVMobile(!openLVMobile)} >{openLVMobile ? 'CERRAR':'ABRIR'}</h2>
+            <h2 style={{fontSize: 18}} >Total: $ <AnimatedNumber value={total} /> </h2>
+            <h2 style={{fontSize: 18, color: '#3764A0', cursor: 'pointer  '}} onClick={()=>setOpenLVMobile(!openLVMobile)} >{openLVMobile ? 'CERRAR':'ABRIR'}</h2>
           </div>
         </WrapperLineaVenta>
       </ContainerMobile>
@@ -331,17 +341,26 @@ return (
   )
 }
 
+const Total = styled.h2 `
+  font-size: 18px;
+  color: #6B7280;
+  @media only screen and (max-width: 940px) {
+    display: none;
+  }
+`
 
 const WrapperLineaVenta = styled.div<{$openLVMobile: boolean;}> `
-  position: absolute;
-  top: ${({ $openLVMobile }) => ($openLVMobile ? '25px' : '90%')};
+   position: absolute;
+  top: ${({ $openLVMobile }) => ($openLVMobile ? '5px' : '85%')};
   width: 100%;
   background-color: #F7F7F8;
   border: 1px solid #d9d9d9;
   border-radius: 15px;
   padding: 15px;
+  height: 95%;
+  padding: ${({ $openLVMobile }) => ($openLVMobile ? '0px' : '15px')};
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-  min-height: 80%;
+  transition: top .9s cubic-bezier(0.075, 0.82, 0.165, 1);
 `
 
 const ContainerMobile = styled.div `
@@ -365,6 +384,7 @@ const ContainerListLineaCompra = styled.div`
   flex-direction: column;
   @media only screen and (max-width: 940px) {
     width: 100%;
+    height: 90%;
   }
 `
 
@@ -395,5 +415,9 @@ const ListProduct = styled.ul `
   flex-direction: column;
   padding: 0 15px;
   overflow-y: scroll;
-  min-height: 60vh;
+  max-height: 50vh;
+  @media only screen and (max-width: 500px) {
+    padding: 0;
+    max-height: 40vh;
+  }
 `

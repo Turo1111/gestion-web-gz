@@ -15,6 +15,9 @@ import { ExtendItemSale, ItemSale } from '@/interfaces/sale.interface';
 import { Product } from '@/interfaces/product.interface';
 import { Types } from 'mongoose';
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
+import { BiCart } from 'react-icons/bi';
+import ButtonUI from '@/components/ButtonUI';
+import { AnimatedNumber } from '@/components/AnimatedNumber';
 
 export default function NewSale() {
 
@@ -80,6 +83,7 @@ export default function NewSale() {
             } }
             />
           </ContainerListProduct>
+          
           <LineaVenta lineaVenta={lineaVenta} total={total} cliente={cliente} onChangeCliente={(e:ChangeEvent<HTMLInputElement>)=>setCliente((_prevData:string)=>e.target.value)}
             porcentaje={porcentaje} onChangePorcentaje={(e:ChangeEvent<HTMLInputElement>)=>setPorcentaje((_:number)=> parseFloat(e.target.value) >= 0 ? parseFloat(e.target.value) : 0)}
             onClick={(item:ExtendItemSale)=>setLineaVenta((prevData:ExtendItemSale[])=>prevData.filter((elem:ExtendItemSale)=>elem._id!==item._id))}
@@ -141,7 +145,7 @@ export default function NewSale() {
           <WrapperLineaVenta $openLVMobile={openLVMobile}>
             {
               openLVMobile && 
-              <div>
+              <div style={{height: '90%'}}>
                 <LineaVenta lineaVenta={lineaVenta} total={total} cliente={cliente} onChangeCliente={(e:ChangeEvent<HTMLInputElement>)=>setCliente((_prevData:string)=>e.target.value)}
                   porcentaje={porcentaje} onChangePorcentaje={(e:ChangeEvent<HTMLInputElement>)=>setPorcentaje((_:number)=> parseFloat(e.target.value) >= 0 ? parseFloat(e.target.value) : 0)}
                   onClick={(item:ExtendItemSale)=>setLineaVenta((prevData:ExtendItemSale[])=>prevData.filter((elem:ExtendItemSale)=>elem._id!==item._id))}
@@ -189,8 +193,8 @@ export default function NewSale() {
             }
             <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: `${!openLVMobile ? '0px' : '15px'}`}} >
               <h2 style={{fontSize: 18}} > {lineaVenta.length} Productos </h2>
-              <h2 style={{fontSize: 18}} >Total: $ {total} </h2>
-              <h2 style={{fontSize: 18, color: '#3764A0'}} onClick={()=>setOpenLVMobile(!openLVMobile)} >{openLVMobile ? 'CERRAR':'ABRIR'}</h2>
+              <h2 style={{fontSize: 18}} >Total: $ <AnimatedNumber value={total} /> </h2>
+              <h2 style={{fontSize: 18, color: '#3764A0', cursor: 'pointer  '}} onClick={()=>setOpenLVMobile(!openLVMobile)} >{openLVMobile ? 'CERRAR':'ABRIR'}</h2>
             </div>
           </WrapperLineaVenta>
         </ContainerMobile>
@@ -201,14 +205,16 @@ export default function NewSale() {
 
 const WrapperLineaVenta = styled.div<{$openLVMobile: boolean;}> `
   position: absolute;
-  top: ${({ $openLVMobile }) => ($openLVMobile ? '5px' : '90%')};
+  top: ${({ $openLVMobile }) => ($openLVMobile ? '5px' : '85%')};
   width: 100%;
   background-color: #F7F7F8;
   border: 1px solid #d9d9d9;
   border-radius: 15px;
   padding: 15px;
+  height: 95%;
   padding: ${({ $openLVMobile }) => ($openLVMobile ? '0px' : '15px')};
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  transition: top .9s cubic-bezier(0.075, 0.82, 0.165, 1);
 `
 
 const ContainerMobile = styled.div `

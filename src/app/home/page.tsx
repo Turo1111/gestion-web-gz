@@ -16,6 +16,7 @@ import { motion, AnimatePresence, Variants } from "framer-motion";
 import { BarChart, Bar, Rectangle, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { AnimatedNumber } from '@/components/AnimatedNumber';
 import Button from '@/components/Button';
+import ButtonUI from '@/components/ButtonUI';
 
 const containerVariants: Variants = {
   sales: { backgroundColor: "#99BC85", transition: { duration: 0.5 } },
@@ -73,7 +74,7 @@ export default function Home() {
   const dispatch = useDispatch()
   const salesData = getTotalCardData(dataSet.simple, 'sale')
   const buyData = getTotalCardData(dataSet.simple, 'buy')
-  const pieChartData = transformData(dataSet.simple);
+  /* const pieChartData = transformData(dataSet.simple); */
   /* const barChartData = formatBarChartData(dataSet.graph); */
   const [openCustomDataSet, setOpenCustomDataSet] = useState(false)
   const [switchData, setSwitchData] = useState(true)
@@ -97,10 +98,6 @@ export default function Home() {
     .catch(e=>{console.log(e);dispatch(setLoading(false))})
   }
 
-  const isConnected = useInternetStatus();
-
-  const date = new Date()
-
   useEffect(() => {
 
     const getData = ()=> {
@@ -118,15 +115,12 @@ export default function Home() {
     if (interval !== 'CUSTOM') {
       getData()
     }
-  
-
-    console.log("conectado ?",isConnected)
-  }, [interval])
+  }, [interval, dispatch])
 
   return (
     <Container>
       <MainContent>
-        <div style={{display: 'flex', justifyContent: 'center'}} >
+        {/* <div style={{display: 'flex', justifyContent: 'center'}} >
           <IntervalContainer>
             {intervals.map((label, index) => (
               <IntervalLabel key={label}
@@ -152,8 +146,19 @@ export default function Home() {
             ))}
             <Selection $position={intervals.indexOf(interval)} />
           </IntervalContainer>
+        </div> */}
+        <div style={{display: 'flex', justifyContent: 'center', marginTop: 15}} >
+          <ContainerInterval>
+            {intervals.map((label: string, index: number) => (
+              <ButtonUI label={label} key={index} isActive={label===interval} onClick={() => {
+                setInterval(label);
+                if (label === 'CUSTOM') {
+                  setOpenCustomDataSet(true);
+                }
+              }} />
+            ))}
+          </ContainerInterval>
         </div>
-        <Button text='MODALS' to='/modals' onClick={()=>console.log('nada')} />
         <CardContainer>
           <WrapperContainer $switchData={switchData}>
               <div style={{maxWidth: '15%'}}>
@@ -284,6 +289,15 @@ export default function Home() {
   );
 }
 
+const ContainerInterval = styled.div `
+  display: flex;
+  padding: 15px;
+  border-radius: 25px;
+  border: 2px solid #d9d9d9;
+  box-shadow: inset 2px 2px 5px #9d9d9d,
+            inset -2px -2px 5px #ffffff;
+`
+
 const CardContainer = styled.div `
   display: flex;
   justify-content: center;
@@ -343,7 +357,8 @@ const Card = styled.div `
   border-radius: 10px;
   margin: 0 15px;
   padding: 0px 15px;
-  align-items: center;
+  align-items: center;  
+  height: 90px;
   border: 2px solid #d9d9d9;
   background-image: url('/bgcircle.jpg');
   background-size: 800px;
