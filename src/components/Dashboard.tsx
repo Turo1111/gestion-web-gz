@@ -287,8 +287,7 @@ const SignOut = styled.h2`
     }
 `
 
-const LeftDash = styled.div<{$open: boolean}> `
-    /* display: ${({$open})=>$open ? 'block' : 'none'}; */
+const LeftDash = styled.div<{$open?: boolean}> `
     opacity: ${({$open})=>$open ? '1' : '0'};
     left: ${({$open})=>$open ? '0px' : '-120px'};
     transition: opacity 0.5s, left 0.8s ease-in-out;
