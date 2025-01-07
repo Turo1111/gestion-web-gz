@@ -110,7 +110,7 @@ const Front = styled.span`
 
 const ButtonUI = ({label = 'ACEPTAR', onClick, to, isActive = false}:{ label : string, onClick: ()=>void, to?: string, isActive?: boolean}) => {
   return (
-    <div style={{minWidth: 82, maxWidth: 200}} >
+    <div style={{}} >
       {
         to ?
         <Link href={to} >
@@ -132,3 +132,12 @@ const ButtonUI = ({label = 'ACEPTAR', onClick, to, isActive = false}:{ label : s
 };
 
 export default ButtonUI;
+
+const ContainerButton = styled.div `
+  min-width: 82px; 
+  max-width: 200px;
+  @media only screen and (max-width: 500px) {
+    min-width: auto; 
+  }
+`
+

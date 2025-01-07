@@ -161,7 +161,7 @@ export default function Home() {
         </div>
         <CardContainer>
           <WrapperContainer $switchData={switchData}>
-              <div style={{maxWidth: '15%'}}>
+              <ContainerSwitch>
                 <IconWrapperCard style={{backgroundColor: '#99BC85', borderTopLeftRadius: 15}} $switchData={switchData}
                   onClick={()=>setSwitchData(true)}
                 >
@@ -172,7 +172,7 @@ export default function Home() {
                 >
                   <MdOutlineListAlt/>
                 </IconWrapperCard>
-              </div>
+              </ContainerSwitch>
               <ContainerCardData $switchData={switchData}>
                 <WrapperContainerCardData $switchData={switchData}>
                   <Card>
@@ -289,6 +289,15 @@ export default function Home() {
   );
 }
 
+const ContainerSwitch = styled.div`
+  max-width: 15%;
+  @media only screen and (max-width: 500px) {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+`
+
 const ContainerInterval = styled.div `
   display: flex;
   padding: 15px;
@@ -296,6 +305,9 @@ const ContainerInterval = styled.div `
   border: 2px solid #d9d9d9;
   box-shadow: inset 2px 2px 5px #9d9d9d,
             inset -2px -2px 5px #ffffff;
+  @media only screen and (max-width: 500px) {
+    padding: 15px;
+  }
 `
 
 const CardContainer = styled.div `
@@ -312,6 +324,9 @@ const WrapperContainer = styled.div<{$switchData: boolean}>`
   z-index: 1;
   
   transition: background-color ease-in .5s ;
+  @media only screen and (max-width: 500px) {
+    flex: 1;
+  }
 `
 
 const IconWrapperCard = styled.div<{$switchData: boolean}>`
@@ -324,6 +339,9 @@ const IconWrapperCard = styled.div<{$switchData: boolean}>`
   border-top-right-radius: ${({ $switchData }) => ($switchData ? '15px' : '0px')};
   border-bottom-right-radius: ${({ $switchData }) => (!$switchData ? '15px' : '0px')};
   cursor: pointer;
+  @media only screen and (max-width: 500px) {
+    flex: 1;
+  }
 `
 
 const ContainerCardData = styled.div<{$switchData: boolean}> `
@@ -350,6 +368,9 @@ const WrapperContainerCardData = styled.div<{$switchData: boolean}>`
   border-bottom-left-radius: ${({ $switchData }) => ($switchData ? '15px' : '0')};
   height: 100%;
   transition: background-color ease-in .5s ;
+  @media only screen and (max-width: 500px) {
+    flex-direction: column;
+  }
 `
 
 const Card = styled.div `
@@ -363,6 +384,10 @@ const Card = styled.div `
   background-image: url('/bgcircle.jpg');
   background-size: 800px;
   background-position: 20%;
+  @media only screen and (max-width: 500px) {
+    width: 75%;
+    margin: 5px 0;
+  }
 `
 
 const CardData = styled.h2`

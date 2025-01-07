@@ -1,5 +1,6 @@
 'use client'
 
+import { AnimatedNumber } from '@/components/AnimatedNumber'
 import Button from '@/components/Button'
 import ButtonUI from '@/components/ButtonUI'
 import InfoBuy from '@/components/buy/InfoBuy'
@@ -128,7 +129,7 @@ export default function BuyScreen() {
                       <Tag>{item.proveedor}</Tag>
                       <TagDate>{item.createdAt.split("T")[0]}</TagDate>
                     </div>
-                    <Tag style={{fontWeight: 600, color: '#FA9B50'}}>$ {item.total}</Tag>
+                    <Tag style={{fontWeight: 600, color: '#FA9B50'}}>$ <AnimatedNumber value={item.total}  /></Tag>
                   </ContainerTag>
                   <div  style={{display: 'flex'}}>
                     <ButtonUI label='EDITAR' onClick={()=>{
@@ -148,7 +149,7 @@ export default function BuyScreen() {
                       <Tag>{item.proveedor}</Tag>
                       <TagDate>{item.createdAt.split("T")[0]}</TagDate>
                     </div>
-                    <Tag style={{fontWeight: 600, color: '#FA9B50'}}>$ {item.total}</Tag>
+                    <Tag style={{fontWeight: 600, color: '#FA9B50'}}>$ <AnimatedNumber value={item.total}  /></Tag>
                   </ContainerTag>
                   <div  style={{display: 'flex'}}>
                     <ButtonUI label='EDITAR' onClick={()=>{
@@ -215,7 +216,8 @@ const Item = styled.li `
     background-color: rgba(217, 217, 217, 0.3);
   }
   @media only screen and (max-width: 500px) {
-    padding: 15px 0px 15px 15px;
+    padding: 15px 15px 15px 15px;
+    flex-direction: column;
   }
 `
 
