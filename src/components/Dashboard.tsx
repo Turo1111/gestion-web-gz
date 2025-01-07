@@ -81,7 +81,7 @@ export default function Dashboard({children}: {children: ReactNode} ) {
             <ContainerBig suppressHydrationWarning={true}>
                 {
                     pathname !== '/' &&
-                    <LeftDash>
+                    <LeftDash $open={true}>
                         <div style={{padding: 15, display: 'flex', justifyContent: 'center'}} >
                             {
                                 ancho > 1240 ?
