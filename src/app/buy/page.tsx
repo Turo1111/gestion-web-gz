@@ -1,7 +1,8 @@
 'use client'
-'use client'
 
+import { AnimatedNumber } from '@/components/AnimatedNumber'
 import Button from '@/components/Button'
+import ButtonUI from '@/components/ButtonUI'
 import InfoBuy from '@/components/buy/InfoBuy'
 import InfoSale from '@/components/sale/InfoSale'
 import ModalPrintSale from '@/components/sale/ModalPrintSale'
@@ -114,7 +115,8 @@ export default function BuyScreen() {
     <main>
         <ContainerSearch>
           <Search name='search' placeHolder={'Buscar compras'} type='text' value={search} onChange={(e:ChangeEvent<HTMLInputElement>)=>setSearch(e.target.value)} />
-          <Button text='Nuevo' onClick={()=>{}} to='/buy/newBuy'/>
+          {/* <Button text='Nuevo' onClick={()=>{}} to='/buy/newBuy'/> */}
+          <ButtonUI label='NUEVO'  onClick={()=>{}} to='/buy/newBuy'/>
         </ContainerSearch>
         <ListSale>
             {
@@ -127,18 +129,14 @@ export default function BuyScreen() {
                       <Tag>{item.proveedor}</Tag>
                       <TagDate>{item.createdAt.split("T")[0]}</TagDate>
                     </div>
-                    <Tag style={{fontWeight: 600, color: '#FA9B50'}}>$ {item.total}</Tag>
+                    <Tag style={{fontWeight: 600, color: '#FA9B50'}}>$ <AnimatedNumber value={item.total}  /></Tag>
                   </ContainerTag>
                   <div  style={{display: 'flex'}}>
-                    <IconWrapper style={{color: '#A2CA71'}} onClick={()=>{
-                      router.push(`/buy/editBuy/${item._id}`);
-                    }}>
-                      <MdEdit />
-                    </IconWrapper>
-                    <IconWrapper style={{color: '#6EACDA'}} onClick={()=>setOpenInfoBuy(true)}>
-                      <MdInfo />
-                    </IconWrapper>
-                </div>
+                    <ButtonUI label='EDITAR' onClick={()=>{
+                        router.push(`/buy/editBuy/${item._id}`);
+                      }}/>
+                    <ButtonUI label='+INFO'  onClick={()=>setOpenInfoBuy(true)}/>
+                  </div>  
                 </Item>)
                 :
                 'no hay compras'
@@ -151,18 +149,14 @@ export default function BuyScreen() {
                       <Tag>{item.proveedor}</Tag>
                       <TagDate>{item.createdAt.split("T")[0]}</TagDate>
                     </div>
-                    <Tag style={{fontWeight: 600, color: '#FA9B50'}}>$ {item.total}</Tag>
+                    <Tag style={{fontWeight: 600, color: '#FA9B50'}}>$ <AnimatedNumber value={item.total}  /></Tag>
                   </ContainerTag>
                   <div  style={{display: 'flex'}}>
-                    <IconWrapper style={{color: '#A2CA71'}} onClick={()=>{
-                      router.push(`/buy/editBuy/${item._id}`);
-                    }}>
-                        <MdEdit />
-                    </IconWrapper>
-                    <IconWrapper style={{color: '#6EACDA'}} onClick={()=>setOpenInfoBuy(true)}>
-                      <MdInfo />
-                    </IconWrapper>
-                </div>
+                    <ButtonUI label='EDITAR' onClick={()=>{
+                        router.push(`/buy/editBuy/${item._id}`);
+                      }}/>
+                    <ButtonUI label='+INFO'  onClick={()=>setOpenInfoBuy(true)}/>
+                  </div>
                 </Item>)
                 :
                 'no hay compras'
@@ -205,10 +199,26 @@ const Item = styled.li `
   padding: 15px;
   font-weight: 600;
   width: 100%;
-  border-bottom: 1px solid #d1d1d1;
-  display: flex;
-  justify-content: space-between;
+  margin-bottom: 5px;
+  margin-top: 5px;
+  display: flex; 
+  justify-content: center; 
+  align-items: center;
+  border-radius: 10px;
+  min-height: 70px;  
+  height: auto;  
   cursor: pointer;
+  background-color: #FFF;
+  box-shadow: 5px 5px 5px #e0e0e0;
+  transition: background-color .5s linear, border-color .1s ease;
+  &:hover {
+    border: 1px solid #6A5BCD;
+    background-color: rgba(217, 217, 217, 0.3);
+  }
+  @media only screen and (max-width: 500px) {
+    padding: 15px 15px 15px 15px;
+    flex-direction: column;
+  }
 `
 
 const IconWrapper = styled.div`

@@ -141,6 +141,7 @@ interface ContentProps {
 }
 
 const Content = styled.div<ContentProps>`
+padding-bottom: 15px;
   background-color: white;
   border: 1px solid #888;
   width: ${props => props.width && props.width};

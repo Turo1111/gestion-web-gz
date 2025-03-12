@@ -7,6 +7,8 @@ import Input from '../Input'
 import Button from '../Button'
 import { useAppDispatch } from '@/redux/hook'
 import { setAlert } from '@/redux/alertSlice'
+import ButtonUI from '../ButtonUI'
+import { AnimatedNumber } from '../AnimatedNumber'
 
 export default function AddBuyItem({open, handleClose, item, onClickItem}:{open: boolean, handleClose: ()=>void, item: Product, onClickItem: (item:ExtendItemBuy)=>void}) {
 
@@ -35,7 +37,7 @@ export default function AddBuyItem({open, handleClose, item, onClickItem}:{open:
             onClickItem(formValue)
         }
     })
-
+    
     useEffect(()=>{
         formik && formik.setFieldValue('total', formik.values.cantidad * formik.values.precio)
     },[formik.values.cantidad, formik.values.precio])
@@ -45,10 +47,10 @@ export default function AddBuyItem({open, handleClose, item, onClickItem}:{open:
         <h2 style={{fontSize: 16, color: '#252525', margin: '15px 0'}}>{item.descripcion}</h2>
         <Input label={'Cantidad'} name={'cantidad'} value={formik.values.cantidad} onChange={formik.handleChange} type='number' />
         <Input label={'Precio compra'} name={'precio'} value={formik.values.precio} onChange={formik.handleChange} type='number' />
-        <h2 style={{fontSize: 16, color: '#252525'}}>Total: ${formik.values.total}</h2>
-        <div style={{display: 'flex', justifyContent: 'space-around'}}>
-            <Button text='Cancelar' onClick={handleClose} />
-            <Button text='Agregar' onClick={formik.handleSubmit} type='button' />
+        <h2 style={{fontSize: 16, color: '#252525'}}>Total: $<AnimatedNumber value={formik.values.total} /></h2>
+        <div style={{display: 'flex', justifyContent: 'space-around', marginTop: 15}}>
+            <ButtonUI label='Cancelar' onClick={handleClose} />
+            <ButtonUI label='Agregar' onClick={formik.handleSubmit}/>
         </div>
     </Modal>
   )

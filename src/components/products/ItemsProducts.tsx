@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { MdEdit, MdInfo } from 'react-icons/md';
 import styled from 'styled-components';
 import ButtonUI from '../ButtonUI';
+import { AnimatedNumber } from '../AnimatedNumber';
 
 export default function ItemsProducts({item, onClick, select = true, onClickItem, line = true}:{item: Product, onClick?: ()=>void, select?:boolean, onClickItem?: ()=>void, line?:boolean}) {
     const [openInfo, setOpenInfo] = useState(false);
@@ -13,7 +14,7 @@ export default function ItemsProducts({item, onClick, select = true, onClickItem
                 <Column>
                     <Row>
                         <Title>{item.descripcion}</Title>
-                        <Price>$ {item.precioUnitario}</Price>
+                        <Price>$ <AnimatedNumber value={item.precioUnitario} /></Price>
                     </Row>
                     <Row>
                         <Subtitle>{item.NameCategoria}</Subtitle>

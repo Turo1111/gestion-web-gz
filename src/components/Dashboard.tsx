@@ -18,6 +18,7 @@ import { RandomAvatar } from "react-random-avatars";
 import { GoHome, GoPackage } from "react-icons/go";
 import { AiOutlineDollar } from 'react-icons/ai';
 import { LiaClipboardListSolid } from "react-icons/lia";
+import Burger from './Burger';
 
 export default function Dashboard({children}: {children: ReactNode} ) {
 
@@ -80,7 +81,7 @@ export default function Dashboard({children}: {children: ReactNode} ) {
             <ContainerBig suppressHydrationWarning={true}>
                 {
                     pathname !== '/' &&
-                    <LeftDash>
+                    <LeftDash $open={true}>
                         <div style={{padding: 15, display: 'flex', justifyContent: 'center'}} >
                             {
                                 ancho > 1240 ?
@@ -130,7 +131,10 @@ export default function Dashboard({children}: {children: ReactNode} ) {
                 {
                     pathname !== '/' &&
                     <Header suppressHydrationWarning={true}>
-                        {
+                         <IconWrapper>
+                            <Burger open={openMenu} toggle={()=>setOpenMenu(!openMenu)} />
+                         </IconWrapper>
+                        {/* {
                             !openMenu ? 
                             <IconWrapper onClick={()=>setOpenMenu(true)} suppressHydrationWarning={true}>
                                 <BiMenu/>
@@ -138,42 +142,39 @@ export default function Dashboard({children}: {children: ReactNode} ) {
                             <IconWrapper onClick={()=>setOpenMenu(false)} suppressHydrationWarning={true}>
                                 <MdMenuOpen />
                             </IconWrapper>
-                        }
+                        } */}
                         <div style={{display: 'flex', justifyContent: 'center', flex: 1}} suppressHydrationWarning={true}>
                             <Logo small={true}/>
                         </div>
                     </Header>
                 }
-                {
-                    openMenu &&
-                    <LeftDash suppressHydrationWarning={true}>
-                        <WrapperUserContainer>
-                            <UserContainer suppressHydrationWarning={true}>
-                                <RandomAvatar name={'sergio'} size={50} mode='pattern' square={true} />
-                                {ancho > 1240 && <label style={{fontSize: 18, fontWeight: 600}} suppressHydrationWarning={true}>{valueStorage.user || user.nickname || undefined}</label>}
-                                <SignOut onClick={() => {clearValue(); router.push('/')}}><MdExitToApp /></SignOut>
-                            </UserContainer>
-                        </WrapperUserContainer>
-                        <ul>
-                            {
-                                itemsLi.map((item, index)=>{
-                                    return(
-                                    <Link href={"/"+(item.path.toLowerCase().split(' ').join(''))} style={{textDecoration: 'none'}}  key={index} onClick={()=>setOpenMenu(false)}> 
-                                        <ItemLi $isSelect={pathname === "/"+(item.path.toLowerCase().split(' ').join(''))}>
-                                            <IconWrapper2>
-                                                {item.icon}
-                                            </IconWrapper2>
-                                            <LabelItemLi>
-                                                {item.name}
-                                            </LabelItemLi>
-                                        </ItemLi>
-                                    </Link>
-
-                                )})
-                            }
-                        </ul>
-                    </LeftDash>
-                }
+                <LeftDash suppressHydrationWarning={true} $open={openMenu}>
+                    <WrapperUserContainer>
+                        <UserContainer suppressHydrationWarning={true}>
+                            <RandomAvatar name={'sergio'} size={50} mode='pattern' square={true} />
+                            {ancho > 1240 && <label style={{fontSize: 18, fontWeight: 600}} suppressHydrationWarning={true}>{valueStorage.user || user.nickname || undefined}</label>}
+                            <SignOut onClick={() => {clearValue(); router.push('/')}}><MdExitToApp /></SignOut>
+                        </UserContainer>
+                    </WrapperUserContainer>
+                    <ul>
+                        {
+                            itemsLi.map((item, index)=>{
+                                return(
+                                <Link href={"/"+(item.path.toLowerCase().split(' ').join(''))} style={{textDecoration: 'none'}}  key={index} onClick={()=>setOpenMenu(false)}> 
+                                    <ItemLi $isSelect={pathname === "/"+(item.path.toLowerCase().split(' ').join(''))}>
+                                        <IconWrapper2>
+                                            {item.icon}
+                                        </IconWrapper2>
+                                        <LabelItemLi>
+                                            {item.name}
+                                        </LabelItemLi>
+                                    </ItemLi>
+                                </Link>
+                            )})
+                        }
+                    </ul>
+                </LeftDash>
+            
                 <div style={{display: 'flex', flex: 1, flexDirection: 'column', overflowY: 'scroll'}} suppressHydrationWarning={true}>
                     {children}
                 </div>
@@ -187,7 +188,6 @@ const ContainerChildren = styled.div `
     display: flex;
     flex-direction: column;
     flex: 1;
-    padding: 5px;
     background-color: #f1f1f1;
 `
 
@@ -287,7 +287,10 @@ const SignOut = styled.h2`
     }
 `
 
-const LeftDash = styled.div `
+const LeftDash = styled.div<{$open?: boolean}> `
+    opacity: ${({$open})=>$open ? '1' : '0'};
+    left: ${({$open})=>$open ? '0px' : '-120px'};
+    transition: opacity 0.5s, left 0.8s ease-in-out;
     height: 100vh;
     background: #f5f5f5;
     border-right: 1px solid #E2DAD6;

@@ -1,7 +1,7 @@
 import useOutsideClick from '@/hooks/useOutsideClick';
 import React, { useRef, useState } from 'react'
 import { MdKeyboardArrowDown } from "react-icons/md";
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 interface CBP {
     _id: (string | number) 
@@ -15,8 +15,6 @@ export default function SelectBox({text, selected, list, onClick}:{text: string,
 
     useOutsideClick(listRef, ()=>setOpenList(false));
 
-
-
   return (
     <Container  ref={listRef}  onClick={()=>setOpenList(!openList)} style={{border: `${selected._id !== 1 ? '1px solid #6A5BCD' : '1px solid #d9d9d9'}`}}>
         <Select>
@@ -25,7 +23,7 @@ export default function SelectBox({text, selected, list, onClick}:{text: string,
                     selected._id !== 1 ? selected.descripcion : text
                 }
             </Option>
-            <IconWrapper style={{color: `${selected._id !== 1 ? '#6A5BCD' : '#6B7280'}`}} >
+            <IconWrapper style={{color: `${selected._id !== 1 ? '#6A5BCD' : '#6B7280'}`}} $open={openList} >
                 <MdKeyboardArrowDown />
             </IconWrapper>
         </Select>
@@ -101,12 +99,14 @@ const Option = styled.h5 `
     }
 `
 
-const IconWrapper = styled.div `
+const IconWrapper = styled.div<{$open: boolean}> `
     right: -5px;
     position: absolute;
-    top: -5px;
+    top:${({$open})=>$open ? '-13px' : '-5px'};
     font-size: 30px;
     color: #6B7280;
+    transform: ${({$open})=>$open ? css`rotate(180deg)` : css`rotate(0deg)`};
+    transition: transform 0.5s linear, top 0.5s linear;
     @media only screen and (max-width: 500px) {
         font-size: 22px;
         top: -3px;

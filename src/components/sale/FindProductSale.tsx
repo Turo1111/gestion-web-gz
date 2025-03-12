@@ -170,8 +170,14 @@ export default function FindProductSale({onClickItem}:{onClickItem:(item:Product
         <>
           <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1}} >
               <div style={{display: 'flex', width: '100%', padding: '0px 15px', alignItems: 'center'}}>
-                <Search name='search' placeHolder={'Buscar productos'} type='text' value={search} onChange={searchProduct} onClickFilter={()=>setOpenModalFilter(true)} />
+                <Search name='search' placeHolder={'Buscar productos'} type='text' value={search} onChange={searchProduct} /* onClickFilter={()=>setOpenModalFilter(true)} */ />
               </div>
+              <FilterProduct open={openModalFilter} handleClose={()=>setOpenModalFilter(false)} 
+                            activeBrand={activeBrand} activeCategorie={activeCategorie} activeProvider={activeProvider}
+                            selectCategorie={(item: CBP)=>setActiveCategorie(prevData=>item)}
+                            selectBrand={(item: CBP)=>setActiveBrand(prevData=>item)}
+                            selectProvider={(item: CBP)=>setActiveProvider(prevData=>item)}
+                            />
               <ListProduct>
                   {
                     search !== '' || activeBrand._id !== 1 || activeCategorie._id !== 1 || activeProvider._id !== 1 ?
@@ -213,7 +219,7 @@ export default function FindProductSale({onClickItem}:{onClickItem:(item:Product
             openPrintProduct && 
             <PrintProduct open={openPrintProduct} handleClose={()=>setOpenPrintProduct(false)} />
           }
-          {
+          {/* {
             openModalFilter &&
             <FilterProduct open={openModalFilter} handleClose={()=>setOpenModalFilter(false)} 
               activeBrand={activeBrand._id} activeCategorie={activeCategorie._id} activeProvider={activeProvider._id}
@@ -221,7 +227,7 @@ export default function FindProductSale({onClickItem}:{onClickItem:(item:Product
               selectBrand={(item: CBP)=>setActiveBrand(prevData=>item)}
               selectProvider={(item: CBP)=>setActiveProvider(prevData=>item)}
             />
-          }
+          } */}
         </>
       }
     </main>
@@ -235,7 +241,7 @@ const ListProduct = styled.ul `
   flex-direction: column;
   padding: 0 15px;
   overflow: scroll;
-  max-height: 82vh;
+  max-height: 75vh;
 `
 
  

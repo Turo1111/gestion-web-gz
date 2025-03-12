@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import React from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
-const PushableButton = styled.button`
+const PushableButton = styled.button<{$isActive: boolean}>`
   position: relative;
   background: transparent;
   padding: 0;
@@ -13,8 +13,18 @@ const PushableButton = styled.button`
   transition: filter 250ms;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   margin: 0 5px;
+  filter: ${({$isActive})=>$isActive && css`brightness(110%)`};
  /*  min-width: 82px;
   max-width: 200px; */
+  .front {
+    transform:  ${({$isActive})=>$isActive && css`translateY(-6px)`};
+    transition: ${({$isActive})=>$isActive && css`transform 250ms cubic-bezier(0.3, 0.7, 0.4, 1.5)`};
+  }
+
+  .shadow {
+    transform: ${({$isActive})=>$isActive && css`translateY(4px)`};
+    transition: ${({$isActive})=>$isActive && css`transform 250ms cubic-bezier(0.3, 0.7, 0.4, 1.5)`};
+  }
   &:hover {
     filter: brightness(110%);
   }
@@ -98,20 +108,20 @@ const Front = styled.span`
   }
 `;
 
-const ButtonUI = ({label = 'ACEPTAR', onClick, to}:{ label : string, onClick: ()=>void, to?: string}) => {
+const ButtonUI = ({label = 'ACEPTAR', onClick, to, isActive = false}:{ label : string, onClick: ()=>void, to?: string, isActive?: boolean}) => {
   return (
-    <div style={{minWidth: 82, maxWidth: 200}} >
+    <div style={{}} >
       {
         to ?
         <Link href={to} >
-          <PushableButton onClick={onClick}>
+          <PushableButton onClick={onClick} $isActive={isActive}>
             <Shadow className="shadow" />
             <Edge className="edge" />
             <Front className="front">{label}</Front>
           </PushableButton>
         </Link>
         :
-        <PushableButton onClick={onClick}>
+        <PushableButton onClick={onClick} $isActive={isActive}>
           <Shadow className="shadow" />
           <Edge className="edge" />
           <Front className="front">{label}</Front>
@@ -122,3 +132,12 @@ const ButtonUI = ({label = 'ACEPTAR', onClick, to}:{ label : string, onClick: ()
 };
 
 export default ButtonUI;
+
+const ContainerButton = styled.div `
+  min-width: 82px; 
+  max-width: 200px;
+  @media only screen and (max-width: 500px) {
+    min-width: auto; 
+  }
+`
+

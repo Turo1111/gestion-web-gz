@@ -2,9 +2,12 @@ import { ExtendItemBuy } from '@/interfaces/buy.interface'
 import { Product } from '@/interfaces/product.interface'
 import { ExtendItemSale, ItemSale } from '@/interfaces/sale.interface'
 import { Types } from 'mongoose'
-import React, { ChangeEvent } from 'react'
-import { BiTrash } from 'react-icons/bi'
-import styled from 'styled-components'
+import React, { ChangeEvent, useState } from 'react'
+import { BiPlus, BiTrash } from 'react-icons/bi'
+import styled, { css } from 'styled-components'
+import { FaPlus } from "react-icons/fa";
+import { MdOutlineAttachMoney } from 'react-icons/md'
+import { AnimatedNumber } from '../AnimatedNumber'
 
 export default function ItemLineaVenta({elem, onClick, upQTY, downQTY, downQTY10, upQTY10, onChangePrecioUnitario}:
     {onClick:()=>void, upQTY:(id:string | Types.ObjectId| undefined)=>void, 
@@ -12,44 +15,86 @@ export default function ItemLineaVenta({elem, onClick, upQTY, downQTY, downQTY10
     downQTY: (id:string | Types.ObjectId | undefined)=>void, upQTY10:(id:string | Types.ObjectId | undefined)=>void, 
     downQTY10:(id:string | Types.ObjectId | undefined)=>void, elem: ExtendItemSale | ExtendItemBuy}) {
 
-        console.log(elem)
+        const [openHandler, setOpenHandler] = useState(false)
+        const [openPrecioUnitario, setOpenPrecioUnitario] = useState(false)
+
   return (
     <Item>
-        <div>
+        <div style={{width: '100%'}}>
             <ContainerElem>
                 <Description>{elem.descripcion}</Description>
-                <h2 style={{fontSize: 14, fontWeight: 400, color: '#7F8487'}}>{elem.NameCategoria}</h2>
+                <div  style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}} >
+                    <h2 style={{fontSize: 14, fontWeight: 600, color: '#7F8487'}}>X {elem.cantidad} UNIDAD</h2>
+                    <label style={{fontSize: 14, fontWeight: 600, color: '#FA9B50', marginRight: 5}}>
+                        $
+                        <AnimatedNumber value={elem.total} />
+                    </label>
+                </div>
             </ContainerElem>
+            <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '5px 0'}} >
+                <IconWrapper onClick={()=>setOpenHandler(!openHandler)} $open={openHandler}>
+                    <FaPlus style={{margin: '0 5px', color: '#7286D3'}} />
+                </IconWrapper>
+                <IconWrapper onClick={()=>setOpenPrecioUnitario(!openPrecioUnitario)} $open={openPrecioUnitario}>
+                    <MdOutlineAttachMoney style={{fontSize: 20, margin: '0 5px', color: '#B0EBB4'}} />
+                </IconWrapper>
+                <IconWrapper>
+                    <BiTrash style={{fontSize: 20, margin: '0 5px', color: '#F7A4A4'}} onClick={onClick}/>
+                </IconWrapper>
+            </div>
             {
-                onChangePrecioUnitario &&
+                (openPrecioUnitario && onChangePrecioUnitario) &&
                 <div style={{display: 'flex', alignItems: 'center'}} >
                     <label style={{fontSize: 14, fontWeight: 400, color: '#7F8487', marginRight: 5}}>Precio u. : $</label>
                     <Input value={elem.precioUnitario} onChange={(e:ChangeEvent<HTMLInputElement>)=>onChangePrecioUnitario(e.target.value, elem._id)} />
                 </div>
             }
+            {
+                openHandler &&
+                <ContainerHandler>
+                    <div>
+                        <div style={{display: 'flex', width: '100%'}}>
+                            <div style={{display: 'flex'}}>
+                                <ButtonHandler onClick={()=>downQTY10(elem._id)}>-10</ButtonHandler>
+                                <ButtonHandler onClick={()=>downQTY(elem._id)}>-</ButtonHandler>
+                            </div>
+                            <QtyHandler><AnimatedNumber value={elem.cantidad} /></QtyHandler>
+                            <div style={{display: 'flex'}}>
+                                <ButtonHandler onClick={()=>upQTY(elem._id)} >+</ButtonHandler>
+                                <ButtonHandler onClick={()=>upQTY10(elem._id)}>+10</ButtonHandler>
+                            </div>
+                        </div>
+                        {/* <h2 style={{fontSize: 16, fontWeight: 600, color: '#FA9B50', textAlign: 'center'}}>$ {elem.total}</h2> */}
+                    </div>
+                </ContainerHandler>
+            }
         </div>
-        <ContainerHandler>
-            <div>
-                <div style={{display: 'flex'}}>
-                    <div style={{display: 'flex'}}>
-                        <div style={{fontSize: 14, fontWeight: 400, color: '#7F8487', padding: 10, borderRight: '1px solid #d9d9d9'}} onClick={()=>downQTY10(elem._id)}>-10</div>
-                        <div style={{fontSize: 14, fontWeight: 400, color: '#7F8487', padding: 10, borderRight: '1px solid #d9d9d9'}} onClick={()=>downQTY(elem._id)}>-</div>
-                    </div>
-                    <div style={{fontSize: 18, color: '#252525', padding: 10}}>{elem.cantidad}</div>
-                    <div style={{display: 'flex'}}>
-                        <div style={{fontSize: 14, fontWeight: 400, color: '#7F8487', padding: 10, borderLeft: '1px solid #d9d9d9'}} onClick={()=>upQTY(elem._id)} >+</div>
-                        <div style={{fontSize: 14, fontWeight: 400, color: '#7F8487', padding: 10, borderLeft: '1px solid #d9d9d9'}} onClick={()=>upQTY10(elem._id)}>+10</div>
-                    </div>
-                </div>
-                <h2 style={{fontSize: 16, fontWeight: 600, color: '#FA9B50', textAlign: 'center'}}>$ {elem.total}</h2>
-            </div>
-            <IconWrapper  onClick={onClick}>
-                <BiTrash/>
-            </IconWrapper>
-        </ContainerHandler>
     </Item>
   )
 }
+
+const QtyHandler = styled.div `
+    font-size: 16px;
+    color: #252552;
+    padding: 5px 10px;
+    &:hover {
+        background-color: #d9d9d9;
+        border-radius: 100%;
+        color: #6A5BCD;
+    }
+`
+
+const ButtonHandler = styled.div `
+    font-size: 14px; 
+    font-weight: 400; 
+    color: #7F8487; 
+    padding: 5px 10px;
+    &:hover {
+        background-color: #d9d9d9;
+        border-radius: 100%;
+        color: #6A5BCD;
+    }
+`
 
 const Input = styled.input<{ $focused?: boolean; $hasPrefix?: boolean; }>`
   padding: 5px 10px;
@@ -67,8 +112,12 @@ const Input = styled.input<{ $focused?: boolean; $hasPrefix?: boolean; }>`
 `;
 
 const Description = styled.h2 `
-    font-size: 18px;
+    font-size: 16px;
     color: #252525;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    max-width: 95%;
     @media only screen and (max-width: 500px) { 
         font-size: 16px
     } 
@@ -76,24 +125,16 @@ const Description = styled.h2 `
 
 const ContainerHandler = styled.div `
     display: flex;
-    @media only screen and (max-width: 500px) { 
-        align-items: center;
-        justify-content: space-between;
-        margin-top: 5px;
-    } 
+    width: 100%;
+    justify-content: center;
 `
 
 const ContainerElem = styled.div`
-    @media only screen and (max-width: 500px) { 
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    } 
 `
 
 const Item = styled.li `
   list-style: none;
-  padding: 15px;
+  padding: 8px;
   font-weight: 600;
   width: 100%;
   border-bottom: 1px solid #d1d1d1;
@@ -107,16 +148,16 @@ const Item = styled.li `
   }
 `
 
-const IconWrapper = styled.div`
+const IconWrapper = styled.div<{$open?: boolean}>`
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 25px;
-    color: #F7A4A4;
-    padding: 5px 15px;
-    margin: 0px 5px;
+    padding: 5px;
+    border-radius: 15px;
+    transform: ${({$open})=>$open ? css`rotate(180deg)` : css`rotate(0deg)`};
+    transition: transform .5s linear;
     cursor: pointer;
     &:hover {
-        background-color: #d9d9d9;
+        background-color: #d1d1d1;
     }
 `
