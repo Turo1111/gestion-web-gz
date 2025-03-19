@@ -189,7 +189,7 @@ export default function Home() {
                         }
 
                       </CardData>
-                      <CardData style={{color: '#99BC85', fontWeight: 'bold', fontSize: 18}} >{salesData?.totalSalesDifference} %</CardData>
+                      <CardData style={{color:`${salesData !== undefined && parseFloat(salesData?.salesCountDifference) < 0 ? '#DC8686': '#99BC85'}`, fontWeight: 'bold', fontSize: 18}} >{salesData?.totalSalesDifference} %</CardData>
                     </div>
                     <CardData style={{color: '#181C14', fontSize: 14}} >CANTIDAD</CardData>
                   </Card>
@@ -203,7 +203,7 @@ export default function Home() {
                             buyData ? <AnimatedNumber value={buyData.totalSales} />: <AnimatedNumber value={0} />
                         }
                       </CardData>
-                      <CardData style={{color: '#99BC85', fontWeight: 'bold', fontSize: 18}} >{salesData?.salesCountDifference} %</CardData>
+                      <CardData style={{color:`${salesData !== undefined && parseFloat(salesData?.salesCountDifference) < 0 ? '#DC8686': '#99BC85'}`, fontWeight: 'bold', fontSize: 18}} > {salesData?.salesCountDifference} %</CardData>
                     </div>
                     <CardData style={{color: '#181C14', fontSize: 14}} >TOTAL</CardData>
                   </Card>

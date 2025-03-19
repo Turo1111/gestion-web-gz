@@ -137,7 +137,7 @@ export default function NewBuy() {
                     <Total>Total: $ <AnimatedNumber value={total} /> </Total>
                   </div>
                   <div style={{display: 'flex', justifyContent: 'center',  margin: '15px 0'}}>
-
+                    <ButtonUI label='AUTO Generar' onClick={()=>{}}/>
                     <ButtonUI label='Crear' onClick={()=>{
                       if (lineaCompra.length===0 || total <= 0) {
                         dispatch(setAlert({
@@ -244,7 +244,7 @@ export default function NewBuy() {
                     />
                   </LocalizationProvider>
                   <div style={{display: 'flex', justifyContent: 'center',  margin: '15px 0'}}>
-
+                    <ButtonUI label='AUTO Generar' onClick={()=>{}}/>
                     <ButtonUI label='Crear' onClick={()=>{
                       if (lineaCompra.length===0 || total <= 0) {
                         dispatch(setAlert({

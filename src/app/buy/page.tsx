@@ -115,7 +115,6 @@ export default function BuyScreen() {
     <main>
         <ContainerSearch>
           <Search name='search' placeHolder={'Buscar compras'} type='text' value={search} onChange={(e:ChangeEvent<HTMLInputElement>)=>setSearch(e.target.value)} />
-          {/* <Button text='Nuevo' onClick={()=>{}} to='/buy/newBuy'/> */}
           <ButtonUI label='NUEVO'  onClick={()=>{}} to='/buy/newBuy'/>
         </ContainerSearch>
         <ListSale>
@@ -132,6 +131,9 @@ export default function BuyScreen() {
                     <Tag style={{fontWeight: 600, color: '#FA9B50'}}>$ <AnimatedNumber value={item.total}  /></Tag>
                   </ContainerTag>
                   <div  style={{display: 'flex'}}>
+                    <ButtonUI label='CONTROL' onClick={()=>{
+                        router.push(`/buy/editBuy/${item._id}`);
+                      }}/>
                     <ButtonUI label='EDITAR' onClick={()=>{
                         router.push(`/buy/editBuy/${item._id}`);
                       }}/>
