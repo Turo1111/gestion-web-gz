@@ -29,8 +29,8 @@ export default function ItemsProducts({item, onClick, select = true, onClickItem
                         <IconWrapper style={{color: '#6EACDA'}} onClick={() => setOpenInfo(!openInfo)}>
                             <MdInfo />
                         </IconWrapper> */}
-                      <ButtonUI label='EDITAR' onClick={()=>onClick} />
-                      <ButtonUI label='+ INFO' onClick={()=>onClick} />
+                      <ButtonUI label='EDITAR' onClick={onClick} />
+                      <ButtonUI label='+ INFO' onClick={()=>setOpenInfo(!openInfo)} />
                     </ContainerButton>
                 }
             </Container>

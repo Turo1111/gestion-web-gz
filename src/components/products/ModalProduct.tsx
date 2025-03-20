@@ -17,9 +17,7 @@ export default function ModalProduct({open, handleClose, product}:{open: boolean
   const [valueStorage , setValue] = useLocalStorage("user", "")
   const loading = useSelector(getLoading)
   const dispatch = useAppDispatch();
-
-  console.log(product)
-
+  
   const formik = useFormik({
     initialValues: product,
     onSubmit: (formValue:Product) => {

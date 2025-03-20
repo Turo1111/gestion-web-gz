@@ -236,13 +236,13 @@ export default function ProductScreen() {
                     search !== '' || activeBrand._id !== 1 || activeCategorie._id !== 1 || activeProvider._id !== 1 ?
                       dataSearch.length !== 0 ? 
                         dataSearch.map((item: Product, index: number)=>{
-                          return <ItemsProducts  key={index} item={item} onClick={()=>{setSelectProduct(item);setOpenModalProduct(true)}}/>
+                          return <ItemsProducts  key={index} item={item} onClick={()=>{setSelectProduct(item);setOpenModalProduct(true);console.log(item)}}/>
                         })
                         : 'NO HAY PRODUCTOS'
                     :
                       data.length !== 0 ? 
                       data.map((item: Product, index: number)=>{
-                        return <ItemsProducts  key={index} item={item} onClick={()=>{setSelectProduct(item);setOpenModalProduct(true)}}/>
+                        return <ItemsProducts  key={index} item={item} onClick={()=>{setSelectProduct(item);setOpenModalProduct(true);console.log(item)}}/>
                       })
                       : 'NO HAY PRODUCTOS'
                   }
