@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import ButtonUI from '../ButtonUI';
 import { AnimatedNumber } from '../AnimatedNumber';
 
-export default function ItemsProducts({item, onClick, select = true, onClickItem, line = true}:{item: Product, onClick?: ()=>void, select?:boolean, onClickItem?: ()=>void, line?:boolean}) {
+export default function ItemsProducts({item, onClick, select = true, onClickItem, line = true}:{item: Product, onClick: ()=>void, select?:boolean, onClickItem?: ()=>void, line?:boolean}) {
     const [openInfo, setOpenInfo] = useState(false);
     
     return (
