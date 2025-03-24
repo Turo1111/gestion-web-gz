@@ -33,9 +33,11 @@ export default function ModalProduct({open, handleClose, product}:{open: boolean
         console.log('error')
         return
       }
-      if (valueStorage) {
+      if (!valueStorage) {
+        console.log('error value storage')
         return
       }
+
       apiClient.patch(`/product/${product._id}`, formValue,
       {
         headers: {
