@@ -20,6 +20,7 @@ let initialValue: Product = {
   precioBulto: 0,
   precioCompra: 0,
   precioUnitario: 0,
+  precioDescuento: 0,
   stock: 0,
   sabor: '',
   bulto: 0,
@@ -90,6 +91,7 @@ export default function NewProduct({open, handleClose}:{open: boolean, handleClo
         <Input label={'Precio bulto'} name={'precioBulto'} value={formik.values.precioBulto} onChange={formik.handleChange} type='text' /> */}
         <Input label={'Precio compra'} name={'precioCompra'} value={formik.values.precioCompra} onChange={formik.handleChange} type='number' />
         <Input label={'Precio unitario'} name={'precioUnitario'} value={formik.values.precioUnitario} onChange={formik.handleChange} type='number' />
+        <Input label={'Precio descuento'} name={'precioDescuento'} value={formik.values.precioDescuento} onChange={formik.handleChange} type='number' />
         <Input label={'Stock'} name={'stock'} value={formik.values.stock} onChange={formik.handleChange} type='number' />
         <Input label={'Sabor'} name={'sabor'} value={formik.values.sabor} onChange={formik.handleChange} type='text' />
     {/*     <Input label={'Bulto'} name={'bulto'} value={formik.values.bulto} onChange={formik.handleChange} type='text' /> */}

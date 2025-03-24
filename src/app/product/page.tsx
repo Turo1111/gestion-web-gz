@@ -62,7 +62,7 @@ export default function ProductScreen() {
 
     const searchProduct = (e: ChangeEvent<HTMLInputElement>) => {
         setSearch(prevData=>e.target.value)
-    }
+    }    
 
     useEffect(()=>{
 
@@ -176,29 +176,6 @@ export default function ProductScreen() {
                 <WrapperButtons>
                   <ButtonUI label='IMPRIMIR' onClick={()=>{
                     setOpenPrintProduct(true)
-                    /* apiClient.get(`/product/print/print`, { responseType: 'blob',
-                      headers: {
-                        Authorization: `Bearer ${valueStorage.token}`
-                      },
-                     }) // Importante: usar 'blob' para recibir el PDF
-                    .then(response => {
-                      const blob = new Blob([response.data], { type: 'application/pdf' });
-                      const url = window.URL.createObjectURL(blob);
-
-                      // Crear un enlace temporal para descargar el archivo
-                      const link = document.createElement('a');
-                      link.href = url;
-                      link.setAttribute('download', `ListaDePrecios.pdf`); // Nombre del archivo descargado
-                      document.body.appendChild(link);
-                      link.click();
-                      document.body.removeChild(link);
-
-                      // Liberar memoria
-                      window.URL.revokeObjectURL(url);
-                    })
-                    .catch(error => {
-                      console.error('Error descargando el PDF:', error);
-                    }); */
                   }}/>
                   <ButtonUI label='ACTUALIZAR' onClick={()=>setOpenUpdatePrice(true)} />
                   <ButtonUI label='NUEVO' onClick={()=>setOpenNewProduct(true)} />
@@ -210,39 +187,18 @@ export default function ProductScreen() {
               selectBrand={(item: CBP)=>setActiveBrand(prevData=>item)}
               selectProvider={(item: CBP)=>setActiveProvider(prevData=>item)}
               />
-              {/* <ListProduct>
-                  {
-                    search !== '' || activeBrand._id !== 1 || activeCategorie._id !== 1 || activeProvider._id !== 1 ?
-                      dataSearch.length !== 0 ? 
-                        dataSearch.map((item: Product, index: number)=>{
-                          return <ItemsProducts  key={index} item={item} onClick={()=>{setSelectProduct(item);setOpenModalProduct(true)}}/>
-                        })
-                        : 'NO HAY PRODUCTOS'
-                    :
-                      data.length !== 0 ? 
-                      data.map((item: Product, index: number)=>{
-                        return <ItemsProducts  key={index} item={item} onClick={()=>{setSelectProduct(item);setOpenModalProduct(true)}}/>
-                      })
-                      : 'NO HAY PRODUCTOS'
-                  }
-                  {
-                    search !== '' || activeBrand._id !== 1 || activeCategorie._id !== 1 || activeProvider._id !== 1 ?
-                    <></>:
-                    <li style={{listStyle: 'none', padding: 0, margin: 0, minHeight: '1px'}} ref={lastElementRef}></li>
-                  }
-              </ListProduct> */}
               <ListProduct >
                   {
                     search !== '' || activeBrand._id !== 1 || activeCategorie._id !== 1 || activeProvider._id !== 1 ?
                       dataSearch.length !== 0 ? 
                         dataSearch.map((item: Product, index: number)=>{
-                          return <ItemsProducts  key={index} item={item} onClick={()=>{setSelectProduct(item);setOpenModalProduct(true);console.log(item)}}/>
+                          return <ItemsProducts  key={index} item={item} onClick={()=>{setSelectProduct(prevData=>item);setOpenModalProduct(true)}}/>
                         })
                         : 'NO HAY PRODUCTOS'
                     :
                       data.length !== 0 ? 
                       data.map((item: Product, index: number)=>{
-                        return <ItemsProducts  key={index} item={item} onClick={()=>{setSelectProduct(item);setOpenModalProduct(true);console.log(item)}}/>
+                        return <ItemsProducts  key={index} item={item} onClick={()=>{setSelectProduct(prevData=>item);setOpenModalProduct(true)}}/>
                       })
                       : 'NO HAY PRODUCTOS'
                   }
@@ -269,14 +225,6 @@ export default function ProductScreen() {
              openPrintProduct &&
             <PrintProduct open={openPrintProduct} handleClose={()=>setOpenPrintProduct(false)} />
           }
-          {/* {
-            <FilterProduct open={openModalFilter} handleClose={()=>setOpenModalFilter(false)} 
-              activeBrand={activeBrand._id} activeCategorie={activeCategorie._id} activeProvider={activeProvider._id}
-              selectCategorie={(item: CBP)=>setActiveCategorie(prevData=>item)}
-              selectBrand={(item: CBP)=>setActiveBrand(prevData=>item)}
-              selectProvider={(item: CBP)=>setActiveProvider(prevData=>item)}
-            />
-          } */} 
         </>
       }
     </main>

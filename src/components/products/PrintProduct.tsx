@@ -14,6 +14,7 @@ import { useSelector } from 'react-redux';
 import { useAppDispatch } from '@/redux/hook';
 import { Product } from '@/interfaces/product.interface';
 import ButtonUI from '../ButtonUI';
+import SimpleCheckbox from '../SimpleCheckbox';
 
 interface CBP {
   _id: (string | number) 
@@ -29,6 +30,7 @@ export default function PrintProduct({open, handleClose}:{open: boolean, handleC
   }])
   const dispatch = useAppDispatch();
   const [valueStorage , setValue] = useLocalStorage("user", "")
+  const [isPrecioUnitario, setIsPrecioUnitario] = useState(true)
 
   useEffect(()=>{
     const getCategorie = () => {
@@ -54,8 +56,9 @@ export default function PrintProduct({open, handleClose}:{open: boolean, handleC
 }, [open])
 
   return (
-    <Modal open={open} eClose={handleClose} title='Imprimir productos' width='30%' height='auto' >
-        <div style={{display: 'flex', flexWrap: 'wrap'}} >
+    <Modal open={open} eClose={handleClose} title='Imprimir productos' width='60%' height='auto' >
+        <Title>Categorias :</Title>
+        <div style={{display: 'flex', overflowX: 'scroll'}} >
           {
             categorie.map((item: CBP, index: number)=><ItemCategorie key={index} $active={selectCategorie.find(elem=>elem._id === item._id) ? true : false} 
               onClick={()=>{
@@ -73,11 +76,16 @@ export default function PrintProduct({open, handleClose}:{open: boolean, handleC
             </ItemCategorie>)
           }
         </div>
+        <Title>Tipo de precio :</Title>
+        <div style={{display: 'flex', flexDirection: 'column', alignItems: 'start', marginLeft: 15}}>
+          <SimpleCheckbox text='Precio unitario' isChecked={isPrecioUnitario} toggleCheckbox={()=>setIsPrecioUnitario(!isPrecioUnitario)} />
+          <SimpleCheckbox text='Precio descuento' isChecked={!isPrecioUnitario} toggleCheckbox={()=>setIsPrecioUnitario(!isPrecioUnitario)} />
+        </div>
         <div style={{display: 'flex', justifyContent: 'center', marginBottom: 15}} >
           <ButtonUI label='Imprimir' onClick={()=>{
             dispatch(setLoading(true))
             let filterCategorie = selectCategorie.map(item=>item._id !== 0 && item.descripcion)
-            apiClient.post(`/product/print/print`, {categories: filterCategorie[0] !== false ? filterCategorie : undefined}, { responseType: 'blob',
+            apiClient.post(`/product/print/print`, {categories: filterCategorie[0] !== false ? filterCategorie : undefined, isPrecioUnitario: isPrecioUnitario}, { responseType: 'blob',
               headers: {
                 Authorization: `Bearer ${valueStorage.token}`
               },
@@ -123,3 +131,11 @@ const ItemCategorie = styled.div <{$active: boolean}>`
     border: ${({ $active }) => (!$active ? '2px solid #fff ' : 'none')};
   }
 `
+
+const Title = styled.h2`
+  font-size: 18px;
+  color: #252525;
+  @media only screen and (max-width: 500px) {
+    font-size: 16px;
+  }
+`;

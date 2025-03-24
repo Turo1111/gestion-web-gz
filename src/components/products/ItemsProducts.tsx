@@ -41,8 +41,9 @@ export default function ItemsProducts({item, onClick, select = true, onClickItem
                     <InfoText>Codigo de barra: {item?.codigoBarra || 'Sin codigo'}</InfoText>
                     <InfoText>Peso: {item?.peso?.cantidad || 'No definido'} {item?.peso?.unidad}</InfoText>
                     <InfoText>Bulto: {item?.bulto || 'No definido'}</InfoText>
-                    <InfoText>Precio por Bulto: {item?.precioBulto || 'No definido'}</InfoText>
-                    <InfoText>Precio de compra: {item?.precioCompra || 'No definido'}</InfoText>
+                    <InfoText>Precio Descuento: $ {item?.precioDescuento ? <AnimatedNumber value={item.precioDescuento} /> : 'No definido'}</InfoText>
+                    <InfoText>Precio por Bulto: $ {item?.precioBulto ? <AnimatedNumber value={item.precioBulto} /> : 'No definido'}</InfoText>
+                    <InfoText>Precio de compra: $ {item?.precioCompra ? <AnimatedNumber value={item.precioCompra} /> : 'No definido'}</InfoText>
                 </InfoContainer>
             }
         </ItemProduct>

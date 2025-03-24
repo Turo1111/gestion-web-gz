@@ -117,7 +117,11 @@ const LoadingText = styled.p`
 `;
 
 const InputSelectAdd = ({type = 'text', label, value, onChange, name, edit = false, path, idSelect}: 
-  {type: TypeInput, label: string, value: any, onChange: (id:any, item:any)=>void, name: string, edit?: boolean, path: string, idSelect?: (string | ObjectId)}
+  {
+    type: TypeInput, label: string, value: any, 
+    onChange: (id:any, item:any)=>void, name: string, 
+    edit?: boolean, path: string, idSelect?: (string | ObjectId)
+  }
 
 ) => {
   const [isActive, setIsActive] = useState(false);
@@ -179,6 +183,7 @@ const InputSelectAdd = ({type = 'text', label, value, onChange, name, edit = fal
   }
 
   const patchValue = () => {
+    if (idSelect) {
       setLoading2(true)
       apiClient.patch(`/${path}/${idSelect}`, {_id: idSelect, descripcion: inputValue},
       {
@@ -193,6 +198,7 @@ const InputSelectAdd = ({type = 'text', label, value, onChange, name, edit = fal
       .catch(e=>{
         setLoading2(false)
       })
+    }
   }
 
   useEffect(()=>{
