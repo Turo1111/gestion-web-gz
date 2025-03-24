@@ -11,9 +11,9 @@ export interface Buy {
 }
 
 export interface ItemBuy {
-  _id?: Types.ObjectId
+  _id?: Types.ObjectId| string
   idBuy?: Types.ObjectId
-  idProducto?: Types.ObjectId
+  idProducto?: Types.ObjectId | string
   cantidad: number
   total: number
   precio: number
