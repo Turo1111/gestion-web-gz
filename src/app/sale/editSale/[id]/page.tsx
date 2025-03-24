@@ -100,6 +100,9 @@ export default function EditSale({ params }: { params: { id: string } }) {
             <FindProductSale
               onClickItem={(item:Product)=>{
                 setLineaVenta((prevData:ExtendItemSale[])=>{
+                  /* if (prevData._id === undefined) {
+                    return
+                  } */
                     const exist = prevData.find((elem:ExtendItemSale)=>elem._id===item._id || elem.idProducto===item._id)
                     if (exist) {
                         return prevData.map((elem: ExtendItemSale) =>
