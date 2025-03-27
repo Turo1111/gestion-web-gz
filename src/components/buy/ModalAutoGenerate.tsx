@@ -6,7 +6,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import ButtonUI from "../ButtonUI";
 import SimpleCheckbox from "../SimpleCheckbox";
 
-export default function ModalAutoGenerate({open, handleClose, handleSubmit}:{open:boolean, handleClose: ()=>void, handleSubmit: (startDate: Date, endDate: Date)=>void}) {
+export default function ModalAutoGenerate({open, handleClose, handleSubmit}:{open:boolean, handleClose: ()=>void, handleSubmit: (startDate: Date, endDate: Date, isSelectRange: boolean)=>void}) {
 
   
   const [startDate, setStartDate] = React.useState<Date>(new Date());
