@@ -17,6 +17,7 @@ import { BarChart, Bar, Rectangle, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 import { AnimatedNumber } from '@/components/AnimatedNumber';
 import Button from '@/components/Button';
 import ButtonUI from '@/components/ButtonUI';
+import { addHours, endOfDay, startOfDay } from 'date-fns';
 
 const containerVariants: Variants = {
   sales: { backgroundColor: "#99BC85", transition: { duration: 0.5 } },
@@ -82,6 +83,8 @@ export default function Home() {
   const [switchData, setSwitchData] = useState(true)
 
   const handleSubmit = (startDate: Date, endDate: Date ) => {
+    startDate = addHours(startOfDay(startDate), 3)
+    endDate = addHours(endOfDay(endDate), 3)
     if (startDate >= endDate) {
       dispatch(setAlert({
         message: `La fecha DESDE no puede ser posterior a Hasta`,

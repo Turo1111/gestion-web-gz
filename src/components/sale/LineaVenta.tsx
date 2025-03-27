@@ -179,7 +179,7 @@ const ListProduct = styled.ul `
   flex-direction: column;
   padding: 0 15px;
   overflow-y: scroll;
-  max-height: 50vh;
+  max-height: 60vh;
   @media only screen and (max-width: 500px) {
     padding: 0;
     max-height: 40vh;

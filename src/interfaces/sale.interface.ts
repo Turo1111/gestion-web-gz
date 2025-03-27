@@ -17,10 +17,12 @@ export interface ItemSale {
   idProducto?: Types.ObjectId | string
   cantidad: number
   total: number
+  precio?: number
 }
 
 export interface ExtendItemSale extends ItemSale {
   descripcion?: string
   NameCategoria?: string
   precioUnitario: number
+  precioDescuento?: number
 }

@@ -5,6 +5,7 @@ interface SimpleCheckboxProps {
   isChecked?: boolean;
   toggleCheckbox: () => void;
   text?: string;
+  small?: boolean;
 }
 
 const CheckboxWrapper = styled.div`
@@ -20,9 +21,9 @@ const CheckboxContainer = styled.div`
   cursor: pointer;
 `;
 
-const Checkbox = styled.div<{ isChecked: boolean }>`
-  width: 24px;
-  height: 24px;
+const Checkbox = styled.div<{ isChecked: boolean, $small: boolean }>`
+  width: ${({$small})=>$small ? '16px' : '24px'};
+  height: ${({$small})=>$small ? '16px' : '24px'};
   border-radius: 3px;
   border: 1px solid #9098a9;
   display: flex;
@@ -32,28 +33,29 @@ const Checkbox = styled.div<{ isChecked: boolean }>`
   border-color: ${({ isChecked }) => (isChecked ? '#506EEC' : '#9098A9')};
 `;
 
-const Checkmark = styled.span`
+const Checkmark = styled.span<{ $small: boolean }>`
   color: #ffffff;
-  font-size: 16px;
+  font-size: ${({$small})=>$small ? '14px' : '16px'};;
 `;
 
-const Label = styled.span`
+const Label = styled.span<{ $small: boolean }>`
   margin-left: 8px;
-  font-size: 18px;
+  font-size: ${({$small})=>$small ? '14px' : '18px'};
 `;
 
 const SimpleCheckbox: React.FC<SimpleCheckboxProps> = ({
   isChecked = false,
+  small = false,
   toggleCheckbox,
   text = '',
 }) => {
   return (
     <CheckboxWrapper>
       <CheckboxContainer onClick={toggleCheckbox}>
-        <Checkbox isChecked={isChecked}>
-          {isChecked && <Checkmark>✓</Checkmark>}
+        <Checkbox $small={small} isChecked={isChecked}>
+          {isChecked && <Checkmark $small={small}>✓</Checkmark>}
         </Checkbox>
-        <Label>{text}</Label>
+        <Label $small={small}>{text}</Label>
       </CheckboxContainer>
     </CheckboxWrapper>
   );

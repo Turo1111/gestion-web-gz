@@ -149,6 +149,21 @@ return (
                               }
                               return elem
                             }))}
+                            onChangePrecioUnitario={(value:string, idProduct: any)=>{
+                              let parseValue = parseFloat(value)
+                              if (value === '') {
+                                parseValue = 0
+                              }
+                              setLineaCompra((prevData:ExtendItemBuy[])=>{
+                                const itemSale = prevData.find(elem=>elem.idProducto === idProduct)
+                                if(!itemSale){
+                                  return prevData
+                                }
+                                const newItemSale = {...itemSale, precioUnitario: parseValue, total: itemSale?.cantidad*parseValue}
+                                const prevFiltered = prevData.map((elem:ExtendItemBuy)=>elem.idProducto===idProduct ? newItemSale : elem)
+                                return prevFiltered
+                              })
+                            }}
                         />)
                     }
                 </ListProduct>
@@ -263,6 +278,21 @@ return (
                               }
                               return elem
                             }))}
+                            onChangePrecioUnitario={(value:string, idProduct: any)=>{
+                              let parseValue = parseFloat(value)
+                              if (value === '') {
+                                parseValue = 0
+                              }
+                              setLineaCompra((prevData:ExtendItemBuy[])=>{
+                                const itemSale = prevData.find(elem=>elem.idProducto === idProduct)
+                                if(!itemSale){
+                                  return prevData
+                                }
+                                const newItemSale = {...itemSale, precioUnitario: parseValue, total: itemSale?.cantidad*parseValue}
+                                const prevFiltered = prevData.map((elem:ExtendItemBuy)=>elem.idProducto===idProduct ? newItemSale : elem)
+                                return prevFiltered
+                              })
+                            }}
                         />)
                     }
                 </ListProduct>

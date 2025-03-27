@@ -2,24 +2,25 @@ import { ExtendItemBuy } from '@/interfaces/buy.interface'
 import { Product } from '@/interfaces/product.interface'
 import { ExtendItemSale, ItemSale } from '@/interfaces/sale.interface'
 import { Types } from 'mongoose'
-import React, { ChangeEvent, useState } from 'react'
+import React, { ChangeEvent, useEffect, useState } from 'react'
 import { BiPlus, BiTrash } from 'react-icons/bi'
 import styled, { css } from 'styled-components'
 import { FaPlus } from "react-icons/fa";
 import { MdOutlineAttachMoney } from 'react-icons/md'
 import { AnimatedNumber } from '../AnimatedNumber'
+import SimpleCheckbox from '../SimpleCheckbox'
 
-export default function ItemLineaVenta({elem, onClick, upQTY, downQTY, downQTY10, upQTY10, onChangePrecioUnitario}:
+export default function ItemLineaVenta({elem, onClick, upQTY, downQTY, downQTY10, upQTY10, onChangePrecioUnitario, compra}:
     {onClick:()=>void, upQTY:(id:string | Types.ObjectId| undefined)=>void, 
-        onChangePrecioUnitario?: (value:string, idProduct: any)=>void
+        onChangePrecioUnitario?: (value:string, D: any)=>void
     downQTY: (id:string | Types.ObjectId | undefined)=>void, upQTY10:(id:string | Types.ObjectId | undefined)=>void, 
-    downQTY10:(id:string | Types.ObjectId | undefined)=>void, elem: ExtendItemSale | ExtendItemBuy}) {
+    downQTY10:(id:string | Types.ObjectId | undefined)=>void, elem: ExtendItemSale | ExtendItemBuy, compra?: boolean}) {
 
-        const [openHandler, setOpenHandler] = useState(false)
-        const [openPrecioUnitario, setOpenPrecioUnitario] = useState(false)
+    const [openHandler, setOpenHandler] = useState(false)
+    const [openPrecioUnitario, setOpenPrecioUnitario] = useState(false)
 
   return (
-    <Item>
+    <Item >
         <div style={{width: '100%'}}>
             <ContainerElem>
                 <Description>{elem.descripcion}</Description>
@@ -46,22 +47,27 @@ export default function ItemLineaVenta({elem, onClick, upQTY, downQTY, downQTY10
                 (openPrecioUnitario && onChangePrecioUnitario) &&
                 <div style={{display: 'flex', alignItems: 'center'}} >
                     <label style={{fontSize: 14, fontWeight: 400, color: '#7F8487', marginRight: 5}}>Precio u. : $</label>
-                    <Input value={elem.precioUnitario} onChange={(e:ChangeEvent<HTMLInputElement>)=>onChangePrecioUnitario(e.target.value, elem._id)} />
+                    {
+                        compra ?
+                        <Input value={elem.precio} onChange={(e:ChangeEvent<HTMLInputElement>)=>onChangePrecioUnitario(e.target.value, elem.idProducto)} />
+                        :
+                        <Input value={elem.precioUnitario} onChange={(e:ChangeEvent<HTMLInputElement>)=>onChangePrecioUnitario(e.target.value, elem.idProducto)} />
+                    }
                 </div>
             }
             {
-                openHandler &&
+                (openHandler) &&
                 <ContainerHandler>
                     <div>
                         <div style={{display: 'flex', width: '100%'}}>
                             <div style={{display: 'flex'}}>
-                                <ButtonHandler onClick={()=>downQTY10(elem._id)}>-10</ButtonHandler>
-                                <ButtonHandler onClick={()=>downQTY(elem._id)}>-</ButtonHandler>
+                                <ButtonHandler onClick={()=>downQTY10(elem.idProducto)}>-10</ButtonHandler>
+                                <ButtonHandler onClick={()=>downQTY(elem.idProducto)}>-</ButtonHandler>
                             </div>
                             <QtyHandler><AnimatedNumber value={elem.cantidad} /></QtyHandler>
                             <div style={{display: 'flex'}}>
-                                <ButtonHandler onClick={()=>upQTY(elem._id)} >+</ButtonHandler>
-                                <ButtonHandler onClick={()=>upQTY10(elem._id)}>+10</ButtonHandler>
+                                <ButtonHandler onClick={()=>upQTY(elem.idProducto)} >+</ButtonHandler>
+                                <ButtonHandler onClick={()=>upQTY10(elem.idProducto)}>+10</ButtonHandler>
                             </div>
                         </div>
                         {/* <h2 style={{fontSize: 16, fontWeight: 600, color: '#FA9B50', textAlign: 'center'}}>$ {elem.total}</h2> */}
@@ -127,6 +133,7 @@ const ContainerHandler = styled.div `
     display: flex;
     width: 100%;
     justify-content: center;
+    align-items: center;
 `
 
 const ContainerElem = styled.div`

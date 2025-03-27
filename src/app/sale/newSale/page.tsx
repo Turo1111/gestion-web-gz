@@ -211,7 +211,7 @@ const WrapperLineaVenta = styled.div<{$openLVMobile: boolean;}> `
   border: 1px solid #d9d9d9;
   border-radius: 15px;
   padding: 15px;
-  height: 95%;
+  height: ${({ $openLVMobile }) => ($openLVMobile ? '95%' : '6%')};
   padding: ${({ $openLVMobile }) => ($openLVMobile ? '0px' : '15px')};
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   transition: top .9s cubic-bezier(0.075, 0.82, 0.165, 1);
