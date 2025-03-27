@@ -340,7 +340,9 @@ export default function NewBuy() {
                   </ListProduct>
               </div>
               <div style={{display: 'flex', justifyContent: 'center', flexDirection: 'column', padding: '0 15px'}}>
-                  <Input label='Proveedor' name='proveedor' value={proveedor} onChange={(e:ChangeEvent<HTMLInputElement>)=>setProveedor(e.target.value)} type='text' />
+                  <InputSelectAdd type={'text'} label={'Proveedor'} name={'proveedor'} path={'provider'} value={proveedor} onChange={(id:any, item:any)=>{
+                    setProveedor(item.descripcion)
+                  }} /> 
                   <LocalizationProvider dateAdapter={AdapterDateFns}>
                     <DatePicker
                       label="Seleccionar fecha"
