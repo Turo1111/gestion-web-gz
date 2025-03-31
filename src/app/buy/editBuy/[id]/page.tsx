@@ -117,7 +117,7 @@ return (
                                 })
                                 .then((r)=>{
                                   dispatch(setLoading(false));
-                                  setLineaCompra((prevData:ExtendItemBuy[])=>prevData.filter((elem:ExtendItemBuy)=>elem._id!==item._id))
+                                  setLineaCompra((prevData:ExtendItemBuy[])=>prevData.filter((elem:ExtendItemBuy)=>elem.idProducto!==item.idProducto))
                                 })
                                 .catch((e)=>{
                                   dispatch(setLoading(false))
@@ -126,10 +126,10 @@ return (
                               
                             }}
                             upQTY={(id:string | Types.ObjectId | undefined)=>setLineaCompra((prevData:ExtendItemBuy[])=>prevData.map((elem:ExtendItemBuy)=>{
-                              return elem._id===id ? {...elem, cantidad: elem.cantidad+1, total: parseFloat((elem.precio*(elem.cantidad+1)).toFixed(2))} : elem
+                              return elem.idProducto===id ? {...elem, cantidad: elem.cantidad+1, total: parseFloat((elem.precio*(elem.cantidad+1)).toFixed(2))} : elem
                             }))}
                             downQTY={(id:string | Types.ObjectId | undefined)=>setLineaCompra((prevData:ExtendItemBuy[])=>prevData.map((elem:ExtendItemBuy)=>{
-                              if (elem._id===id) {
+                              if (elem.idProducto===id) {
                                 if (elem.cantidad-1 > 1 ) {
                                   return {...elem, cantidad: elem.cantidad-1, total: parseFloat((elem.precio*(elem.cantidad-1)).toFixed(2))}
                                 }
@@ -138,10 +138,10 @@ return (
                               return elem
                             }))}
                             upQTY10={(id:string | Types.ObjectId | undefined)=>setLineaCompra((prevData:ExtendItemBuy[])=>prevData.map((elem:ExtendItemBuy)=>{
-                              return elem._id===id ? {...elem, cantidad: elem.cantidad+10, total: parseFloat((elem.precio*(elem.cantidad+10)).toFixed(2))} : elem
+                              return elem.idProducto===id ? {...elem, cantidad: elem.cantidad+10, total: parseFloat((elem.precio*(elem.cantidad+10)).toFixed(2))} : elem
                             }))}
                             downQTY10={(id:string | Types.ObjectId | undefined)=>setLineaCompra((prevData:ExtendItemBuy[])=>prevData.map((elem:ExtendItemBuy)=>{
-                              if (elem._id===id) {
+                              if (elem.idProducto===id) {
                                 if (elem.cantidad > 10 ) {
                                   return {...elem, cantidad: elem.cantidad-10, total: parseFloat((elem.precio*(elem.cantidad-10)).toFixed(2))}
                                 }
@@ -246,7 +246,7 @@ return (
                                 })
                                 .then((r)=>{
                                   dispatch(setLoading(false));
-                                  setLineaCompra((prevData:ExtendItemBuy[])=>prevData.filter((elem:ExtendItemBuy)=>elem._id!==item._id))
+                                  setLineaCompra((prevData:ExtendItemBuy[])=>prevData.filter((elem:ExtendItemBuy)=>elem.idProducto!==item.idProducto))
                                 })
                                 .catch((e)=>{
                                   dispatch(setLoading(false))
@@ -255,10 +255,10 @@ return (
                               
                             }}
                             upQTY={(id:string | Types.ObjectId | undefined)=>setLineaCompra((prevData:ExtendItemBuy[])=>prevData.map((elem:ExtendItemBuy)=>{
-                              return elem._id===id ? {...elem, cantidad: elem.cantidad+1, total: parseFloat((elem.precio*(elem.cantidad+1)).toFixed(2))} : elem
+                              return elem.idProducto===id ? {...elem, cantidad: elem.cantidad+1, total: parseFloat((elem.precio*(elem.cantidad+1)).toFixed(2))} : elem
                             }))}
                             downQTY={(id:string | Types.ObjectId | undefined)=>setLineaCompra((prevData:ExtendItemBuy[])=>prevData.map((elem:ExtendItemBuy)=>{
-                              if (elem._id===id) {
+                              if (elem.idProducto===id) {
                                 if (elem.cantidad-1 > 1 ) {
                                   return {...elem, cantidad: elem.cantidad-1, total: parseFloat((elem.precio*(elem.cantidad-1)).toFixed(2))}
                                 }
@@ -267,10 +267,10 @@ return (
                               return elem
                             }))}
                             upQTY10={(id:string | Types.ObjectId | undefined)=>setLineaCompra((prevData:ExtendItemBuy[])=>prevData.map((elem:ExtendItemBuy)=>{
-                              return elem._id===id ? {...elem, cantidad: elem.cantidad+10, total: parseFloat((elem.precio*(elem.cantidad+10)).toFixed(2))} : elem
+                              return elem.idProducto===id ? {...elem, cantidad: elem.cantidad+10, total: parseFloat((elem.precio*(elem.cantidad+10)).toFixed(2))} : elem
                             }))}
                             downQTY10={(id:string | Types.ObjectId | undefined)=>setLineaCompra((prevData:ExtendItemBuy[])=>prevData.map((elem:ExtendItemBuy)=>{
-                              if (elem._id===id) {
+                              if (elem.idProducto===id) {
                                 if (elem.cantidad > 10 ) {
                                   return {...elem, cantidad: elem.cantidad-10, total: parseFloat((elem.precio*(elem.cantidad-10)).toFixed(2))}
                                 }
