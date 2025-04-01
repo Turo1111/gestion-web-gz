@@ -56,6 +56,7 @@ export default function EditSale({ params }: { params: { id: string } }) {
       })
       .then(({data}:{data: ResponseSale})=>{
         dispatch(setLoading(false));
+        console.log(data)
         setLineaVenta((prevData)=>data.itemsSale)
         setTotal(data.r.total)
         setCliente(data.r.cliente)
@@ -151,6 +152,7 @@ export default function EditSale({ params }: { params: { id: string } }) {
               })
             }}
             upQTY={(id:string | Types.ObjectId | undefined)=>setLineaVenta((prevData:ExtendItemSale[])=>prevData.map((elem:ExtendItemSale)=>{
+              console.log(elem)
               return elem._id===id ? {...elem, cantidad: elem.cantidad+1, total: parseFloat((elem.precioUnitario*(elem.cantidad+1)).toFixed(2))} : elem
             }))}
             downQTY={(id:string | Types.ObjectId | undefined)=>setLineaVenta((prevData:ExtendItemSale[])=>prevData.map((elem:ExtendItemSale)=>{
