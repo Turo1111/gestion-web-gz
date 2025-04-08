@@ -99,7 +99,7 @@ export default function ModalProduct({open, handleClose, product}:{open: boolean
 
 function initialValues(item?: Product): Product {
   return {
-      _id: item?._id || undefined,
+      _id: item?._id || '',
       descripcion: item?.descripcion || "",
       codigoBarra: item?.codigoBarra || undefined,
       stock: item?.stock || 0,

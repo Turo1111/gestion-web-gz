@@ -15,6 +15,7 @@ import Confirm from '../Confirm'
 import ButtonUI from '../ButtonUI'
 
 let initialValue: Product = {
+  _id: '',
   descripcion: '',
   codigoBarra: '',
   precioBulto: 0,
