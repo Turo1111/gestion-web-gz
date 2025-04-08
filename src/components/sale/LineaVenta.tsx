@@ -41,7 +41,7 @@ export default function LineaVenta({edit}:{edit?: boolean}) {
         <div style={{display: 'flex', flex: 1, flexDirection: 'column', padding: 15}}>
           <h2 style={{fontSize: 18, color: '#6B7280', textAlign: 'center'}} >CARRITO</h2>
           <div style={{borderBottom: '2px solid #d9d9d9', margin: '15px', borderRadius: '100%'}} ></div>
-          <ListLineaVenta/>
+          <ListLineaVenta edit={edit} />
         </div>
         <div style={{padding: '0 15px'}}>
           <Input label='Cliente' name='cliente' value={sale.cliente} onChange={(e:ChangeEvent<HTMLInputElement>)=>dispatch(onChangeClientSale({client: e.target.value}))} type='text' />
