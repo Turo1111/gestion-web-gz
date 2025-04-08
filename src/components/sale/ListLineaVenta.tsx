@@ -25,11 +25,8 @@ export default function ListLineaVenta({edit}:{edit?: boolean}) {
                 onChangePrecioUnitario={(value:string, idProducto: string)=>dispatch(onChangePrecioUnitarioSale({value: value, idProducto: idProducto}))}
                 onClick={() =>{
                   if (edit) {
-                    console.log(sale)
                     if (sale._id) {
                       dispatch(setLoading(true));
-                      console.log(item._id)
-                      /* return */
                       apiClient.patch(`/itemSale/${item._id}`, {estado: false},{
                         headers: {
                             Authorization: `Bearer ${valueStorage.token}`

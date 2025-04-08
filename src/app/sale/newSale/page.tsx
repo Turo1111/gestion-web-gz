@@ -29,7 +29,11 @@ export default function NewSale() {
     const router: AppRouterInstance = useRouter()
     const user = useSelector(getUser)
     const dispatch = useAppDispatch();
-    
+
+    useEffect(()=>{
+      dispatch(resetSale({}))
+    }, [router])
+
   return (
     <Container>
       {

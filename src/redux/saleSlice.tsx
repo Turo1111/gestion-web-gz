@@ -31,7 +31,7 @@ const saleSlice = createSlice({
     },
     addItemSale: (state, action: PayloadAction<{ item: Product }>) => {
         const item = action.payload.item
-        const exist = state.itemsSale.find((elem:ItemSale)=>elem._id===item._id)
+        const exist = state.itemsSale.find((elem:ItemSale)=>elem.idProducto===item._id)
         if (exist) {
            return
         }
