@@ -63,8 +63,9 @@ const ListProduct = styled.ul `
   padding: 0 15px;
   overflow-y: scroll;
   max-height: 60vh;
-  @media only screen and (max-width: 500px) {
+  @media only screen and (max-width: 625px) {
     padding: 0;
+    min-height: 35vh;
     max-height: 40vh;
   }
 `

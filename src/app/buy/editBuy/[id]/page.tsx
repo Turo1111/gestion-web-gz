@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client'
+import ContainerBuyMobile from '@/components/buy/ContainerBuyMobile'
 import ContainerBuyWeb from '@/components/buy/ContainerBuyWeb'
 import useLocalStorage from '@/hooks/useLocalStorage'
 import { useResize } from '@/hooks/useResize'
@@ -59,9 +60,9 @@ return (
   <Container>
     {
       ancho > 940 ?
-      <ContainerBuyWeb/>
+      <ContainerBuyWeb edit={true}/>
       :
-      <div></div>
+      <ContainerBuyMobile edit={true}/>
     }
     {/* {
       (openAddProduct && productSelected) &&

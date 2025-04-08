@@ -18,8 +18,7 @@ const buySlice = createSlice({
   reducers: { 
     addItemBuy: (state, action: PayloadAction<{ item: Product }>) => {
       const item = action.payload.item
-      console.log(item)
-      const exist = state.itemsBuy.find((elem:ExtendItemBuy)=>elem._id===item._id)
+      const exist = state.itemsBuy.find((elem:ExtendItemBuy)=>elem.idProducto===item._id)
       if (exist) {
          return
       }

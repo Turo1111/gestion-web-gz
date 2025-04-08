@@ -62,4 +62,5 @@ const WrapperLineaVenta = styled.div<{$openLVMobile: boolean;}> `
   height: ${({ $openLVMobile }) => ($openLVMobile ? '85%' : 'auto')};
   display: flex;
   flex-direction: column;
+  overflow-y: scroll;
 `

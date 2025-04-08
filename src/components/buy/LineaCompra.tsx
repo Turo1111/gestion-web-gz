@@ -17,7 +17,7 @@ import useLocalStorage from '@/hooks/useLocalStorage'
 import ModalAutoGenerate from './ModalAutoGenerate'
 import { addHours, endOfDay, format, isSunday, isValid, previousSunday, startOfDay, subDays } from 'date-fns';
 
-export default function LineaCompra() {
+export default function LineaCompra({edit}:{edit?: boolean}) {
 
     const buy = useAppSelector(getBuy)
     const dispatch = useAppDispatch();
@@ -86,7 +86,7 @@ export default function LineaCompra() {
         <div style={{display: 'flex', flex: 1, flexDirection: 'column', padding: 15}}>
           <h2 style={{fontSize: 18, color: '#6B7280', textAlign: 'center'}} >CARRITO</h2>
           <div style={{borderBottom: '2px solid #d9d9d9', margin: '15px', borderRadius: '100%'}} ></div>
-          <ListLineaCompra/>
+          <ListLineaCompra edit={edit} />
         </div>
         <div style={{display: 'flex', justifyContent: 'center', flexDirection: 'column', padding: '0 15px'}}>
             <InputSelectAdd type={'text'} label={'Proveedor'} name={'proveedor'} path={'provider'} 
@@ -110,7 +110,10 @@ export default function LineaCompra() {
               <Total>Total: $ <AnimatedNumber value={buy.total} /> </Total>
             </div>
             <div style={{display: 'flex', justifyContent: 'center',  margin: '15px 0'}}>
-              <ButtonUI label='VACIAR' onClick={()=>{dispatch(resetBuy({}))}}/>
+              {
+                !edit &&
+                <ButtonUI label='VACIAR' onClick={()=>{dispatch(resetBuy({}))}}/>
+              }
               <ButtonUI label='AUTO Generar' onClick={()=>{
                 if (buy.proveedor === '') {
                   dispatch(setAlert({

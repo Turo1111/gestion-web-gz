@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { getUser, setUser } from '@/redux/userSlice';
 import { useAppDispatch } from '@/redux/hook';
 import { useSelector } from 'react-redux';
@@ -10,6 +10,8 @@ import { useRouter } from 'next/navigation';
 import { useResize } from '@/hooks/useResize';
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import ContainerBuyWeb from '@/components/buy/ContainerBuyWeb';
+import { resetBuy } from '@/redux/buySlice';
+import ContainerBuyMobile from '@/components/buy/ContainerBuyMobile';
 
 export default function NewBuy() {
 
@@ -20,15 +22,17 @@ export default function NewBuy() {
     const user = useSelector(getUser)
     const dispatch = useAppDispatch();
 
+    useEffect(()=>{
+      dispatch(resetBuy({}))
+    }, [router])
+
   return (
     <Container>
       {
         ancho > 940 ?
         <ContainerBuyWeb/>
         :
-        <div>
-
-        </div>
+        <ContainerBuyMobile/>
       }
       
     </Container>

@@ -6,7 +6,7 @@ import { Product } from '@/interfaces/product.interface';
 import LineaCompra from './LineaCompra';
 import { addItemBuy } from '@/redux/buySlice';
 
-export default function ContainerBuyWeb() {
+export default function ContainerBuyWeb({edit}:{edit?: boolean}) {
 
     const dispatch = useAppDispatch();
 
@@ -17,7 +17,7 @@ export default function ContainerBuyWeb() {
               onClickItem={(item:Product)=>{dispatch(addItemBuy({item}))}}
           />
         </ContainerListProduct>
-        <LineaCompra  />
+        <LineaCompra edit={edit} />
     </div>
   )
 }
