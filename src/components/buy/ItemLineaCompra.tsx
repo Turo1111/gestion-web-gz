@@ -12,14 +12,14 @@ import SimpleCheckbox from '../SimpleCheckbox'
 import { useAppDispatch } from '@/redux/hook'
 import { onChangePrecioUnitarioSale } from '@/redux/saleSlice'
 
-export default function ItemLineaVenta({elem, onClick, upQTY, downQTY, downQTY10, upQTY10, onChangePrecioUnitario, compra}:
+export default function ItemLineaCompra({elem, onClick, upQTY, downQTY, downQTY10, upQTY10, onChangePrecioCompra}:
     {onClick:()=>void, upQTY:(id:string | Types.ObjectId| undefined)=>void, 
-        onChangePrecioUnitario?: (value:string, D: any)=>void
-    downQTY: (id:string | Types.ObjectId | undefined)=>void, upQTY10:(id:string | Types.ObjectId | undefined)=>void, 
-    downQTY10:(id:string | Types.ObjectId | undefined)=>void, elem: ExtendItemSale | ExtendItemBuy, compra?: boolean}) {
+        onChangePrecioCompra?: (value:string, D: any)=>void
+        downQTY: (id:string | Types.ObjectId | undefined)=>void, upQTY10:(id:string | Types.ObjectId | undefined)=>void, 
+        downQTY10:(id:string | Types.ObjectId | undefined)=>void, elem: ExtendItemSale | ExtendItemBuy, compra?: boolean}) {
 
     const [openHandler, setOpenHandler] = useState(false)
-    const [openPrecioUnitario, setOpenPrecioUnitario] = useState(false)
+    const [openPrecioCompra, setOpenPrecioCompra] = useState(false)
     const dispatch = useAppDispatch();
 
   return (
@@ -39,7 +39,7 @@ export default function ItemLineaVenta({elem, onClick, upQTY, downQTY, downQTY10
                 <IconWrapper onClick={()=>setOpenHandler(!openHandler)} $open={openHandler}>
                     <FaPlus style={{margin: '0 5px', color: '#7286D3'}} />
                 </IconWrapper>
-                <IconWrapper onClick={()=>setOpenPrecioUnitario(!openPrecioUnitario)} $open={openPrecioUnitario}>
+                <IconWrapper onClick={()=>setOpenPrecioCompra(!openPrecioCompra)} $open={openPrecioCompra}>
                     <MdOutlineAttachMoney style={{fontSize: 20, margin: '0 5px', color: '#B0EBB4'}} />
                 </IconWrapper>
                 <IconWrapper>
@@ -47,11 +47,11 @@ export default function ItemLineaVenta({elem, onClick, upQTY, downQTY, downQTY10
                 </IconWrapper>
             </div>
             {
-                (openPrecioUnitario && onChangePrecioUnitario) &&
+                (openPrecioCompra && onChangePrecioCompra) &&
                 <div style={{display: 'flex', alignItems: 'center'}} >
-                    <label style={{fontSize: 14, fontWeight: 400, color: '#7F8487', marginRight: 5}}>Precio u. : $</label>
+                    <label style={{fontSize: 14, fontWeight: 400, color: '#7F8487', marginRight: 5}}>Precio : $</label>
                     {
-                        <Input value={elem.precio} onChange={(e:ChangeEvent<HTMLInputElement>)=>onChangePrecioUnitario(e.target.value, elem.idProducto)} />
+                        <Input value={elem.precio} onChange={(e:ChangeEvent<HTMLInputElement>)=>onChangePrecioCompra(e.target.value, elem.idProducto)} />
                     } 
                 </div>
             }
@@ -70,7 +70,6 @@ export default function ItemLineaVenta({elem, onClick, upQTY, downQTY, downQTY10
                                 <ButtonHandler onClick={()=>upQTY10(elem.idProducto)}>+10</ButtonHandler>
                             </div>
                         </div>
-                        {/* <h2 style={{fontSize: 16, fontWeight: 600, color: '#FA9B50', textAlign: 'center'}}>$ {elem.total}</h2> */}
                     </div>
                 </ContainerHandler>
             }

@@ -38,6 +38,7 @@ export default function Dashboard({children}: {children: ReactNode} ) {
     const [openMenu, setOpenMenu] = useState(false)
 
     useEffect(() => {
+        console.log('siempre estoy en dashboard')
         const isLogIn = async () => {
           if (valueStorage.nickname !== '' && valueStorage.token !== '' && valueStorage.nickname !== undefined && valueStorage.token !== undefined) {
             if (pathname === '/') {

@@ -161,7 +161,7 @@ export default function SaleScreen() {
           <Search name='search' placeHolder={'Buscar ventas'} type='text' value={search} onChange={(e:ChangeEvent<HTMLInputElement>)=>setSearch(e.target.value)} />
           {
             selectSaleArray.length === 0 ?
-            <ButtonUI label='Nuevo' onClick={()=>{}} to='/sale/newSale'/>:
+            <ButtonUI label='Nuevo' onClick={()=>{}} to='/sale/newSale' />:
             <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0px 15px'}}>
               <IconWrapper onClick={()=>setSelectSaleArray(prevData=>[])}>
                 <MdClose/>

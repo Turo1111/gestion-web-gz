@@ -1,9 +1,9 @@
 import { ObjectId, Types } from 'mongoose'
 
 export interface Buy {
-  _id?: Types.ObjectId
+  _id?: Types.ObjectId | string
   estado: string
-  user: ObjectId
+  user?: ObjectId
   proveedor: string
   total: number
   createdAt: string
@@ -11,9 +11,9 @@ export interface Buy {
 }
 
 export interface ItemBuy {
-  _id?: Types.ObjectId| string
+  _id?: Types.ObjectId | string
   idBuy?: Types.ObjectId
-  idProducto?: Types.ObjectId | string
+  idProducto: Types.ObjectId | string
   cantidad: number
   total: number
   precio: number

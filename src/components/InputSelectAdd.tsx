@@ -240,6 +240,7 @@ const InputSelectAdd = ({type = 'text', label, value, onChange, name, edit = fal
       setIsActive(false);
       setIsFocused(false);
     }else {
+      setInputValue((prevData: string)=>value)
       setIsActive(true);
       setIsFocused(true);
     }

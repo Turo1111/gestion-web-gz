@@ -1,7 +1,7 @@
 import { ObjectId, Types } from 'mongoose'
 
 export interface Product {
-  _id?: Types.ObjectId | string
+  _id: Types.ObjectId | string
   descripcion: string
   stock: number
   codigoBarra?: string
