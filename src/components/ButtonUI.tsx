@@ -101,7 +101,10 @@ const Front = styled.span`
     padding: 10px 16px;
     font-size: 0.7rem;
   }
-
+  @media (max-width: 600px) {
+    padding: 6px 12px;
+    font-size: 0.6rem;
+  }
   @media (max-width: 480px) {
     padding: 4px 8px;
     font-size: 0.6rem;

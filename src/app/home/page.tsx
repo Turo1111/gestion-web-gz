@@ -60,14 +60,11 @@ const formatBarChartData = (data: { sales: Response[], buy: Response[] }) => {
   };
 };
 
-const transformData = (data: Response[]): { id: number; value: number; label: string }[] => {
-  return data.map(item => ({
-    id: item.id,
-    value: item.totalSales,
-    label: item.label === "sale" ? 'VENTAS' : 'COMPRAS',
-    color: item.label === "sale" ? '#99BC85' : '#DC8686',
-  }));
-};
+const transformData = (value: number) => {
+  if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
+  if (value >= 1000) return `${(value / 1000).toFixed(1)}k`;
+  return value;
+}
 
 const intervals = ['DIARIO', 'SEMANAL', 'MENSUAL', 'ANUAL', 'CUSTOM'];
 
@@ -122,36 +119,11 @@ export default function Home() {
     }
   }, [interval, dispatch])
 
+
+
   return (
     <Container>
       <MainContent>
-        {/* <div style={{display: 'flex', justifyContent: 'center'}} >
-          <IntervalContainer>
-            {intervals.map((label, index) => (
-              <IntervalLabel key={label}
-                style={{
-                  borderLeft: '1px solid #d9d9d9',
-                  borderRadius: `${index === 0 && '9999px'}`
-                }}
-              >
-                <IntervalInput
-                  type="radio"
-                  name="interval-radio"
-                  value={label}
-                  checked={interval === label}
-                  onChange={() => {
-                    setInterval(label);
-                    if (label === 'CUSTOM') {
-                      setOpenCustomDataSet(true);
-                    }
-                  }}
-                />
-                <span>{label}</span>
-              </IntervalLabel>
-            ))}
-            <Selection $position={intervals.indexOf(interval)} />
-          </IntervalContainer>
-        </div> */}
         <div style={{display: 'flex', justifyContent: 'center', marginTop: 15}} >
           <ContainerInterval>
             {intervals.map((label: string, index: number) => (
@@ -181,46 +153,46 @@ export default function Home() {
               <ContainerCardData $switchData={switchData}>
                 <WrapperContainerCardData $switchData={switchData}>
                   <Card>
-                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                      <CardData style={{color: '#000', fontWeight: 'bold', fontSize: 22}} >
+                    <ContainerCardNumber>
+                      <CardNumbers style={{color: '#000'}} >
                         {
                           switchData ?
-                            salesData ? <AnimatedNumber value={salesData.salesCount} /> : <AnimatedNumber value={0} />
+                            salesData ? <AnimatedNumber  value={salesData.salesCount} /> : <AnimatedNumber value={0} />
                           :
                             buyData ? <AnimatedNumber value={buyData.salesCount} /> : <AnimatedNumber value={0} />
 
                         }
 
-                      </CardData>
-                      <CardData style={{color:`${salesData !== undefined && parseFloat(salesData?.salesCountDifference) < 0 ? '#DC8686': '#99BC85'}`, fontWeight: 'bold', fontSize: 18}} >{salesData?.totalSalesDifference} %</CardData>
-                    </div>
+                      </CardNumbers>
+                      <CardNumbers $porc={true} style={{color:`${salesData !== undefined && parseFloat(salesData?.salesCountDifference) < 0 ? '#DC8686': '#99BC85'}`}} >{salesData?.totalSalesDifference} %</CardNumbers>
+                    </ContainerCardNumber>
                     <CardData style={{color: '#181C14', fontSize: 14}} >CANTIDAD</CardData>
                   </Card>
                   <Card>
-                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                      <CardData style={{color: '#000', fontWeight: 'bold', fontSize: 22}}  >$ 
+                    <ContainerCardNumber>
+                      <CardNumbers style={{color: '#000'}}>$ 
                         {
                           switchData ?
                             salesData ? <AnimatedNumber value={salesData.totalSales} />  : <AnimatedNumber value={0} />
                           :
                             buyData ? <AnimatedNumber value={buyData.totalSales} />: <AnimatedNumber value={0} />
                         }
-                      </CardData>
-                      <CardData style={{color:`${salesData !== undefined && parseFloat(salesData?.salesCountDifference) < 0 ? '#DC8686': '#99BC85'}`, fontWeight: 'bold', fontSize: 18}} > {salesData?.salesCountDifference} %</CardData>
-                    </div>
+                      </CardNumbers>
+                      <CardNumbers $porc={true} style={{color:`${salesData !== undefined && parseFloat(salesData?.salesCountDifference) < 0 ? '#DC8686': '#99BC85'}`}} > {salesData?.salesCountDifference} %</CardNumbers>
+                    </ContainerCardNumber>
                     <CardData style={{color: '#181C14', fontSize: 14}} >TOTAL</CardData>
                   </Card>
                   <Card>
-                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                      <CardData style={{color: '#000', fontWeight: 'bold', fontSize: 18}}  >
+                    <ContainerCardNumber>
+                      <CardNumbers style={{color: '#000'}}  >
                         {
                           switchData ?
                             salesData ? salesData.date : ''
                           :
                            buyData ? buyData.date : ''
                         }
-                      </CardData>
-                    </div>
+                      </CardNumbers>
+                    </ContainerCardNumber>
                     <CardData style={{color: '#181C14', fontSize: 14}} >INTERVALO</CardData>
                   </Card>
                 </WrapperContainerCardData>
@@ -228,28 +200,7 @@ export default function Home() {
           </WrapperContainer>
         </CardContainer>
         <ChartsContainer>
-          {/* {(dataSet.simple.length === 0 || (dataSet.simple[0].totalSales === 0 && dataSet.simple[1].totalSales === 0)) ? (
-            <NoDataMessage>No hay datos para mostrar en el gráfico</NoDataMessage>
-          ) : (
-            <div style={{ display: 'flex', flex: 1 }}>
-              <PieChart
-                series={[
-                  {
-                    data: pieChartData,
-                  },
-                ]}
-                width={400}
-                height={200}
-              /> 
-            </div>
-          )} */}
-          <div style={{ display: 'flex', flex: 1, justifyContent: 'center' }}>
-            {/* <BarChart
-              series={barChartData.series}
-              height={290}
-              xAxis={[{ data: barChartData.xAxis, scaleType: 'band' }]}
-              margin={{ top: 10, bottom: 30, left: 40, right: 10 }}
-            /> */}
+          <div style={{ display: 'flex', flex: 1, justifyContent: 'center', overflowX: 'scroll' }}>
             <BarChart width={730} height={350} data={dataSet.graph?.data}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="label" />
@@ -294,9 +245,18 @@ export default function Home() {
   );
 }
 
+const ContainerCardNumber = styled.div `
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: column;
+  @media only screen and (max-width: 780px) {
+  }
+`
+
 const ContainerSwitch = styled.div`
   max-width: 15%;
-  @media only screen and (max-width: 500px) {
+  @media only screen and (max-width: 780px) {
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -310,14 +270,20 @@ const ContainerInterval = styled.div `
   border: 2px solid #d9d9d9;
   box-shadow: inset 2px 2px 5px #9d9d9d,
             inset -2px -2px 5px #ffffff;
-  @media only screen and (max-width: 500px) {
-    padding: 15px;
+  @media only screen and (max-width: 780px) {
+    padding: 10px;
+  }
+  @media only screen and (max-width: 450px) {
+    overflow-x: scroll;
   }
 `
 
 const CardContainer = styled.div `
   display: flex;
   justify-content: center;
+  @media only screen and (max-width: 780px) {
+    margin: 0 5px;
+  }
 `
 
 const WrapperContainer = styled.div<{$switchData: boolean}>`
@@ -327,9 +293,8 @@ const WrapperContainer = styled.div<{$switchData: boolean}>`
   border: 1px solid #d9d9d9;
   display: flex;
   z-index: 1;
-  
   transition: background-color ease-in .5s ;
-  @media only screen and (max-width: 500px) {
+  @media only screen and (max-width: 780px) {
     flex: 1;
   }
 `
@@ -344,7 +309,7 @@ const IconWrapperCard = styled.div<{$switchData: boolean}>`
   border-top-right-radius: ${({ $switchData }) => ($switchData ? '15px' : '0px')};
   border-bottom-right-radius: ${({ $switchData }) => (!$switchData ? '15px' : '0px')};
   cursor: pointer;
-  @media only screen and (max-width: 500px) {
+  @media only screen and (max-width: 780px) {
     flex: 1;
   }
 `
@@ -373,7 +338,7 @@ const WrapperContainerCardData = styled.div<{$switchData: boolean}>`
   border-bottom-left-radius: ${({ $switchData }) => ($switchData ? '15px' : '0')};
   height: 100%;
   transition: background-color ease-in .5s ;
-  @media only screen and (max-width: 500px) {
+  @media only screen and (max-width: 780px) {
     flex-direction: column;
   }
 `
@@ -389,7 +354,11 @@ const Card = styled.div `
   background-image: url('/bgcircle.jpg');
   background-size: 800px;
   background-position: 20%;
-  @media only screen and (max-width: 500px) {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+  min-width: 180px;
+  @media only screen and (max-width: 780px) {
     width: 75%;
     margin: 5px 0;
   }
@@ -398,10 +367,24 @@ const Card = styled.div `
 const CardData = styled.h2`
   font-size: 18px;
   font-weight: 500;
-  margin: 10px 15px;
+  margin: 0;
   color: white;
   z-index: 1;
+  @media only screen and (max-width: 780px) {
+    margin: 0px;
+  }
 `;
+
+const CardNumbers = styled(CardData)<{$porc?: boolean}> `
+  font-weight: bold;
+  font-size: ${({ $porc }) => ($porc ? '14px' : '18px')};
+  @media only screen and (max-width: 780px) {
+    font-size: ${({ $porc }) => ($porc ? '14px' : '18px')};
+  }
+  @media only screen and (max-width: 400px) {
+    font-size: ${({ $porc }) => ($porc ? '14px' : '16px')};
+  }
+`
 
 const Container = styled.div`
   display: flex;
@@ -422,61 +405,13 @@ const MainContent = styled.div`
   }
 `;
 
-const IntervalContainer = styled.div`
-  --container-width: 465px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: var(--container-width);
-  border-radius: 9999px;
-  background-color: #fff;
-  color: #000;
-  overflow: hidden;
-  border: 1px solid rgba(53, 52, 52, 0.226);
-`;
-
-const IntervalLabel = styled.label`
-  width: 100%;
-  padding: 15px; /* Puedes ajustar el padding aquí */
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  z-index: 1;
-  font-weight: 600;
-  letter-spacing: -1px;
-  font-size: 14px;
-  color: #000;
-  position: relative;
-
-  &:has(input:checked) {
-    color: #fff;
-  }
-`;
-
-const IntervalInput = styled.input`
-  display: none;
-`;
-
-const Selection = styled.span<{ $position: number }>`
-  display: inline-block;
-  position: absolute;
-  height: 100%; /* Ahora toma la altura del contenedor */
-  width: calc(var(--container-width) / 5);
-  background: linear-gradient(145deg, #325a90, #3b6bab);
-  box-shadow: inset 4px 4px 10px rgba(0, 0, 0, 0.2), inset -4px -4px 10px rgba(255, 255, 255, 0.1);
-  z-index: 0;
-  top: 0;
-  left: 0;
-  transition: 0.15s ease;
-  transform: ${({ $position }) => `translateX(calc(var(--container-width) * ${$position} / 5))`};
-`;
-
 
 const ChartsContainer = styled.div`
   display: flex;
   justify-content: space-around;
   padding: 15px;
   flex: 1;
+  max-width: 95vw;
   @media only screen and (max-width: 1025px) {
     flex-direction: column;
   }
@@ -517,14 +452,6 @@ const MovementText = styled.h2`
   font-weight: 500;
   color: ${({ color }) => color || '#252525'};
 `; 
-
-const NoDataMessage = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 200px;
-  margin: 0 15px;
- `
 
 function translateIntervalToEnglish(interval: string): string {
   switch (interval.toUpperCase()) {
