@@ -18,8 +18,6 @@ export default function ModalProduct({open, handleClose, product}:{open: boolean
   const loading = useSelector(getLoading)
   const dispatch = useAppDispatch();
 
-  console.log('product edit', product)
-
   const formik = useFormik<Product>({
     initialValues: initialValues(product),
     enableReinitialize: true,

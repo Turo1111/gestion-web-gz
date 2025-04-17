@@ -115,14 +115,6 @@ export default function SaleScreen() {
       }
     },[query])
 
-    /* useEffect(() => {
-      if (!user && valueStorage) {
-        dispatch(setUser(valueStorage))
-      }
-      if (!valueStorage) {
-          router.push('/')
-        }
-    }, [valueStorage, user, dispatch]) */
 
     useEffect(()=>{
       if (!process.env.NEXT_PUBLIC_DB_HOST) {
