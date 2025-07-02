@@ -24,200 +24,205 @@ import { io } from 'socket.io-client';
 import styled from 'styled-components';
 
 interface CBP {
-  _id: (string | number) 
+  _id: (string | number)
   descripcion: string
 }
 
-export default function FindProductSale({onClickItem}:{onClickItem:(item:Product)=>void}) {
+export default function FindProductSale({ onClickItem }: { onClickItem: (item: Product) => void }) {
 
-    const [search, setSearch] = useState<string>('')
-    const [data, setData] = useState<Product[]>([])
-    const [valueStorage , setValue] = useLocalStorage("user", "")
-    const [dataSearch, setDataSearch] = useState<Product[]>([])
-    const [query, setQuery] = useState<{skip: number, limit: number}>({skip: 0, limit: 25})
-    const [selectProduct, setSelectProduct] = useState<Product | undefined>(undefined)
-    const [openModalProduct, setOpenModalProduct] = useState<boolean>(false)
-    const observer = useRef<IntersectionObserver | null>(null);
-    const {open: loading} = useSelector(getLoading)
-    const [openNewProduct, setOpenNewProduct] = useState<boolean>(false)
-    const router: AppRouterInstance = useRouter()
-    const [longArray, setLongArray] = useState<number>(0)
-    const [openUpdatePrice, setOpenUpdatePrice] = useState<boolean>(false)
-    const [openPrintProduct, setOpenPrintProduct] = useState<boolean>(false)
-    const [activeCategorie, setActiveCategorie] = useState<CBP>({_id: 1 , descripcion: 'Todas'})
-    const [activeBrand, setActiveBrand] = useState<CBP>({_id: 1 , descripcion: 'Todas'})
-    const [activeProvider, setActiveProvider] = useState<CBP>({_id: 1 , descripcion: 'Todas'})
-    const [openModalFilter, setOpenModalFilter] = useState<boolean>(false)
+  const [search, setSearch] = useState<string>('')
+  const [data, setData] = useState<Product[]>([])
+  const [valueStorage, setValue] = useLocalStorage("user", "")
+  const [dataSearch, setDataSearch] = useState<Product[]>([])
+  const [query, setQuery] = useState<{ skip: number, limit: number }>({ skip: 0, limit: 25 })
+  const [selectProduct, setSelectProduct] = useState<Product | undefined>(undefined)
+  const [openModalProduct, setOpenModalProduct] = useState<boolean>(false)
+  const observer = useRef<IntersectionObserver | null>(null);
+  const { open: loading } = useSelector(getLoading)
+  const [openNewProduct, setOpenNewProduct] = useState<boolean>(false)
+  const router: AppRouterInstance = useRouter()
+  const [longArray, setLongArray] = useState<number>(0)
+  const [openUpdatePrice, setOpenUpdatePrice] = useState<boolean>(false)
+  const [openPrintProduct, setOpenPrintProduct] = useState<boolean>(false)
+  const [activeCategorie, setActiveCategorie] = useState<CBP>({ _id: 1, descripcion: 'Todas' })
+  const [activeBrand, setActiveBrand] = useState<CBP>({ _id: 1, descripcion: 'Todas' })
+  const [activeProvider, setActiveProvider] = useState<CBP>({ _id: 1, descripcion: 'Todas' })
+  const [openModalFilter, setOpenModalFilter] = useState<boolean>(false)
 
-    const user = useSelector(getUser)
-    const dispatch = useAppDispatch();
+  const user = useSelector(getUser)
+  const dispatch = useAppDispatch();
 
-    useEffect(() => {
-      if (!user && valueStorage) {
-        dispatch(setUser(valueStorage))
-      }
-    }, [valueStorage, user, dispatch])
-
-    const searchProduct = (e: ChangeEvent<HTMLInputElement>) => {
-        setSearch(prevData=>e.target.value)
+  useEffect(() => {
+    if (!user && valueStorage) {
+      dispatch(setUser(valueStorage))
     }
+  }, [valueStorage, user, dispatch])
 
-    const getProduct = async (skip: number, limit: number) => {
-      dispatch(setLoading(true))
-      
-      try {
-          const response = await apiClient.post(`/product/skip`, { skip, limit },
-              {
-                  headers: {
-                      Authorization: `Bearer ${valueStorage.token}`
-                  },
-              });
-          setData((prevData: Product[]) => {
-  
-              if (prevData.length === 0) {
-                  return response.data.array;
-              }
-              const newData = response.data.array.filter((element: Product) => {
-                  return prevData.findIndex((item: Product) => item._id === element._id) === -1;
-              });
-  
-              return [...prevData, ...newData];
-          });
-          setLongArray(prevData=>response.data.longitud)
-          dispatch(setLoading(false));
-      } catch (e) {
-          console.log("error", e);
-          dispatch(setLoading(false));
-      } finally {
-        dispatch(setLoading(false));
-      }
+  const searchProduct = (e: ChangeEvent<HTMLInputElement>) => {
+    setSearch(prevData => e.target.value)
+  }
+
+  const getProduct = async (skip: number, limit: number) => {
+    dispatch(setLoading(true))
+
+    try {
+      const response = await apiClient.post(`/product/skip`, { skip, limit },
+        {
+          headers: {
+            Authorization: `Bearer ${valueStorage.token}`
+          },
+        });
+      setData((prevData: Product[]) => {
+
+        if (prevData.length === 0) {
+          return response.data.array;
+        }
+        const newData = response.data.array.filter((element: Product) => {
+          return prevData.findIndex((item: Product) => item._id === element._id) === -1;
+        });
+
+        return [...prevData, ...newData];
+      });
+      setLongArray(prevData => response.data.longitud)
+      dispatch(setLoading(false));
+    } catch (e) {
+      console.log("error", e);
+      dispatch(setLoading(false));
+    } finally {
+      dispatch(setLoading(false));
+    }
   }
 
   const getProductSearch = async (input: string, categorie: CBP['_id'], brand: CBP['_id'], provider: CBP['_id']) => {
     dispatch(setLoading(true))
     try {
-        const response = await apiClient.post(`/product/search`, {input, categoria: categorie, marca: brand, proveedor: provider});
-        setDataSearch(response.data);
-        dispatch(setLoading(false));
+      const response = await apiClient.post(`/product/search`, { input, categoria: categorie, marca: brand, proveedor: provider },
+        {
+          headers: {
+            Authorization: `Bearer ${valueStorage.token}`
+          },
+        });
+      setDataSearch(response.data);
+      dispatch(setLoading(false));
     } catch (e) {
-        console.log("error", e);
-        dispatch(setLoading(false));
+      console.log("error", e);
+      dispatch(setLoading(false));
     } finally {
       dispatch(setLoading(false))
     }
   }
 
-    useEffect(()=>{
-      getProduct(query.skip, query.limit)
-    },[query]) 
+  useEffect(() => {
+    getProduct(query.skip, query.limit)
+  }, [query])
 
-    useEffect(()=>{
-      if ( search !== '' || activeBrand._id !== 1 || activeCategorie._id !== 1 || activeProvider._id !== 1) {
-        getProductSearch(search, activeCategorie._id, activeBrand._id, activeProvider._id)
-      }
-    },[search, activeBrand, activeCategorie, activeProvider]) 
+  useEffect(() => {
+    if (search !== '' || activeBrand._id !== 1 || activeCategorie._id !== 1 || activeProvider._id !== 1) {
+      getProductSearch(search, activeCategorie._id, activeBrand._id, activeProvider._id)
+    }
+  }, [search, activeBrand, activeCategorie, activeProvider])
 
-    useEffect(()=>{
-      if (!process.env.NEXT_PUBLIC_DB_HOST) {
-        return
-      }
-      const socket = io(process.env.NEXT_PUBLIC_DB_HOST)
-      socket.on(`product`, (socket) => {
-        refreshProducts()
-        setData((prevData: Product[])=>{
-          const exist = prevData.find((elem: Product) => elem._id === socket.data._id )
-          if (exist) {
-            return prevData.map((item: Product) =>
-              item._id === socket.data._id ? socket.data : item
-            )
-          }
-          return [...prevData]
-        })
+  useEffect(() => {
+    if (!process.env.NEXT_PUBLIC_DB_HOST) {
+      return
+    }
+    const socket = io(process.env.NEXT_PUBLIC_DB_HOST)
+    socket.on(`product`, (socket) => {
+      refreshProducts()
+      setData((prevData: Product[]) => {
+        const exist = prevData.find((elem: Product) => elem._id === socket.data._id)
+        if (exist) {
+          return prevData.map((item: Product) =>
+            item._id === socket.data._id ? socket.data : item
+          )
+        }
+        return [...prevData]
       })
-      return () => {
-        socket.disconnect();
-      }; 
-    },[data,dataSearch])
-
-    const refreshProducts = () => {
-      setSearch(prevData=>'')
-      getProduct(query.skip, query.limit)
+    })
+    return () => {
+      socket.disconnect();
     };
+  }, [data, dataSearch])
 
-    const lastElementRef = useCallback(
-      (node: HTMLLIElement | null) => {
-          if (loading) {
-            return 
-          };
-          if (observer.current) observer.current.disconnect();
-          observer.current = new IntersectionObserver(entries => {
-              if (entries[0].isIntersecting) {
-                  if (search === '') {
-                      if (data.length < longArray) {
-                        setQuery(prevData => ({ skip: prevData.skip + 25, limit: prevData.limit }));
-                      }
-                  }
-              }
-          });
-          if (node) observer.current.observe(node);
-      },
-      [loading, search, data]
+  const refreshProducts = () => {
+    setSearch(prevData => '')
+    getProduct(query.skip, query.limit)
+  };
+
+  const lastElementRef = useCallback(
+    (node: HTMLLIElement | null) => {
+      if (loading) {
+        return
+      };
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting) {
+          if (search === '') {
+            if (data.length < longArray) {
+              setQuery(prevData => ({ skip: prevData.skip + 25, limit: prevData.limit }));
+            }
+          }
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [loading, search, data]
   );
 
   return (
-    <main style={{display: 'flex', flexDirection: 'column', flex: 1}}>
+    <main style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
       {
         <>
-          <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1}} >
-              <div style={{display: 'flex', width: '100%', padding: '0px 15px', alignItems: 'center'}}>
-                <Search name='search' placeHolder={'Buscar productos'} type='text' value={search} onChange={searchProduct} /* onClickFilter={()=>setOpenModalFilter(true)} */ />
-              </div>
-              <FilterProduct open={openModalFilter} handleClose={()=>setOpenModalFilter(false)} 
-                            activeBrand={activeBrand} activeCategorie={activeCategorie} activeProvider={activeProvider}
-                            selectCategorie={(item: CBP)=>setActiveCategorie(prevData=>item)}
-                            selectBrand={(item: CBP)=>setActiveBrand(prevData=>item)}
-                            selectProvider={(item: CBP)=>setActiveProvider(prevData=>item)}
-                            />
-              <ListProduct>
-                  {
-                    search !== '' || activeBrand._id !== 1 || activeCategorie._id !== 1 || activeProvider._id !== 1 ?
-                      dataSearch.length !== 0 ? 
-                        dataSearch.map((item: Product, index: number)=>{
-                          return <ItemsProducts  key={index} item={item} onClick={()=>{setSelectProduct(item);setOpenModalProduct(true)}} 
-                          onClickItem={()=>onClickItem(item)}
-                          select={false}/>
-                        })
-                        : 'NO HAY PRODUCTOS'
-                    :
-                      data.length !== 0 ? 
-                      data.map((item: Product, index: number)=>{
-                        return <ItemsProducts  key={index} item={item} onClick={()=>{setSelectProduct(item);setOpenModalProduct(true)}} 
-                        onClickItem={()=>onClickItem(item)} select={false}/>
-                      })
-                      : 'NO HAY PRODUCTOS'
-                  }
-                  {
-                    search !== '' || activeBrand._id !== 1 || activeCategorie._id !== 1 || activeProvider._id !== 1 ?
-                    <></>:
-                    <li style={{listStyle: 'none', padding: 0, margin: 0, minHeight: '1px'}} ref={lastElementRef}></li>
-                  }
-              </ListProduct>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }} >
+            <div style={{ display: 'flex', width: '100%', padding: '0px 15px', alignItems: 'center' }}>
+              <Search name='search' placeHolder={'Buscar productos'} type='text' value={search} onChange={searchProduct} /* onClickFilter={()=>setOpenModalFilter(true)} */ />
+            </div>
+            <FilterProduct open={openModalFilter} handleClose={() => setOpenModalFilter(false)}
+              activeBrand={activeBrand} activeCategorie={activeCategorie} activeProvider={activeProvider}
+              selectCategorie={(item: CBP) => setActiveCategorie(prevData => item)}
+              selectBrand={(item: CBP) => setActiveBrand(prevData => item)}
+              selectProvider={(item: CBP) => setActiveProvider(prevData => item)}
+            />
+            <ListProduct>
+              {
+                search !== '' || activeBrand._id !== 1 || activeCategorie._id !== 1 || activeProvider._id !== 1 ?
+                  dataSearch.length !== 0 ?
+                    dataSearch.map((item: Product, index: number) => {
+                      return <ItemsProducts key={index} item={item} onClick={() => { setSelectProduct(item); setOpenModalProduct(true) }}
+                        onClickItem={() => onClickItem(item)}
+                        select={false} />
+                    })
+                    : 'NO HAY PRODUCTOS'
+                  :
+                  data.length !== 0 ?
+                    data.map((item: Product, index: number) => {
+                      return <ItemsProducts key={index} item={item} onClick={() => { setSelectProduct(item); setOpenModalProduct(true) }}
+                        onClickItem={() => onClickItem(item)} select={false} />
+                    })
+                    : 'NO HAY PRODUCTOS'
+              }
+              {
+                search !== '' || activeBrand._id !== 1 || activeCategorie._id !== 1 || activeProvider._id !== 1 ?
+                  <></> :
+                  <li style={{ listStyle: 'none', padding: 0, margin: 0, minHeight: '1px' }} ref={lastElementRef}></li>
+              }
+            </ListProduct>
           </div>
           {
             (openModalProduct && selectProduct) &&
-            <ModalProduct open={openModalProduct} handleClose={()=>setOpenModalProduct(false)} product={selectProduct} ></ModalProduct>
+            <ModalProduct open={openModalProduct} handleClose={() => setOpenModalProduct(false)} product={selectProduct} ></ModalProduct>
           }
           {
             openNewProduct &&
-            <NewProduct open={openNewProduct} handleClose={()=>setOpenNewProduct(false)} ></NewProduct>
+            <NewProduct open={openNewProduct} handleClose={() => setOpenNewProduct(false)} ></NewProduct>
           }
           {
-            openUpdatePrice && 
-            <UpdatePrice open={openUpdatePrice} handleClose={()=>setOpenUpdatePrice(false)}/>
+            openUpdatePrice &&
+            <UpdatePrice open={openUpdatePrice} handleClose={() => setOpenUpdatePrice(false)} />
           }
           {
-            openPrintProduct && 
-            <PrintProduct open={openPrintProduct} handleClose={()=>setOpenPrintProduct(false)} />
+            openPrintProduct &&
+            <PrintProduct open={openPrintProduct} handleClose={() => setOpenPrintProduct(false)} />
           }
           {/* {
             openModalFilter &&
@@ -234,7 +239,7 @@ export default function FindProductSale({onClickItem}:{onClickItem:(item:Product
   )
 }
 
-const ListProduct = styled.ul `
+const ListProduct = styled.ul`
   display: flex;
   flex: 1;
   width: 100%;
@@ -244,4 +249,3 @@ const ListProduct = styled.ul `
   max-height: 75vh;
 `
 
- 
