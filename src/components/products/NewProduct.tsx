@@ -60,6 +60,11 @@ export default function NewProduct({open, handleClose}:{open: boolean, handleClo
           return
         }
         dispatch(setLoading(true))
+        if (formValue._id === "" || formValue._id === null || formValue._id === undefined) {
+          const { _id, ...formValueWithoutId } = formValue
+          formValue = formValueWithoutId as Product
+        }
+        console.log("formValue", formValue)
         apiClient.post(`/product`, formValue,
         {
           headers: {
