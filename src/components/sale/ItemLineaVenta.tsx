@@ -12,74 +12,76 @@ import SimpleCheckbox from '../SimpleCheckbox'
 import { useAppDispatch } from '@/redux/hook'
 import { onChangePrecioUnitarioSale } from '@/redux/saleSlice'
 
-export default function ItemLineaVenta({elem, onClick, upQTY, downQTY, downQTY10, upQTY10, onChangePrecioUnitario, compra}:
-    {onClick:()=>void, upQTY:(id:string | Types.ObjectId| undefined)=>void, 
-        onChangePrecioUnitario?: (value:string, D: any)=>void
-    downQTY: (id:string | Types.ObjectId | undefined)=>void, upQTY10:(id:string | Types.ObjectId | undefined)=>void, 
-    downQTY10:(id:string | Types.ObjectId | undefined)=>void, elem: ExtendItemSale | ExtendItemBuy, compra?: boolean}) {
+export default function ItemLineaVenta({ elem, onClick, upQTY, downQTY, downQTY10, upQTY10, onChangePrecioUnitario, compra }:
+    {
+        onClick: () => void, upQTY: (id: string | Types.ObjectId | undefined) => void,
+        onChangePrecioUnitario?: (value: string, D: any) => void
+        downQTY: (id: string | Types.ObjectId | undefined) => void, upQTY10: (id: string | Types.ObjectId | undefined) => void,
+        downQTY10: (id: string | Types.ObjectId | undefined) => void, elem: ExtendItemSale | ExtendItemBuy, compra?: boolean
+    }) {
 
     const [openHandler, setOpenHandler] = useState(false)
     const [openPrecioUnitario, setOpenPrecioUnitario] = useState(false)
     const dispatch = useAppDispatch();
 
-  return (
-    <Item >
-        <div style={{width: '100%'}}>
-            <ContainerElem>
-                <Description>{elem.descripcion}</Description>
-                <div  style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}} >
-                    <h2 style={{fontSize: 14, fontWeight: 600, color: '#7F8487'}}>X {elem.cantidad} UNIDAD</h2>
-                    <label style={{fontSize: 14, fontWeight: 600, color: '#FA9B50', marginRight: 5}}>
-                        $
-                        <AnimatedNumber value={elem.total} />
-                    </label>
-                </div>
-            </ContainerElem>
-            <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '5px 0'}} >
-                <IconWrapper onClick={()=>setOpenHandler(!openHandler)} $open={openHandler}>
-                    <FaPlus style={{margin: '0 5px', color: '#7286D3'}} />
-                </IconWrapper>
-                <IconWrapper onClick={()=>setOpenPrecioUnitario(!openPrecioUnitario)} $open={openPrecioUnitario}>
-                    <MdOutlineAttachMoney style={{fontSize: 20, margin: '0 5px', color: '#B0EBB4'}} />
-                </IconWrapper>
-                <IconWrapper>
-                    <BiTrash style={{fontSize: 20, margin: '0 5px', color: '#F7A4A4'}} onClick={onClick}/>
-                </IconWrapper>
-            </div>
-            {
-                (openPrecioUnitario && onChangePrecioUnitario) &&
-                <div style={{display: 'flex', alignItems: 'center'}} >
-                    <label style={{fontSize: 14, fontWeight: 400, color: '#7F8487', marginRight: 5}}>Precio u. : $</label>
-                    {
-                        <Input value={elem.precio} onChange={(e:ChangeEvent<HTMLInputElement>)=>onChangePrecioUnitario(e.target.value, elem.idProducto)} />
-                    } 
-                </div>
-            }
-            {
-                (openHandler) &&
-                <ContainerHandler>
-                    <div>
-                        <div style={{display: 'flex', width: '100%'}}>
-                            <div style={{display: 'flex'}}>
-                                <ButtonHandler onClick={()=>downQTY10(elem.idProducto)}>-10</ButtonHandler>
-                                <ButtonHandler onClick={()=>downQTY(elem.idProducto)}>-</ButtonHandler>
-                            </div>
-                            <QtyHandler><AnimatedNumber value={elem.cantidad} /></QtyHandler>
-                            <div style={{display: 'flex'}}>
-                                <ButtonHandler onClick={()=>upQTY(elem.idProducto)} >+</ButtonHandler>
-                                <ButtonHandler onClick={()=>upQTY10(elem.idProducto)}>+10</ButtonHandler>
-                            </div>
-                        </div>
-                        {/* <h2 style={{fontSize: 16, fontWeight: 600, color: '#FA9B50', textAlign: 'center'}}>$ {elem.total}</h2> */}
+    return (
+        <Item >
+            <div style={{ width: '100%' }}>
+                <ContainerElem>
+                    <Description>{elem.descripcion}</Description>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} >
+                        <h2 style={{ fontSize: 14, fontWeight: 600, color: '#7F8487' }}>X {elem.cantidad} UNIDAD</h2>
+                        <label style={{ fontSize: 14, fontWeight: 600, color: '#FA9B50', marginRight: 5 }}>
+                            $
+                            <AnimatedNumber value={elem.total} />
+                        </label>
                     </div>
-                </ContainerHandler>
-            }
-        </div>
-    </Item>
-  )
+                </ContainerElem>
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '5px 0' }} >
+                    <IconWrapper onClick={() => setOpenHandler(!openHandler)} $open={openHandler}>
+                        <FaPlus style={{ margin: '0 5px', color: '#7286D3' }} />
+                    </IconWrapper>
+                    <IconWrapper onClick={() => setOpenPrecioUnitario(!openPrecioUnitario)} $open={openPrecioUnitario}>
+                        <MdOutlineAttachMoney style={{ fontSize: 20, margin: '0 5px', color: '#B0EBB4' }} />
+                    </IconWrapper>
+                    <IconWrapper>
+                        <BiTrash style={{ fontSize: 20, margin: '0 5px', color: '#F7A4A4' }} onClick={onClick} />
+                    </IconWrapper>
+                </div>
+                {
+                    (openPrecioUnitario && onChangePrecioUnitario) &&
+                    <div style={{ display: 'flex', alignItems: 'center' }} >
+                        <label style={{ fontSize: 14, fontWeight: 400, color: '#7F8487', marginRight: 5 }}>Precio u. : $</label>
+                        {
+                            <Input value={elem.precio} onChange={(e: ChangeEvent<HTMLInputElement>) => onChangePrecioUnitario(e.target.value, elem.idProducto)} />
+                        }
+                    </div>
+                }
+                {
+                    (openHandler) &&
+                    <ContainerHandler>
+                        <div>
+                            <div style={{ display: 'flex', width: '100%' }}>
+                                <div style={{ display: 'flex' }}>
+                                    <ButtonHandler onClick={() => downQTY10(elem.idProducto)}>-10</ButtonHandler>
+                                    <ButtonHandler onClick={() => downQTY(elem.idProducto)}>-</ButtonHandler>
+                                </div>
+                                <QtyHandler><AnimatedNumber value={elem.cantidad} /></QtyHandler>
+                                <div style={{ display: 'flex' }}>
+                                    <ButtonHandler onClick={() => upQTY(elem.idProducto)} >+</ButtonHandler>
+                                    <ButtonHandler onClick={() => upQTY10(elem.idProducto)}>+10</ButtonHandler>
+                                </div>
+                            </div>
+                            {/* <h2 style={{fontSize: 16, fontWeight: 600, color: '#FA9B50', textAlign: 'center'}}>$ {elem.total}</h2> */}
+                        </div>
+                    </ContainerHandler>
+                }
+            </div>
+        </Item>
+    )
 }
 
-const QtyHandler = styled.div `
+const QtyHandler = styled.div`
     font-size: 16px;
     color: #252552;
     padding: 5px 10px;
@@ -90,7 +92,7 @@ const QtyHandler = styled.div `
     }
 `
 
-const ButtonHandler = styled.div `
+const ButtonHandler = styled.div`
     font-size: 14px; 
     font-weight: 400; 
     color: #7F8487; 
@@ -117,7 +119,7 @@ const Input = styled.input<{ $focused?: boolean; $hasPrefix?: boolean; }>`
   }
 `;
 
-const Description = styled.h2 `
+const Description = styled.h2`
     font-size: 16px;
     color: #252525;
     overflow: hidden;
@@ -129,7 +131,7 @@ const Description = styled.h2 `
     } 
 `
 
-const ContainerHandler = styled.div `
+const ContainerHandler = styled.div`
     display: flex;
     width: 100%;
     justify-content: center;
@@ -139,7 +141,7 @@ const ContainerHandler = styled.div `
 const ContainerElem = styled.div`
 `
 
-const Item = styled.li `
+const Item = styled.li`
   list-style: none;
   padding: 8px;
   font-weight: 600;
@@ -155,13 +157,13 @@ const Item = styled.li `
   }
 `
 
-const IconWrapper = styled.div<{$open?: boolean}>`
+const IconWrapper = styled.div<{ $open?: boolean }>`
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 5px;
     border-radius: 15px;
-    transform: ${({$open})=>$open ? css`rotate(180deg)` : css`rotate(0deg)`};
+    transform: ${({ $open }) => $open ? css`rotate(180deg)` : css`rotate(0deg)`};
     transition: transform .5s linear;
     cursor: pointer;
     &:hover {

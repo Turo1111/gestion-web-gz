@@ -35,42 +35,43 @@ interface ResponseSale {
 
 export default function EditSale({ params }: { params: { id: string } }) {
 
-    const [valueStorage , setValue] = useLocalStorage("user", "")
-    const router: AppRouterInstance = useRouter()
-    let {ancho, alto} = useResize()
-    const { id } = params;
+  const [valueStorage, setValue] = useLocalStorage("user", "")
+  const router: AppRouterInstance = useRouter()
+  let { ancho, alto } = useResize()
+  const { id } = params;
 
-    const user = useSelector(getUser)
-    const dispatch = useAppDispatch();
+  const user = useSelector(getUser)
+  const dispatch = useAppDispatch();
 
-    const getSale = async () => {
-      dispatch(setLoading(true))
-      apiClient.get(`/sale/${id}`,{
-        headers: {
-            Authorization: `Bearer ${valueStorage.token}`
-        },
-      })
-      .then(({data}:{data: ResponseSale})=>{
+  const getSale = async () => {
+    dispatch(setLoading(true))
+    apiClient.get(`/sale/${id}`, {
+      headers: {
+        Authorization: `Bearer ${valueStorage.token}`
+      },
+    })
+      .then(({ data }: { data: ResponseSale }) => {
+        console.log('data', data)
         dispatch(setLoading(false));
-        dispatch(setSale({sale: {_id: id, cliente: data.r.cliente, createdAt: data.r.createdAt, estado: data.r.estado, total: data.r.total, itemsSale: data.itemsSale}}));
+        dispatch(setSale({ sale: { _id: id, cliente: data.r.cliente, createdAt: data.r.createdAt, estado: data.r.estado, total: data.r.total, itemsSale: data.itemsSale } }));
       })
-      .catch((e)=>{
+      .catch((e) => {
         console.log(e);
         dispatch(setLoading(false))
       })
-    }
+  }
 
-    useEffect(()=> {
-      getSale()
-    },[id, valueStorage])
-  
+  useEffect(() => {
+    getSale()
+  }, [id, valueStorage])
+
   return (
     <Container>
       {
         ancho > 940 ?
-        <ContainerSaleWeb edit={true} />
-        :
-        <ContainerSaleMobile edit={true} />
+          <ContainerSaleWeb edit={true} />
+          :
+          <ContainerSaleMobile edit={true} />
       }
     </Container>
   )
