@@ -16,7 +16,7 @@ import { setExpenses, removeExpense } from '@/redux/expenseSlice'
 import { setAlert } from '@/redux/alertSlice'
 import { MdEdit, MdDelete, MdVisibility, MdSearch, MdFilterList } from 'react-icons/md'
 import Confirm from '@/components/Confirm'
-import { trackExpenseDeleted, trackExpenseListViewed, trackFilterChange } from '@/utils/analytics'
+import { trackExpenseDeleted, trackExpenseListViewed, trackFilterChange, trackExpenseSearch } from '@/utils/analytics'
 
 interface ExpenseFilters {
   page: number;
@@ -54,6 +54,7 @@ export default function ExpenseScreen() {
   const [showFilters, setShowFilters] = useState(false)
   const [activeQuickFilter, setActiveQuickFilter] = useState<string | null>(null)
   const [dateError, setDateError] = useState<string>('')
+  const [searchError, setSearchError] = useState<string>('')
 
   // Obtener filtros por defecto (mes actual)
   function getDefaultFilters(): ExpenseFilters {
@@ -138,7 +139,19 @@ export default function ExpenseScreen() {
       setPermissions(response.permissions)
       dispatch(setExpenses({ expenses: expensesWithAmount, total: response.pagination.total }))
       
-      // Analytics: Emitir evento
+      // Analytics: Emitir evento de búsqueda si hay término activo (EG07)
+      const trimmedSearch = filters.search.trim()
+      if (trimmedSearch) {
+        trackExpenseSearch({
+          usuario: user.nickname || 'unknown',
+          timestamp: Date.now(),
+          termino: trimmedSearch,
+          longitud: trimmedSearch.length,
+          hay_resultados: response.pagination.total > 0
+        })
+      }
+      
+      // Analytics: Emitir evento de listado visto
       trackExpenseListViewed({
         usuario: user.nickname || 'unknown',
         timestamp: Date.now(),
@@ -150,7 +163,7 @@ export default function ExpenseScreen() {
           type: filters.type || undefined,
           category: filters.category || undefined,
           paymentMethod: filters.paymentMethod || undefined,
-          search: filters.search || undefined,
+          search: trimmedSearch || undefined,
         },
         pagination: response.pagination,
       })
@@ -161,6 +174,9 @@ export default function ExpenseScreen() {
       if (error.response?.status === 403) {
         dispatch(setAlert({ message: 'No tiene permisos para ver egresos', type: 'error' }))
         router.push('/home')
+      } else if (error.response?.status === 400) {
+        setSearchError('Búsqueda inválida. Debe tener entre 2 y 100 caracteres.')
+        dispatch(setAlert({ message: 'Error en los filtros de búsqueda', type: 'error' }))
       } else {
         dispatch(setAlert({ message: 'Error al cargar los egresos', type: 'error' }))
       }
@@ -273,7 +289,21 @@ export default function ExpenseScreen() {
       return
     }
     
+    // Validar búsqueda (EG07)
+    const trimmedSearch = filters.search.trim()
+    
+    if (trimmedSearch && trimmedSearch.length < 2) {
+      setSearchError('La búsqueda debe tener al menos 2 caracteres')
+      return
+    }
+    
+    if (trimmedSearch && trimmedSearch.length > 100) {
+      setSearchError('La búsqueda no puede exceder 100 caracteres')
+      return
+    }
+    
     setDateError('')
+    setSearchError('')
     setFilters({ ...filters, page: 1 })
     
     // Analytics: Emitir evento de cambio de filtro manual
@@ -292,6 +322,7 @@ export default function ExpenseScreen() {
     setFilters(getDefaultFilters())
     setActiveQuickFilter(null)
     setDateError('')
+    setSearchError('')
   }
 
   const setQuickFilter = (type: 'today' | 'thisWeek' | 'thisMonth' | 'lastMonth' | 'thisYear' | 'last7Days' | 'last30Days') => {
@@ -407,15 +438,19 @@ export default function ExpenseScreen() {
           <FilterSection>
             <FilterLabel>Búsqueda y Filtros</FilterLabel>
             <FilterRow>
-              <SearchInputWrapper>
+              <SearchInputWrapper $hasError={!!searchError}>
                 <MdSearch size={20} />
                 <input
                   type="text"
                   placeholder="Buscar en descripción..."
                   value={filters.search}
-                  onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+                  onChange={(e) => {
+                    setFilters({ ...filters, search: e.target.value })
+                    if (searchError) setSearchError('')
+                  }}
                 />
               </SearchInputWrapper>
+              {searchError && <ErrorText>{searchError}</ErrorText>}
               
               <SelectInput>
                 <label>Tipo</label>
@@ -478,9 +513,19 @@ export default function ExpenseScreen() {
 
         {data.length === 0 ? (
           <EmptyState>
-            <EmptyIcon>📋</EmptyIcon>
-            <EmptyText>No hay egresos en el período seleccionado</EmptyText>
-            <EmptySubText>Intenta ajustar los filtros o crear un nuevo egreso</EmptySubText>
+            <EmptyIcon>{filters.search.trim() ? '🔍' : '📋'}</EmptyIcon>
+            <EmptyText>
+              {filters.search.trim() 
+                ? `No se encontraron egresos con "${filters.search.trim()}"`
+                : 'No hay egresos en el período seleccionado'
+              }
+            </EmptyText>
+            <EmptySubText>
+              {filters.search.trim()
+                ? 'Intenta con otro término de búsqueda o limpia los filtros'
+                : 'Intenta ajustar los filtros o crear un nuevo egreso'
+              }
+            </EmptySubText>
           </EmptyState>
         ) : (
           <>
@@ -714,22 +759,22 @@ const DateInput = styled.div<{ $hasError?: boolean }>`
   }
 `
 
-const SearchInputWrapper = styled.div`
+const SearchInputWrapper = styled.div<{ $hasError?: boolean }>`
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 10px;
-  border: 1px solid #B4B4B8;
+  border: 1px solid ${props => props.$hasError ? '#d32f2f' : '#B4B4B8'};
   border-radius: 5px;
   background: white;
   transition: border-color 0.2s;
 
   &:focus-within {
-    border-color: #8294C4;
+    border-color: ${props => props.$hasError ? '#d32f2f' : '#8294C4'};
   }
 
   svg {
-    color: #666;
+    color: ${props => props.$hasError ? '#d32f2f' : '#666'};
   }
 
   input {
