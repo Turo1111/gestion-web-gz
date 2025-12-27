@@ -237,3 +237,28 @@ export const trackExpenseSearch = (data: {
     hay_resultados: data.hay_resultados,
   });
 };
+
+/**
+ * Envía evento de visualización de detalle de egreso
+ * EG08: Permite rastrear cuándo los usuarios ven detalles de egresos
+ */
+export const trackExpenseDetailViewed = (data: {
+  usuario: string;
+  timestamp: number;
+  id_egreso: string;
+}) => {
+  if (typeof window !== 'undefined' && (window as any).gtag) {
+    (window as any).gtag('event', 'expense_detail_viewed', {
+      event_category: 'Expenses',
+      user: data.usuario,
+      expense_id: data.id_egreso,
+      timestamp: new Date(data.timestamp).toISOString(),
+    });
+  }
+
+  console.log('Analytics: expense_detail_viewed', {
+    usuario: data.usuario,
+    timestamp: new Date(data.timestamp).toISOString(),
+    id_egreso: data.id_egreso,
+  });
+};
