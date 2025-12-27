@@ -19,6 +19,7 @@ import Button from '@/components/Button';
 import ButtonUI from '@/components/ButtonUI';
 import { addHours, endOfDay, startOfDay } from 'date-fns';
 import ExpenseKPICard from '@/components/dashboard/ExpenseKPICard';
+import ResultKPICard from '@/components/dashboard/ResultKPICard';
 import { getDateRangeFromInterval } from '@/utils/dashboardHelpers';
 
 const containerVariants: Variants = {
@@ -219,6 +220,14 @@ export default function Home() {
           </WrapperContainer>
         </CardContainer>
         
+        {/* EG09: KPI Resultado Simple (Ventas - Compras - Egresos) */}
+        <ResultKPIContainer>
+          <ResultKPICard 
+            period={customDateRange || expensePeriod} 
+            interval={interval}
+          />
+        </ResultKPIContainer>
+        
         {/* EG09: KPI de Egresos del Período + Gráfico de barras */}
         <KPIAndChartContainer>
           <ExpenseKPIContainer>
@@ -310,6 +319,23 @@ const CardContainer = styled.div `
   justify-content: center;
   @media only screen and (max-width: 780px) {
     margin: 0 5px;
+  }
+`
+
+// EG09: Container para KPI Resultado Simple
+const ResultKPIContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  padding: 15px;
+  margin-top: 10px;
+  
+  > * {
+    flex: 1;
+    max-width: 800px;
+  }
+
+  @media only screen and (max-width: 780px) {
+    padding: 15px 5px;
   }
 `
 

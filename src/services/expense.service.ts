@@ -4,7 +4,9 @@ import {
   Expense, 
   ExpenseListResponse,
   ExpenseLegacyListResponse,
-  ListExpensesParams 
+  ListExpensesParams,
+  ExpenseKPIResponse,
+  ExpenseType
 } from '@/interfaces/expense.interface';
 
 const EXPENSE_BASE_URL = '/expense';
@@ -61,8 +63,16 @@ export const expenseService = {
    * Obtener KPI de egresos para Dashboard (EG09)
    * Endpoint: GET /expense/kpi/total
    */
-  getKPITotal: async (params: ListExpensesParams): Promise<ExpenseListResponse> => {
-    const response = await apiClient.get<ExpenseListResponse>(`${EXPENSE_BASE_URL}/kpi/total`, { params });
-    return response.data;
+  getKPITotal: async (params: ListExpensesParams): Promise<ExpenseKPIResponse> => {
+    const response = await apiClient.get<any>(`${EXPENSE_BASE_URL}/kpi/total`, { params });
+    // Manejar respuesta con wrapper o directa
+    const data = response.data.expense || response.data;
+    return {
+      total: data.total || (data.totalCents ? data.totalCents / 100 : 0),
+      count: data.count || 0,
+      totalCents: data.totalCents,
+      currency: data.currency || 'ARS',
+      period: data.period,
+    };
   },
 };
