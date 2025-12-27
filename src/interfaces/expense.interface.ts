@@ -112,6 +112,26 @@ export interface ExpenseLegacyListResponse {
 }
 
 /**
+ * KPI Dashboard (EG09)
+ */
+export interface ExpenseKPIParams {
+  from: string;      // YYYY-MM-DD
+  to: string;        // YYYY-MM-DD
+  type?: ExpenseType | ''; // Opcional (vacío = todos)
+}
+
+export interface ExpenseKPIResponse {
+  total: number;           // Monto total en pesos
+  totalCents?: number;     // Monto en centavos (si backend usa)
+  count?: number;          // Cantidad de egresos
+  currency?: string;       // 'ARS'
+  period?: {
+    from: string;
+    to: string;
+  };
+}
+
+/**
  * Estado del formulario (local)
  */
 export interface ExpenseFormData {

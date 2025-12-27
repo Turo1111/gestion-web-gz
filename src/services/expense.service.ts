@@ -56,4 +56,13 @@ export const expenseService = {
   delete: async (id: string): Promise<void> => {
     await apiClient.delete(`${EXPENSE_BASE_URL}/${id}`);
   },
+
+  /**
+   * Obtener KPI de egresos para Dashboard (EG09)
+   * Endpoint: GET /expense/kpi/total
+   */
+  getKPITotal: async (params: ListExpensesParams): Promise<ExpenseListResponse> => {
+    const response = await apiClient.get<ExpenseListResponse>(`${EXPENSE_BASE_URL}/kpi/total`, { params });
+    return response.data;
+  },
 };
