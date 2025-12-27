@@ -37,6 +37,42 @@ export const trackExpenseCreated = (expense: {
 };
 
 /**
+ * Envía evento de actualización de egreso a sistema de analytics
+ */
+export const trackExpenseUpdated = (data: {
+  usuario: string;
+  timestamp: number;
+  id_egreso: string;
+  campos_modificados: string[];
+  tipo_egreso: string;
+  categoria: string;
+  monto: number;
+}) => {
+  if (typeof window !== 'undefined' && (window as any).gtag) {
+    (window as any).gtag('event', 'expense_updated', {
+      event_category: 'Expenses',
+      event_label: data.categoria,
+      expense_id: data.id_egreso,
+      expense_type: data.tipo_egreso,
+      modified_fields: data.campos_modificados.join(','),
+      amount: data.monto,
+      user: data.usuario,
+      timestamp: new Date(data.timestamp).toISOString(),
+    });
+  }
+
+  console.log('Analytics: expense_updated', {
+    usuario: data.usuario,
+    timestamp: new Date(data.timestamp).toISOString(),
+    id_egreso: data.id_egreso,
+    campos_modificados: data.campos_modificados,
+    tipo_egreso: data.tipo_egreso,
+    categoria: data.categoria,
+    monto: data.monto,
+  });
+};
+
+/**
  * Evento de error al crear egreso
  */
 export const trackExpenseCreationError = (error: {

@@ -14,6 +14,7 @@ import { Expense } from '@/interfaces/expense.interface'
 import { expenseService } from '@/services/expense.service'
 import { setExpenses, getExpenses } from '@/redux/expenseSlice'
 import { setAlert } from '@/redux/alertSlice'
+import { MdEdit } from 'react-icons/md'
 
 export default function ExpenseScreen() {
   const [valueStorage] = useLocalStorage("user", "")
@@ -95,6 +96,7 @@ export default function ExpenseScreen() {
                     <Th>Tipo</Th>
                     <Th>Monto</Th>
                     <Th>Medio de Pago</Th>
+                    <Th>Acciones</Th>
                   </tr>
                 </thead>
                 <tbody>
@@ -110,6 +112,11 @@ export default function ExpenseScreen() {
                       </Td>
                       <Td><Amount>{formatAmount(expense.amount)}</Amount></Td>
                       <Td>{expense.paymentMethod}</Td>
+                      <Td>
+                        <ActionButton onClick={() => router.push(`/expense/${expense._id}/edit`)}>
+                          <MdEdit size={18} />
+                        </ActionButton>
+                      </Td>
                     </tr>
                   ))}
                 </tbody>
@@ -248,4 +255,26 @@ const TypeBadge = styled.span<{ type: string }>`
 const Amount = styled.span`
   font-weight: 600;
   color: #8294C4;
+`
+
+const ActionButton = styled.button`
+  background: transparent;
+  border: none;
+  color: #8294C4;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #f0f0f0;
+    color: #637195;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
 `

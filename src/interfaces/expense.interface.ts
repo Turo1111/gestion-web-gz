@@ -44,7 +44,10 @@ export interface Expense {
   createdBy: Types.ObjectId | string; // Usuario que creó (backend lo setea)
   createdAt: string;         // ISO timestamp
   updatedAt: string;
+  updatedBy?: Types.ObjectId | string; // Usuario que actualizó (opcional)
   isDeleted: boolean;        // Soft delete flag
+  deletedAt?: string;
+  deletedBy?: Types.ObjectId | string;
 }
 
 /**
