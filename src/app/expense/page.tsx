@@ -17,6 +17,7 @@ import { setAlert } from '@/redux/alertSlice'
 import { MdEdit, MdDelete, MdVisibility, MdSearch, MdFilterList, MdClose } from 'react-icons/md'
 import Confirm from '@/components/Confirm'
 import { trackExpenseDeleted, trackExpenseListViewed, trackFilterChange, trackExpenseSearch } from '@/utils/analytics'
+import { usePermission } from '@/hooks/usePermission'
 
 interface ExpenseFilters {
   page: number;
@@ -36,6 +37,7 @@ export default function ExpenseScreen() {
   const searchParams = useSearchParams()
   const dispatch = useAppDispatch()
   const user = useSelector(getUser)
+  const { canCreateExpense, canUpdateExpense, canDeleteExpense } = usePermission()
   
   const [data, setData] = useState<Expense[]>([])
   const [pagination, setPagination] = useState<PaginationMetadata>({
@@ -417,7 +419,9 @@ export default function ExpenseScreen() {
               <FilterBadge>{getActiveFiltersCount()}</FilterBadge>
             )}
           </FilterToggleButton>
-          <Button text="Nuevo Egreso" onClick={() => {}} to="/expense/newExpense" />
+          {canCreateExpense && (
+            <Button text="Nuevo Egreso" onClick={() => {}} to="/expense/newExpense" />
+          )}
         </HeaderActions>
       </Header>
 
@@ -649,7 +653,7 @@ export default function ExpenseScreen() {
                           >
                             <MdVisibility size={18} />
                           </ActionButton>
-                          {permissions.canEdit && (
+                          {canUpdateExpense && (
                             <ActionButton 
                               onClick={() => router.push(`/expense/${getExpenseId(expense)}/edit`)}
                               title="Editar"
@@ -657,7 +661,7 @@ export default function ExpenseScreen() {
                               <MdEdit size={18} />
                             </ActionButton>
                           )}
-                          {permissions.canDelete && (
+                          {canDeleteExpense && (
                             <ActionButton 
                               onClick={() => openDeleteConfirm(expense)} 
                               $variant="danger"

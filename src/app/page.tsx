@@ -16,6 +16,7 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 import * as Yup from 'yup';
+import { jwtDecode } from "jwt-decode";
 
 export default function Home() {
 
@@ -38,8 +39,41 @@ export default function Home() {
           dispatch(setLoading(false))
           return
         }
-        setValue(r.data)
-        dispatch(setUser(r.data))
+        
+        // ⭐ DECODIFICAR TOKEN JWT: El token contiene id, role con permissions completo
+        const token = r.data.token;
+        let decodedToken: any = null;
+        
+        try {
+          decodedToken = jwtDecode(token);
+          console.log('✅ Token decodificado:', decodedToken);
+        } catch (error) {
+          console.error('❌ Error al decodificar token:', error);
+        }
+        
+        // Usar datos del token decodificado (tiene TODOS los datos incluyendo role.permissions)
+        const userData: UserWithToken = {
+          nickname: r.data.nickname || r.data.name || '',
+          token: token,
+          id: decodedToken?.id || r.data.id || '',
+          email: decodedToken?.email || r.data.email || '',
+          role: decodedToken?.role || undefined  // Ya viene completo con permissions array
+        };
+        
+        // Log para verificar permisos
+        if (!userData.role) {
+          console.warn('⚠️ Token no contiene información de rol');
+        } else if (!userData.role.permissions || userData.role.permissions.length === 0) {
+          console.warn('⚠️ Rol sin permisos:', userData.role.name);
+        } else {
+          console.log(`✅ Login exitoso | Usuario: ${userData.nickname} | Rol: ${userData.role.name} | Permisos: ${userData.role.permissions.length}`);
+        }
+        
+        // 🔧 IMPORTANTE: Guardar en localStorage el userData completo con role decodificado
+        setValue(userData);
+        
+        dispatch(setUser(userData))
+        
         router.push('/home')
         dispatch(setLoading(false))
       })
