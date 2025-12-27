@@ -16,7 +16,7 @@ import { setExpenses, removeExpense } from '@/redux/expenseSlice'
 import { setAlert } from '@/redux/alertSlice'
 import { MdEdit, MdDelete, MdVisibility, MdSearch, MdFilterList } from 'react-icons/md'
 import Confirm from '@/components/Confirm'
-import { trackExpenseDeleted, trackExpenseListViewed } from '@/utils/analytics'
+import { trackExpenseDeleted, trackExpenseListViewed, trackFilterChange } from '@/utils/analytics'
 
 interface ExpenseFilters {
   page: number;
@@ -52,6 +52,8 @@ export default function ExpenseScreen() {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [expenseToDelete, setExpenseToDelete] = useState<Expense | null>(null)
   const [showFilters, setShowFilters] = useState(false)
+  const [activeQuickFilter, setActiveQuickFilter] = useState<string | null>(null)
+  const [dateError, setDateError] = useState<string>('')
 
   // Obtener filtros por defecto (mes actual)
   function getDefaultFilters(): ExpenseFilters {
@@ -262,38 +264,89 @@ export default function ExpenseScreen() {
   }
 
   const applyFilters = () => {
+    // Validar que 'from' no sea posterior a 'to'
+    const fromDate = new Date(filters.from)
+    const toDate = new Date(filters.to)
+    
+    if (fromDate > toDate) {
+      setDateError('La fecha "Desde" no puede ser posterior a la fecha "Hasta"')
+      return
+    }
+    
+    setDateError('')
     setFilters({ ...filters, page: 1 })
+    
+    // Analytics: Emitir evento de cambio de filtro manual
+    trackFilterChange(
+      'manual',
+      'Filtro personalizado',
+      {
+        from: filters.from,
+        to: filters.to,
+      },
+      user.nickname || 'unknown'
+    )
   }
 
   const clearFilters = () => {
     setFilters(getDefaultFilters())
+    setActiveQuickFilter(null)
+    setDateError('')
   }
 
-  const setQuickFilter = (type: 'thisMonth' | 'lastMonth' | 'thisYear' | 'last7Days' | 'last30Days') => {
+  const setQuickFilter = (type: 'today' | 'thisWeek' | 'thisMonth' | 'lastMonth' | 'thisYear' | 'last7Days' | 'last30Days') => {
     const now = new Date()
     let from = ''
     let to = now.toISOString().split('T')[0]
+    let label = ''
 
     switch (type) {
+      case 'today':
+        from = to
+        label = 'Hoy'
+        break
+      case 'thisWeek':
+        const firstDayOfWeek = new Date(now)
+        const dayOfWeek = now.getDay()
+        const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek // Lunes es el primer día
+        firstDayOfWeek.setDate(now.getDate() + diff)
+        from = firstDayOfWeek.toISOString().split('T')[0]
+        label = 'Esta semana'
+        break
       case 'thisMonth':
         from = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
+        label = 'Este mes'
         break
       case 'lastMonth':
         from = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString().split('T')[0]
         to = new Date(now.getFullYear(), now.getMonth(), 0).toISOString().split('T')[0]
+        label = 'Mes anterior'
         break
       case 'thisYear':
         from = new Date(now.getFullYear(), 0, 1).toISOString().split('T')[0]
+        label = 'Este año'
         break
       case 'last7Days':
         from = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+        label = 'Últimos 7 días'
         break
       case 'last30Days':
         from = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+        label = 'Últimos 30 días'
         break
     }
 
+    setDateError('')
+    setActiveQuickFilter(type)
     setFilters({ ...filters, from, to, page: 1 })
+    
+    // Analytics: Emitir evento de cambio de filtro rápido
+    trackFilterChange(
+      'quick_filter',
+      label,
+      { from, to },
+      user.nickname || 'unknown'
+    )
   }
 
   return (
@@ -314,29 +367,40 @@ export default function ExpenseScreen() {
           <FilterSection>
             <FilterLabel>Rango de Fechas</FilterLabel>
             <FilterRow>
-              <DateInput>
+              <DateInput $hasError={!!dateError}>
                 <label>Desde</label>
                 <input 
                   type="date" 
                   value={filters.from} 
-                  onChange={(e) => setFilters({ ...filters, from: e.target.value })}
+                  onChange={(e) => {
+                    setFilters({ ...filters, from: e.target.value })
+                    setActiveQuickFilter(null)
+                    setDateError('')
+                  }}
                 />
               </DateInput>
-              <DateInput>
+              <DateInput $hasError={!!dateError}>
                 <label>Hasta</label>
                 <input 
                   type="date" 
                   value={filters.to} 
-                  onChange={(e) => setFilters({ ...filters, to: e.target.value })}
+                  onChange={(e) => {
+                    setFilters({ ...filters, to: e.target.value })
+                    setActiveQuickFilter(null)
+                    setDateError('')
+                  }}
                 />
               </DateInput>
             </FilterRow>
+            {dateError && <ErrorText>{dateError}</ErrorText>}
             <QuickFilters>
-              <Chip onClick={() => setQuickFilter('thisMonth')}>Este mes</Chip>
-              <Chip onClick={() => setQuickFilter('lastMonth')}>Mes anterior</Chip>
-              <Chip onClick={() => setQuickFilter('last7Days')}>Últimos 7 días</Chip>
-              <Chip onClick={() => setQuickFilter('last30Days')}>Últimos 30 días</Chip>
-              <Chip onClick={() => setQuickFilter('thisYear')}>Este año</Chip>
+              <Chip $active={activeQuickFilter === 'today'} onClick={() => setQuickFilter('today')}>Hoy</Chip>
+              <Chip $active={activeQuickFilter === 'thisWeek'} onClick={() => setQuickFilter('thisWeek')}>Esta semana</Chip>
+              <Chip $active={activeQuickFilter === 'thisMonth'} onClick={() => setQuickFilter('thisMonth')}>Este mes</Chip>
+              <Chip $active={activeQuickFilter === 'lastMonth'} onClick={() => setQuickFilter('lastMonth')}>Mes anterior</Chip>
+              <Chip $active={activeQuickFilter === 'last7Days'} onClick={() => setQuickFilter('last7Days')}>Últimos 7 días</Chip>
+              <Chip $active={activeQuickFilter === 'last30Days'} onClick={() => setQuickFilter('last30Days')}>Últimos 30 días</Chip>
+              <Chip $active={activeQuickFilter === 'thisYear'} onClick={() => setQuickFilter('thisYear')}>Este año</Chip>
             </QuickFilters>
           </FilterSection>
 
@@ -625,27 +689,27 @@ const FilterRow = styled.div`
   margin-bottom: 15px;
 `
 
-const DateInput = styled.div`
+const DateInput = styled.div<{ $hasError?: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 5px;
 
   label {
     font-size: 14px;
-    color: #666;
+    color: ${props => props.$hasError ? '#d32f2f' : '#666'};
     font-weight: 500;
   }
 
   input {
     padding: 10px;
-    border: 1px solid #B4B4B8;
+    border: 1px solid ${props => props.$hasError ? '#d32f2f' : '#B4B4B8'};
     border-radius: 5px;
     font-size: 14px;
     transition: border-color 0.2s;
 
     &:focus {
       outline: none;
-      border-color: #8294C4;
+      border-color: ${props => props.$hasError ? '#d32f2f' : '#8294C4'};
     }
   }
 `
@@ -734,15 +798,23 @@ const QuickFilters = styled.div`
   margin-top: 10px;
 `
 
-const Chip = styled.button`
+const ErrorText = styled.div`
+  color: #d32f2f;
+  font-size: 13px;
+  margin-top: 8px;
+  font-weight: 500;
+`
+
+const Chip = styled.button<{ $active?: boolean }>`
   padding: 6px 12px;
-  background: #f0f0f0;
-  border: 1px solid #ddd;
+  background: ${props => props.$active ? '#8294C4' : '#f0f0f0'};
+  border: 1px solid ${props => props.$active ? '#8294C4' : '#ddd'};
   border-radius: 16px;
   font-size: 13px;
-  color: #666;
+  color: ${props => props.$active ? 'white' : '#666'};
   cursor: pointer;
   transition: all 0.2s;
+  font-weight: ${props => props.$active ? '600' : '400'};
 
   &:hover {
     background: #8294C4;
