@@ -18,6 +18,8 @@ import { AnimatedNumber } from '@/components/AnimatedNumber';
 import Button from '@/components/Button';
 import ButtonUI from '@/components/ButtonUI';
 import { addHours, endOfDay, startOfDay } from 'date-fns';
+import ExpenseKPICard from '@/components/dashboard/ExpenseKPICard';
+import { getDateRangeFromInterval } from '@/utils/dashboardHelpers';
 
 const containerVariants: Variants = {
   sales: { backgroundColor: "#99BC85", transition: { duration: 0.5 } },
@@ -78,6 +80,10 @@ export default function Home() {
   /* const barChartData = formatBarChartData(dataSet.graph); */
   const [openCustomDataSet, setOpenCustomDataSet] = useState(false)
   const [switchData, setSwitchData] = useState(true)
+  
+  // EG09: Estado del período para KPI de egresos
+  const [expensePeriod, setExpensePeriod] = useState(() => getDateRangeFromInterval('MENSUAL'))
+  const [customDateRange, setCustomDateRange] = useState<{from: string; to: string} | null>(null)
 
   const handleSubmit = (startDate: Date, endDate: Date ) => {
     startDate = addHours(startOfDay(startDate), 3)
@@ -90,6 +96,15 @@ export default function Home() {
       return
     }
     dispatch(setLoading(true))
+    
+    // EG09: Actualizar período para KPI de egresos
+    const customRange = {
+      from: startDate.toISOString().split('T')[0],
+      to: endDate.toISOString().split('T')[0]
+    }
+    setCustomDateRange(customRange)
+    setExpensePeriod(customRange)
+    
     apiClient.get(`/dataset/custom/${startDate}/${endDate}`)
     .then(r=>{
       setDataSet(r.data);
@@ -116,6 +131,10 @@ export default function Home() {
 
     if (interval !== 'CUSTOM') {
       getData()
+      // EG09: Actualizar período para KPI de egresos cuando cambia intervalo
+      const newPeriod = getDateRangeFromInterval(interval as any)
+      setExpensePeriod(newPeriod)
+      setCustomDateRange(null) // Limpiar custom range
     }
   }, [interval, dispatch])
 
@@ -199,31 +218,39 @@ export default function Home() {
               </ContainerCardData>
           </WrapperContainer>
         </CardContainer>
-        <ChartsContainer>
-          <div style={{ display: 'flex', flex: 1, justifyContent: 'center', overflowX: 'scroll' }}>
-            <BarChart width={730} height={350} data={dataSet.graph?.data}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="label" />
-              <YAxis  
-                tickFormatter={(value) => {
-                  if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
-                  if (value >= 1000) return `${(value / 1000).toFixed(1)}k`;
-                  return value;
-                }} 
-              />
-              <Tooltip 
-                formatter={(value: number) => {
-                  if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
-                  if (value >= 1000) return `${(value / 1000).toFixed(1)}k`;
-                  return value;
-                }}
-              />
-              <Legend />
-              <Bar dataKey="ventas" fill="#99BC85" />
-              <Bar dataKey="compras" fill="#DC8686" />
-            </BarChart>
-          </div>
-        </ChartsContainer>
+        
+        {/* EG09: KPI de Egresos del Período + Gráfico de barras */}
+        <KPIAndChartContainer>
+          <ExpenseKPIContainer>
+            <ExpenseKPICard period={customDateRange || expensePeriod} />
+          </ExpenseKPIContainer>
+          
+          <ChartsContainer>
+            <div style={{ display: 'flex', flex: 1, justifyContent: 'center', overflowX: 'scroll' }}>
+              <BarChart width={730} height={350} data={dataSet.graph?.data}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="label" />
+                <YAxis  
+                  tickFormatter={(value) => {
+                    if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
+                    if (value >= 1000) return `${(value / 1000).toFixed(1)}k`;
+                    return value;
+                  }} 
+                />
+                <Tooltip 
+                  formatter={(value: number) => {
+                    if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
+                    if (value >= 1000) return `${(value / 1000).toFixed(1)}k`;
+                    return value;
+                  }}
+                />
+                <Legend />
+                <Bar dataKey="ventas" fill="#99BC85" />
+                <Bar dataKey="compras" fill="#DC8686" />
+              </BarChart>
+            </div>
+          </ChartsContainer>
+        </KPIAndChartContainer>
         <MovementsContainer>
           <MovementsTitle>Ultimos movimientos :</MovementsTitle>
           <MovementsList>
@@ -283,6 +310,35 @@ const CardContainer = styled.div `
   justify-content: center;
   @media only screen and (max-width: 780px) {
     margin: 0 5px;
+  }
+`
+
+// EG09: Container padre que agrupa KPI de Egresos + Gráfico
+const KPIAndChartContainer = styled.div`
+  display: flex;
+  gap: 20px;
+  padding: 15px;
+  margin-top: 10px;
+  
+  @media only screen and (max-width: 1024px) {
+    flex-direction: column;
+  }
+`
+
+// EG09: Container para KPI de Egresos
+const ExpenseKPIContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  flex: 1;
+  min-width: 0;
+  
+  > * {
+    flex: 1;
+    max-width: 600px;
+  }
+
+  @media only screen and (max-width: 780px) {
+    padding: 0 5px;
   }
 `
 
@@ -409,11 +465,11 @@ const MainContent = styled.div`
 const ChartsContainer = styled.div`
   display: flex;
   justify-content: space-around;
-  padding: 15px;
   flex: 1;
-  max-width: 95vw;
-  @media only screen and (max-width: 1025px) {
-    flex-direction: column;
+  min-width: 0;
+  
+  @media only screen and (max-width: 780px) {
+    padding: 0 5px;
   }
 `;
 
