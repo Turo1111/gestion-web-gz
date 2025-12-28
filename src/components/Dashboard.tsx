@@ -18,6 +18,7 @@ import { RandomAvatar } from "react-random-avatars";
 import { GoHome, GoPackage } from "react-icons/go";
 import { AiOutlineDollar } from 'react-icons/ai';
 import { LiaClipboardListSolid } from "react-icons/lia";
+import { MdOutlineMoneyOff } from "react-icons/md";
 import Burger from './Burger';
 
 export default function Dashboard({children}: {children: ReactNode} ) {
@@ -26,7 +27,8 @@ export default function Dashboard({children}: {children: ReactNode} ) {
         {path: 'HOME', name: 'INICIO', icon: <GoHome /> },
         {path: 'PRODUCT', name: 'PRODUCTOS', icon: <GoPackage />},
         {path: 'SALE', name: 'VENTAS', icon: <AiOutlineDollar />},
-        {path: 'BUY', name: 'COMPRAS', icon: <LiaClipboardListSolid />}
+        {path: 'BUY', name: 'COMPRAS', icon: <LiaClipboardListSolid />},
+        {path: 'EXPENSE', name: 'EGRESOS', icon: <MdOutlineMoneyOff />}
     ]
     const pathname = usePathname()
     let {ancho, alto} = useResize()
