@@ -1,5 +1,11 @@
 import apiClient from '@/utils/client';
-import { CreateExpenseDTO, Expense, ExpenseListResponse } from '@/interfaces/expense.interface';
+import { 
+  CreateExpenseDTO, 
+  Expense, 
+  ExpenseListResponse,
+  ExpenseLegacyListResponse,
+  ListExpensesParams 
+} from '@/interfaces/expense.interface';
 
 const EXPENSE_BASE_URL = '/expense';
 
@@ -13,10 +19,18 @@ export const expenseService = {
   },
 
   /**
-   * Obtener listado de egresos con paginación y filtros
+   * Obtener listado de egresos con paginación y filtros (NUEVO - EG04)
    */
-  getAll: async (params?: { skip?: number; limit?: number; filters?: any }): Promise<ExpenseListResponse> => {
+  list: async (params: ListExpensesParams): Promise<ExpenseListResponse> => {
     const response = await apiClient.get<ExpenseListResponse>(EXPENSE_BASE_URL, { params });
+    return response.data;
+  },
+
+  /**
+   * Obtener listado de egresos con paginación y filtros (LEGACY - mantener compatibilidad)
+   */
+  getAll: async (params?: { skip?: number; limit?: number; filters?: any }): Promise<ExpenseLegacyListResponse> => {
+    const response = await apiClient.get<ExpenseLegacyListResponse>(EXPENSE_BASE_URL, { params });
     return response.data;
   },
 
