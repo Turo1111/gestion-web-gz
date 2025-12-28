@@ -1,10 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import Button from '@/components/Button'
 import Input from '@/components/Input'
-import { ExpenseFormData, ExpenseFormErrors, ExpenseType, PaymentMethod, CreateExpenseDTO } from '@/interfaces/expense.interface'
+import { ExpenseFormData, ExpenseFormErrors, ExpenseType, PaymentMethod, CreateExpenseDTO, Expense } from '@/interfaces/expense.interface'
 import { expenseService } from '@/services/expense.service'
 import { useAppDispatch } from '@/redux/hook'
 import { setLoading } from '@/redux/loadingSlice'
@@ -12,10 +12,17 @@ import { setAlert } from '@/redux/alertSlice'
 import { useRouter } from 'next/navigation'
 import { useSelector } from 'react-redux'
 import { getUser } from '@/redux/userSlice'
-import { trackExpenseCreated, trackExpenseCreationError } from '@/utils/analytics'
-import { addExpense } from '@/redux/expenseSlice'
+import { trackExpenseCreated, trackExpenseCreationError, trackExpenseUpdated } from '@/utils/analytics'
+import { addExpense, updateExpense } from '@/redux/expenseSlice'
 
-const ExpenseFormMobile = () => {
+interface ExpenseFormProps {
+  mode?: 'create' | 'edit'
+  initialValues?: Expense
+  expenseId?: string
+  onSubmitSuccess?: () => void
+}
+
+const ExpenseFormMobile = ({ mode = 'create', initialValues, expenseId, onSubmitSuccess }: ExpenseFormProps) => {
   const dispatch = useAppDispatch()
   const router = useRouter()
   const user = useSelector(getUser)
@@ -36,18 +43,67 @@ const ExpenseFormMobile = () => {
   // Fecha por defecto: hoy
   const getToday = () => new Date().toISOString().split('T')[0]
 
-  // Estado del formulario
-  const [formData, setFormData] = useState<ExpenseFormData>({
-    date: getToday(),
-    amount: '',
-    category: '',
-    type: ExpenseType.OPERATIVO,
-    paymentMethod: '',
-    description: '',
-  })
+  // Inicializar formulario según modo
+  const getInitialFormData = (): ExpenseFormData => {
+    if (mode === 'edit' && initialValues && initialValues.amount !== undefined) {
+      // Extraer solo la fecha (YYYY-MM-DD) del ISO string
+      const dateOnly = initialValues.date ? initialValues.date.split('T')[0] : getToday()
+      return {
+        date: dateOnly,
+        amount: initialValues.amount?.toString() || '',
+        category: initialValues.category || '',
+        type: initialValues.type || ExpenseType.OPERATIVO,
+        paymentMethod: initialValues.paymentMethod || '',
+        description: initialValues.description || '',
+      }
+    }
+    return {
+      date: getToday(),
+      amount: '',
+      category: '',
+      type: ExpenseType.OPERATIVO,
+      paymentMethod: '',
+      description: '',
+    }
+  }
 
+  // Estado del formulario
+  const [formData, setFormData] = useState<ExpenseFormData>(getInitialFormData())
+  const [originalData, setOriginalData] = useState<ExpenseFormData | null>(
+    mode === 'edit' && initialValues ? getInitialFormData() : null
+  )
   const [formErrors, setFormErrors] = useState<ExpenseFormErrors>({})
   const [showCategorySuggestions, setShowCategorySuggestions] = useState(false)
+
+  // Actualizar formulario cuando initialValues cambie (modo edit)
+  useEffect(() => {
+    console.log('ExpenseFormMobile - useEffect ejecutado:', { mode, initialValues })
+    if (mode === 'edit' && initialValues && initialValues.amount !== undefined) {
+      console.log('ExpenseFormMobile - Actualizando formData con initialValues')
+      const newFormData = getInitialFormData()
+      console.log('ExpenseFormMobile - newFormData:', newFormData)
+      setFormData(newFormData)
+      setOriginalData(newFormData)
+    }
+  }, [initialValues, mode])
+
+  // Calcular campos modificados (solo para modo edit)
+  const calculateModifiedFields = (): string[] => {
+    if (!originalData) return []
+    const modified: string[] = []
+
+    if (originalData.date !== formData.date) modified.push('date')
+    if (parseFloat(originalData.amount) !== parseFloat(formData.amount)) modified.push('amount')
+    if (originalData.category !== formData.category.trim()) modified.push('category')
+    if (originalData.type !== formData.type) modified.push('type')
+    if (originalData.paymentMethod !== formData.paymentMethod) modified.push('paymentMethod')
+    
+    const origDesc = originalData.description || ''
+    const updatedDesc = formData.description.trim()
+    if (origDesc !== updatedDesc) modified.push('description')
+
+    return modified
+  }
 
   // Validación del formulario
   const validateForm = (): { isValid: boolean; errors: ExpenseFormErrors } => {
@@ -99,6 +155,15 @@ const ExpenseFormMobile = () => {
       return
     }
 
+    // En modo edit, verificar si hay cambios
+    if (mode === 'edit') {
+      const modifiedFields = calculateModifiedFields()
+      if (modifiedFields.length === 0) {
+        dispatch(setAlert({ message: 'No hay cambios para guardar', type: 'warning' }))
+        return
+      }
+    }
+
     try {
       dispatch(setLoading(true))
 
@@ -111,20 +176,45 @@ const ExpenseFormMobile = () => {
         ...(formData.description && { description: formData.description.trim() }),
       }
 
-      const newExpense = await expenseService.create(payload)
+      if (mode === 'create') {
+        // Crear nuevo egreso
+        const newExpense = await expenseService.create(payload)
 
-      trackExpenseCreated({
-        type: newExpense.type,
-        category: newExpense.category,
-        paymentMethod: newExpense.paymentMethod,
-        amount: newExpense.amount,
-        date: newExpense.date,
-        user: user.nickname,
-      })
+        trackExpenseCreated({
+          type: newExpense.type,
+          category: newExpense.category,
+          paymentMethod: newExpense.paymentMethod,
+          amount: newExpense.amount,
+          date: newExpense.date,
+          user: user.nickname,
+        })
 
-      dispatch(addExpense(newExpense))
-      dispatch(setAlert({ message: 'Egreso registrado exitosamente', type: 'success' }))
-      router.push('/expense')
+        dispatch(addExpense(newExpense))
+        dispatch(setAlert({ message: 'Egreso registrado exitosamente', type: 'success' }))
+      } else {
+        // Actualizar egreso existente
+        const updatedExpense = await expenseService.update(expenseId!, payload)
+        const modifiedFields = calculateModifiedFields()
+
+        trackExpenseUpdated({
+          usuario: user.nickname,
+          timestamp: Date.now(),
+          id_egreso: expenseId!,
+          campos_modificados: modifiedFields,
+          tipo_egreso: updatedExpense.type,
+          categoria: updatedExpense.category,
+          monto: updatedExpense.amount,
+        })
+
+        dispatch(updateExpense(updatedExpense))
+        dispatch(setAlert({ message: 'Egreso actualizado exitosamente', type: 'success' }))
+      }
+
+      if (onSubmitSuccess) {
+        onSubmitSuccess()
+      } else {
+        router.push('/expense')
+      }
 
     } catch (error: any) {
       trackExpenseCreationError({
@@ -165,9 +255,27 @@ const ExpenseFormMobile = () => {
     cat.toLowerCase().includes(formData.category.toLowerCase())
   )
 
+  // Formatear fecha de última modificación
+  const formatDateTime = (isoString?: string): string => {
+    if (!isoString) return ''
+    const date = new Date(isoString)
+    return date.toLocaleString('es-AR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  }
+
   return (
     <MobileContainer>
-      <MobileTitle>Nuevo Egreso</MobileTitle>
+      <MobileTitle>{mode === 'edit' ? 'Editar Egreso' : 'Nuevo Egreso'}</MobileTitle>
+      {mode === 'edit' && initialValues && (
+        <LastModified>
+          Última modificación: {formatDateTime(initialValues.updatedAt)}
+        </LastModified>
+      )}
       <MobileForm onSubmit={handleSubmit}>
         <Input
           label="Fecha"
@@ -284,6 +392,14 @@ const MobileTitle = styled.h1`
   font-size: 24px;
   margin-bottom: 20px;
   text-align: center;
+`
+
+const LastModified = styled.p`
+  color: #666;
+  font-size: 13px;
+  text-align: center;
+  margin-bottom: 15px;
+  font-style: italic;
 `
 
 const MobileForm = styled.form`
