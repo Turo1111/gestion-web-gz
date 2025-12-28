@@ -12,9 +12,11 @@ import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.share
 import { setLoading } from '@/redux/loadingSlice'
 import { Expense } from '@/interfaces/expense.interface'
 import { expenseService } from '@/services/expense.service'
-import { setExpenses, getExpenses } from '@/redux/expenseSlice'
+import { setExpenses, getExpenses, removeExpense } from '@/redux/expenseSlice'
 import { setAlert } from '@/redux/alertSlice'
-import { MdEdit } from 'react-icons/md'
+import { MdEdit, MdDelete } from 'react-icons/md'
+import Confirm from '@/components/Confirm'
+import { trackExpenseDeleted } from '@/utils/analytics'
 
 export default function ExpenseScreen() {
   const [valueStorage] = useLocalStorage("user", "")
@@ -25,6 +27,8 @@ export default function ExpenseScreen() {
   
   const [data, setData] = useState<Expense[]>([])
   const [total, setTotal] = useState(0)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [expenseToDelete, setExpenseToDelete] = useState<Expense | null>(null)
 
   useEffect(() => {
     if (!valueStorage || !valueStorage.token) {
@@ -38,9 +42,16 @@ export default function ExpenseScreen() {
     try {
       dispatch(setLoading(true))
       const response = await expenseService.getAll({ skip: 0, limit: 50 })
-      setData(response.expenses)
+      
+      // Transformar amountCents a amount (pesos)
+      const expensesWithAmount = response.expenses.map(expense => ({
+        ...expense,
+        amount: expense.amountCents / 100
+      }))
+      
+      setData(expensesWithAmount)
       setTotal(response.total)
-      dispatch(setExpenses({ expenses: response.expenses, total: response.total }))
+      dispatch(setExpenses({ expenses: expensesWithAmount, total: response.total }))
     } catch (error: any) {
       console.error('Error al cargar egresos:', error)
       dispatch(setAlert({ message: 'Error al cargar los egresos', type: 'error' }))
@@ -56,6 +67,59 @@ export default function ExpenseScreen() {
 
   const formatAmount = (amount: number) => {
     return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(amount)
+  }
+
+  const openDeleteConfirm = (expense: Expense) => {
+    setExpenseToDelete(expense)
+    setConfirmOpen(true)
+  }
+
+  const closeDeleteConfirm = () => {
+    setConfirmOpen(false)
+    setExpenseToDelete(null)
+  }
+
+  const handleDeleteExpense = async () => {
+    if (!expenseToDelete) return
+
+    try {
+      dispatch(setLoading(true))
+      await expenseService.delete(expenseToDelete._id.toString())
+      
+      // Actualizar estado Redux
+      dispatch(removeExpense(expenseToDelete._id.toString()))
+      
+      // Actualizar estado local
+      setData(prev => prev.filter(exp => exp._id !== expenseToDelete._id))
+      setTotal(prev => prev - 1)
+      
+      // Analytics
+      trackExpenseDeleted({
+        usuario: user.nickname || 'unknown',
+        timestamp: Date.now(),
+        id_egreso: expenseToDelete._id.toString(),
+        monto: expenseToDelete.amount,
+        tipo_egreso: expenseToDelete.type,
+        categoria: expenseToDelete.category,
+        medio_pago: expenseToDelete.paymentMethod,
+      })
+      
+      dispatch(setAlert({ message: 'Egreso eliminado exitosamente', type: 'success' }))
+      closeDeleteConfirm()
+    } catch (error: any) {
+      console.error('Error al eliminar egreso:', error)
+      
+      // Manejo de errores específicos
+      if (error.response?.status === 403) {
+        dispatch(setAlert({ message: 'No tiene permisos para eliminar egresos', type: 'error' }))
+      } else if (error.response?.status === 404) {
+        dispatch(setAlert({ message: 'El egreso no existe o ya fue eliminado', type: 'error' }))
+      } else {
+        dispatch(setAlert({ message: 'Error al eliminar el egreso', type: 'error' }))
+      }
+    } finally {
+      dispatch(setLoading(false))
+    }
   }
 
   return (
@@ -113,9 +177,14 @@ export default function ExpenseScreen() {
                       <Td><Amount>{formatAmount(expense.amount)}</Amount></Td>
                       <Td>{expense.paymentMethod}</Td>
                       <Td>
-                        <ActionButton onClick={() => router.push(`/expense/${expense._id}/edit`)}>
-                          <MdEdit size={18} />
-                        </ActionButton>
+                        <ActionContainer>
+                          <ActionButton onClick={() => router.push(`/expense/${expense._id}/edit`)}>
+                            <MdEdit size={18} />
+                          </ActionButton>
+                          <ActionButton onClick={() => openDeleteConfirm(expense)} $variant="danger">
+                            <MdDelete size={18} />
+                          </ActionButton>
+                        </ActionContainer>
                       </Td>
                     </tr>
                   ))}
@@ -125,6 +194,13 @@ export default function ExpenseScreen() {
           </>
         )}
       </Content>
+
+      <Confirm
+        open={confirmOpen}
+        message={`¿Está seguro que desea eliminar el egreso de ${expenseToDelete?.category || ''} por ${formatAmount(expenseToDelete?.amount ?? 0)}? Esta acción no se puede deshacer.`}
+        handleClose={closeDeleteConfirm}
+        handleConfirm={handleDeleteExpense}
+      />
     </Container>
   )
 }
@@ -257,10 +333,15 @@ const Amount = styled.span`
   color: #8294C4;
 `
 
-const ActionButton = styled.button`
+const ActionContainer = styled.div`
+  display: flex;
+  gap: 8px;
+`
+
+const ActionButton = styled.button<{ $variant?: 'danger' }>`
   background: transparent;
   border: none;
-  color: #8294C4;
+  color: ${props => props.$variant === 'danger' ? '#d32f2f' : '#8294C4'};
   cursor: pointer;
   padding: 5px 10px;
   border-radius: 5px;
@@ -270,8 +351,8 @@ const ActionButton = styled.button`
   transition: all 0.2s;
 
   &:hover {
-    background: #f0f0f0;
-    color: #637195;
+    background: ${props => props.$variant === 'danger' ? '#ffebee' : '#f0f0f0'};
+    color: ${props => props.$variant === 'danger' ? '#b71c1c' : '#637195'};
   }
 
   &:active {
