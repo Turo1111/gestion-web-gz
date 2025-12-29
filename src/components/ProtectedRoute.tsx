@@ -1,0 +1,147 @@
+'use client';
+
+import { ReactNode, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { usePermission } from '@/hooks/usePermission';
+import { Permission } from '@/interfaces/auth.interface';
+import AccessDenied from './AccessDenied';
+import Loading from './Loading';
+
+interface ProtectedRouteProps {
+  /** Contenido a renderizar si el usuario tiene permisos */
+  children: ReactNode;
+  /** Permiso(s) requerido(s) para acceder a la ruta */
+  requiredPermission?: Permission | Permission[];
+  /** Mensaje personalizado si no tiene permisos */
+  deniedMessage?: string;
+  /** Redirigir a otra página en lugar de mostrar AccessDenied (opcional) */
+  redirectTo?: string;
+  /** Requerir autenticación (verificar token) - default: true */
+  requireAuth?: boolean;
+}
+
+/**
+ * Componente ProtectedRoute
+ * 
+ * Wrapper para proteger rutas que requieren permisos específicos.
+ * Verifica automáticamente si el usuario tiene los permisos necesarios
+ * y muestra AccessDenied o redirige si no los tiene.
+ * 
+ * @example
+ * ```tsx
+ * // En una página que requiere permiso de crear egresos
+ * export default function NewExpensePage() {
+ *   return (
+ *     <ProtectedRoute 
+ *       requiredPermission={Permission.CREATE_EXPENSE}
+ *       deniedMessage="No tienes permiso para crear egresos"
+ *     >
+ *       <ExpenseForm mode="create" />
+ *     </ProtectedRoute>
+ *   );
+ * }
+ * 
+ * // Con múltiples permisos (requiere AL MENOS UNO)
+ * <ProtectedRoute 
+ *   requiredPermission={[Permission.UPDATE_EXPENSE, Permission.DELETE_EXPENSE]}
+ * >
+ *   <EditExpenseForm />
+ * </ProtectedRoute>
+ * 
+ * // Con redirección
+ * <ProtectedRoute 
+ *   requiredPermission={Permission.CREATE_EXPENSE}
+ *   redirectTo="/expense"
+ * >
+ *   <NewExpenseForm />
+ * </ProtectedRoute>
+ * ```
+ */
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  children,
+  requiredPermission,
+  deniedMessage,
+  redirectTo,
+  requireAuth = true,
+}) => {
+  const router = useRouter();
+  const { hasPermission, hasAnyPermission } = usePermission();
+  const [isChecking, setIsChecking] = useState(true);
+  const [hasAccess, setHasAccess] = useState(false);
+
+  useEffect(() => {
+    // Verificar autenticación si se requiere
+    if (requireAuth) {
+      const userStorage = localStorage.getItem('user');
+      if (!userStorage) {
+        router.push('/');
+        return;
+      }
+      
+      try {
+        const userData = JSON.parse(userStorage);
+        if (!userData.token) {
+          router.push('/');
+          return;
+        }
+      } catch (error) {
+        console.error('Error al parsear usuario de localStorage:', error);
+        router.push('/');
+        return;
+      }
+    }
+
+    // Si no se especificó permiso, solo verificar auth
+    if (!requiredPermission) {
+      setHasAccess(true);
+      setIsChecking(false);
+      return;
+    }
+
+    // Verificar permisos
+    let permitted = false;
+
+    if (Array.isArray(requiredPermission)) {
+      // Si es un array, verificar que tenga al menos uno de los permisos
+      permitted = hasAnyPermission(requiredPermission);
+    } else {
+      // Si es un solo permiso, verificar que lo tenga
+      permitted = hasPermission(requiredPermission);
+    }
+
+    setHasAccess(permitted);
+    setIsChecking(false);
+
+    // Si no tiene acceso y se especificó redirección
+    if (!permitted && redirectTo) {
+      router.push(redirectTo);
+    }
+  }, [requiredPermission, redirectTo, requireAuth, hasPermission, hasAnyPermission, router]);
+
+  // Mostrar loading mientras se verifica
+  if (isChecking) {
+    return <Loading />;
+  }
+
+  // Si no tiene acceso y no hay redirección, mostrar AccessDenied
+  if (!hasAccess && !redirectTo) {
+    const permissionText = Array.isArray(requiredPermission)
+      ? requiredPermission.join(', ')
+      : requiredPermission || 'desconocido';
+
+    const defaultMessage = deniedMessage || 
+      `No tienes permisos suficientes para acceder a esta página. Se requiere: ${permissionText}`;
+
+    return <AccessDenied message={defaultMessage} />;
+  }
+
+  // Si no tiene acceso y hay redirección, no renderizar nada (se redirige en el useEffect)
+  if (!hasAccess && redirectTo) {
+    return <Loading />;
+  }
+
+  // Si tiene acceso, renderizar el contenido
+  return <>{children}</>;
+};
+
+export default ProtectedRoute;

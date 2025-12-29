@@ -15,6 +15,8 @@ import { expenseService } from '@/services/expense.service'
 import { Expense } from '@/interfaces/expense.interface'
 import { setLoading } from '@/redux/loadingSlice'
 import { setAlert } from '@/redux/alertSlice'
+import ProtectedRoute from '@/components/ProtectedRoute'
+import { Permission } from '@/interfaces/auth.interface'
 
 export default function EditExpense({ params }: { params: { id: string } }) {
   const [valueStorage] = useLocalStorage("user", "")
@@ -108,25 +110,30 @@ export default function EditExpense({ params }: { params: { id: string } }) {
     )
   }
 
-  // Renderizar formulario con datos
+  // Renderizar formulario con datos (protegido por permisos)
   return (
-    <Container>
-      {ancho > 940 ? (
-        <ExpenseForm
-          mode="edit"
-          initialValues={expense}
-          expenseId={params.id}
-          onSubmitSuccess={handleSuccess}
-        />
-      ) : (
-        <ExpenseFormMobile
-          mode="edit"
-          initialValues={expense}
-          expenseId={params.id}
-          onSubmitSuccess={handleSuccess}
-        />
-      )}
-    </Container>
+    <ProtectedRoute 
+      requiredPermission={Permission.UPDATE_EXPENSE}
+      deniedMessage="No tienes permisos para editar egresos. Contacta a tu administrador si necesitas acceso."
+    >
+      <Container>
+        {ancho > 940 ? (
+          <ExpenseForm
+            mode="edit"
+            initialValues={expense}
+            expenseId={params.id}
+            onSubmitSuccess={handleSuccess}
+          />
+        ) : (
+          <ExpenseFormMobile
+            mode="edit"
+            initialValues={expense}
+            expenseId={params.id}
+            onSubmitSuccess={handleSuccess}
+          />
+        )}
+      </Container>
+    </ProtectedRoute>
   )
 }
 

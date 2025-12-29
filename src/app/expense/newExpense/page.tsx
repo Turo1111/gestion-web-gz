@@ -11,6 +11,8 @@ import { useResize } from '@/hooks/useResize'
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime'
 import ExpenseForm from '@/components/expense/ExpenseForm'
 import ExpenseFormMobile from '@/components/expense/ExpenseFormMobile'
+import ProtectedRoute from '@/components/ProtectedRoute'
+import { Permission } from '@/interfaces/auth.interface'
 
 export default function NewExpense() {
   const [valueStorage] = useLocalStorage("user", "")
@@ -28,9 +30,14 @@ export default function NewExpense() {
   }, [router, valueStorage])
 
   return (
-    <Container>
-      {ancho > 940 ? <ExpenseForm /> : <ExpenseFormMobile />}
-    </Container>
+    <ProtectedRoute 
+      requiredPermission={Permission.CREATE_EXPENSE}
+      deniedMessage="No tienes permisos para crear nuevos egresos. Contacta a tu administrador si necesitas acceso."
+    >
+      <Container>
+        {ancho > 940 ? <ExpenseForm /> : <ExpenseFormMobile />}
+      </Container>
+    </ProtectedRoute>
   )
 }
 

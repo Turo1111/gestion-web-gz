@@ -69,6 +69,19 @@ export default function Dashboard({children}: {children: ReactNode} ) {
     useEffect(() => {
         const saveLogIn = async () => {
             if (user.nickname === '' && user.token === '' && valueStorage.nickname !== '' && valueStorage.token !== ''){
+                
+                // 🔧 MIGRACIÓN EG11: Verificar que el usuario tenga estructura actualizada con role
+                if (!valueStorage.role) {
+                    console.warn('⚠️ Usuario en localStorage sin campo "role". Forzando re-login para actualizar estructura.');
+                    console.warn('📋 Datos actuales:', valueStorage);
+                    
+                    // Limpiar sesión para forzar re-login
+                    clearValue();
+                    dispatch(clearUser());
+                    router.push('/');
+                    return;
+                }
+                
                 dispatch(setUser({...valueStorage}))
             }
         }
