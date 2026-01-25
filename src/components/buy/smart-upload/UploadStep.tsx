@@ -162,6 +162,15 @@ export default function UploadStep() {
               quantity: item.quantity,
               unitPrice: item.unitPrice,
               subtotal: item.subtotal,
+              // Agregar suggestions al nivel del item para ItemLinkingCell
+              suggestions: item.catalogMatch?.candidates?.map(c => ({
+                _id: c.productId,
+                productId: c.productId,
+                name: c.description,
+                descripcion: c.description,
+                score: c.score,
+                method: item.catalogMatch?.method || 'fuzzyMatch',
+              })) || [],
               catalogLink: {
                 suggestions: item.catalogMatch?.candidates?.map(c => ({
                   _id: c.productId,
@@ -170,9 +179,6 @@ export default function UploadStep() {
                   descripcion: c.description,
                   score: c.score,
                   method: item.catalogMatch?.method || 'fuzzyMatch',
-                  barcode: c.codigoBarra,
-                  brand: c.marca,
-                  category: c.categoria,
                 })) || [],
                 actionRequired: (!item.catalogMatch || !item.catalogMatch.candidates || item.catalogMatch.candidates.length === 0) ? 'CREATE_PRODUCT' as const : undefined,
               },

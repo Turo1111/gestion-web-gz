@@ -1,14 +1,15 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { useAppDispatch } from '@/redux/hook';
 import { getItemLinks, selectProduct, clearItemLink, setNewProduct } from '@/redux/purchaseDocSlice';
 import { AnalyzedItem, LinkingStatus, ProductSuggestion } from '@/interfaces/purchaseDoc.interface';
-import { Autocomplete, TextField, Chip } from '@mui/material';
-import { MdAdd, MdClose, MdCheckCircle } from 'react-icons/md';
+import { Autocomplete, TextField, Chip, CircularProgress } from '@mui/material';
+import { MdAdd, MdClose, MdCheckCircle, MdSearch } from 'react-icons/md';
 import ProductCreateModal from './ProductCreateModal';
+import { productService, Product } from '@/services/product.service';
 
 interface ItemLinkingCellProps {
   lineId: string;
@@ -21,12 +22,44 @@ export default function ItemLinkingCell({ lineId, item }: ItemLinkingCellProps) 
   const link = itemLinks[lineId];
   
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<Product[]>([]);
+  const [searching, setSearching] = useState(false);
+  
+  // Debounced search
+  useEffect(() => {
+    if (searchQuery.trim().length < 2) {
+      setSearchResults([]);
+      return;
+    }
+
+    const timeoutId = setTimeout(async () => {
+      setSearching(true);
+      try {
+        const results = await productService.searchProducts(searchQuery, 20);
+        setSearchResults(results);
+      } catch (error) {
+        console.error('Error searching products:', error);
+        setSearchResults([]);
+      } finally {
+        setSearching(false);
+      }
+    }, 300); // 300ms debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
   
   if (!link) return <div>Error: no se encontró el link</div>;
   
   const handleSelectProduct = (productId: string | null) => {
     if (productId) {
       dispatch(selectProduct({ lineId, productId }));
+    }
+  };
+  
+  const handleSelectSearchResult = (product: Product | null) => {
+    if (product) {
+      dispatch(selectProduct({ lineId, productId: product._id }));
     }
   };
   
@@ -47,7 +80,7 @@ export default function ItemLinkingCell({ lineId, item }: ItemLinkingCellProps) 
     setCreateModalOpen(false);
   };
   
-  // ESTADO: PENDING - Mostrar sugerencias o botón crear
+  // ESTADO: PENDING - Mostrar sugerencias o búsqueda
   if (link.status === LinkingStatus.PENDING) {
     const hasSuggestions = item.suggestions && item.suggestions.length > 0;
     
@@ -88,12 +121,56 @@ export default function ItemLinkingCell({ lineId, item }: ItemLinkingCellProps) 
         </Container>
       );
     } else {
+      // Sin sugerencias: mostrar búsqueda con autocompletado
       return (
         <Container>
-          <NoSuggestions>No hay sugerencias</NoSuggestions>
+          <SearchInfo>
+            <MdSearch size={16} />
+            <span>Busca el producto en el catálogo</span>
+          </SearchInfo>
+          
+          <Autocomplete
+            options={searchResults}
+            getOptionLabel={(option: Product) => option.descripcion}
+            onChange={(_, value) => handleSelectSearchResult(value)}
+            onInputChange={(_, value) => setSearchQuery(value)}
+            loading={searching}
+            noOptionsText={searchQuery.length < 2 ? "Escribe al menos 2 caracteres..." : "No se encontraron productos"}
+            loadingText="Buscando..."
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                placeholder="Buscar producto..."
+                size="small"
+                InputProps={{
+                  ...params.InputProps,
+                  startAdornment: (
+                    <>
+                      <MdSearch style={{ color: '#999', marginLeft: 8 }} />
+                      {params.InputProps.startAdornment}
+                    </>
+                  ),
+                  endAdornment: (
+                    <>
+                      {searching ? <CircularProgress color="inherit" size={20} /> : null}
+                      {params.InputProps.endAdornment}
+                    </>
+                  ),
+                }}
+              />
+            )}
+            renderOption={(props: any, option: Product) => (
+              <OptionItem {...props} key={option._id}>
+                <OptionName>{option.descripcion}</OptionName>
+                {option.marca && <OptionMeta>Marca: {option.marca}</OptionMeta>}
+              </OptionItem>
+            )}
+            fullWidth
+          />
+          
           <CreateButton onClick={handleOpenCreateModal} primary>
             <MdAdd size={16} />
-            Crear Producto
+            Crear Producto Nuevo
           </CreateButton>
           
           <ProductCreateModal
@@ -109,7 +186,10 @@ export default function ItemLinkingCell({ lineId, item }: ItemLinkingCellProps) 
   
   // ESTADO: LINKED - Mostrar el producto seleccionado
   if (link.status === LinkingStatus.LINKED && link.chosenProductId) {
-    const selectedProduct = item.suggestions?.find((s: ProductSuggestion) => s._id === link.chosenProductId);
+    // Buscar primero en sugerencias, luego en resultados de búsqueda
+    const selectedProduct = 
+      item.suggestions?.find((s: ProductSuggestion) => s._id === link.chosenProductId) ||
+      searchResults.find((p: Product) => p._id === link.chosenProductId);
     
     return (
       <Container>
@@ -168,11 +248,17 @@ const CreateButton = styled.button<{ primary?: boolean }>`
   }
 `;
 
-const NoSuggestions = styled.div`
-  font-size: 13px;
-  color: #999;
-  font-style: italic;
-  padding: 8px 0;
+const SearchInfo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #666;
+  padding: 4px 0;
+  
+  span {
+    font-style: italic;
+  }
 `;
 
 const OptionItem = styled.li`
@@ -185,6 +271,12 @@ const OptionItem = styled.li`
 const OptionName = styled.span`
   font-size: 14px;
   color: #333;
+`;
+
+const OptionMeta = styled.span`
+  font-size: 11px;
+  color: #999;
+  margin-left: 8px;
 `;
 
 const OptionScore = styled.span`
