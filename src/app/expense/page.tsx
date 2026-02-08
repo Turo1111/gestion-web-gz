@@ -14,7 +14,7 @@ import { Expense, ExpenseType, PaymentMethod, PaginationMetadata, ExpensePermiss
 import { expenseService } from '@/services/expense.service'
 import { setExpenses, removeExpense } from '@/redux/expenseSlice'
 import { setAlert } from '@/redux/alertSlice'
-import { MdEdit, MdDelete, MdVisibility, MdSearch, MdFilterList } from 'react-icons/md'
+import { MdEdit, MdDelete, MdVisibility, MdSearch, MdFilterList, MdClose } from 'react-icons/md'
 import Confirm from '@/components/Confirm'
 import { trackExpenseDeleted, trackExpenseListViewed, trackFilterChange, trackExpenseSearch } from '@/utils/analytics'
 
@@ -306,10 +306,19 @@ export default function ExpenseScreen() {
     setSearchError('')
     setFilters({ ...filters, page: 1 })
     
-    // Analytics: Emitir evento de cambio de filtro manual
+    // Analytics: Emitir evento de cambio de filtro manual (EG06 completo)
+    // Construir descripción de filtros aplicados
+    const filtrosActivos: string[] = []
+    if (filters.type) filtrosActivos.push(`tipo:${filters.type}`)
+    if (filters.category) filtrosActivos.push(`categoría:${filters.category}`)
+    if (filters.paymentMethod) filtrosActivos.push(`pago:${filters.paymentMethod}`)
+    if (trimmedSearch) filtrosActivos.push(`búsqueda:${trimmedSearch}`)
+    
     trackFilterChange(
       'manual',
-      'Filtro personalizado',
+      filtrosActivos.length > 0 
+        ? `Filtros aplicados (${filtrosActivos.join(', ')})`
+        : 'Filtro personalizado',
       {
         from: filters.from,
         to: filters.to,
@@ -323,6 +332,22 @@ export default function ExpenseScreen() {
     setActiveQuickFilter(null)
     setDateError('')
     setSearchError('')
+  }
+
+  // Calcular cantidad de filtros activos (EG06 - UX)
+  const getActiveFiltersCount = (): number => {
+    return [
+      filters.type,
+      filters.category,
+      filters.paymentMethod,
+      filters.search.trim()
+    ].filter(Boolean).length
+  }
+
+  // Remover filtro individual (EG06 - UX)
+  const removeFilter = (filterKey: keyof ExpenseFilters) => {
+    const newFilters = { ...filters, [filterKey]: '', page: 1 }
+    setFilters(newFilters)
   }
 
   const setQuickFilter = (type: 'today' | 'thisWeek' | 'thisMonth' | 'lastMonth' | 'thisYear' | 'last7Days' | 'last30Days') => {
@@ -388,10 +413,60 @@ export default function ExpenseScreen() {
           <FilterToggleButton onClick={() => setShowFilters(!showFilters)}>
             <MdFilterList size={20} />
             {showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros'}
+            {getActiveFiltersCount() > 0 && (
+              <FilterBadge>{getActiveFiltersCount()}</FilterBadge>
+            )}
           </FilterToggleButton>
           <Button text="Nuevo Egreso" onClick={() => {}} to="/expense/newExpense" />
         </HeaderActions>
       </Header>
+
+      {/* Chips de filtros activos (EG06 - UX) */}
+      {(filters.type || filters.category || filters.paymentMethod || filters.search.trim()) && (
+        <ActiveFiltersRow>
+          <ActiveFiltersLabel>Filtros activos:</ActiveFiltersLabel>
+          {filters.type && (
+            <ActiveFilterChip>
+              Tipo: {filters.type === 'operativo' ? 'Operativo' : filters.type === 'personal' ? 'Personal' : 'Otro Negocio'}
+              <MdClose 
+                size={16} 
+                onClick={() => removeFilter('type')} 
+                style={{ cursor: 'pointer', marginLeft: '6px' }}
+              />
+            </ActiveFilterChip>
+          )}
+          {filters.category && (
+            <ActiveFilterChip>
+              Categoría: {filters.category}
+              <MdClose 
+                size={16} 
+                onClick={() => removeFilter('category')} 
+                style={{ cursor: 'pointer', marginLeft: '6px' }}
+              />
+            </ActiveFilterChip>
+          )}
+          {filters.paymentMethod && (
+            <ActiveFilterChip>
+              Pago: {filters.paymentMethod}
+              <MdClose 
+                size={16} 
+                onClick={() => removeFilter('paymentMethod')} 
+                style={{ cursor: 'pointer', marginLeft: '6px' }}
+              />
+            </ActiveFilterChip>
+          )}
+          {filters.search.trim() && (
+            <ActiveFilterChip>
+              Búsqueda: "{filters.search.trim()}"
+              <MdClose 
+                size={16} 
+                onClick={() => removeFilter('search')} 
+                style={{ cursor: 'pointer', marginLeft: '6px' }}
+              />
+            </ActiveFilterChip>
+          )}
+        </ActiveFiltersRow>
+      )}
 
       {showFilters && (
         <FiltersCard>
@@ -698,10 +773,68 @@ const FilterToggleButton = styled.button`
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
+  position: relative;
 
   &:hover {
     background: #8294C4;
     color: white;
+  }
+`
+
+const FilterBadge = styled.span`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  background: #EA906C;
+  color: white;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  margin-left: 4px;
+`
+
+const ActiveFiltersRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 12px 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  flex-wrap: wrap;
+`
+
+const ActiveFiltersLabel = styled.span`
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+`
+
+const ActiveFilterChip = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: #8294C4;
+  color: white;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #637195;
+  }
+
+  svg {
+    transition: transform 0.2s;
+
+    &:hover {
+      transform: scale(1.2);
+    }
   }
 `
 
