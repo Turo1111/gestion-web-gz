@@ -18,6 +18,15 @@ export enum PaymentMethod {
 }
 
 /**
+ * Usuario simplificado (populated)
+ */
+export interface ExpenseUser {
+  _id: string;
+  name: string;
+  email: string;
+}
+
+/**
  * DTO para crear un egreso (payload del POST)
  */
 export interface CreateExpenseDTO {
@@ -41,19 +50,61 @@ export interface Expense {
   type: ExpenseType;
   paymentMethod: PaymentMethod;
   description?: string;
-  createdBy: Types.ObjectId | string; // Usuario que creó (backend lo setea)
+  createdBy: ExpenseUser | Types.ObjectId | string; // Populated o ID
   createdAt: string;         // ISO timestamp
   updatedAt: string;
-  updatedBy?: Types.ObjectId | string; // Usuario que actualizó (opcional)
+  updatedBy?: ExpenseUser | Types.ObjectId | string; // Populated o ID (opcional)
   isDeleted: boolean;        // Soft delete flag
   deletedAt?: string;
-  deletedBy?: Types.ObjectId | string;
+  deletedBy?: ExpenseUser | Types.ObjectId | string;
 }
 
 /**
- * Response del listado paginado
+ * Metadata de paginación
+ */
+export interface PaginationMetadata {
+  total: number;      // Total de ítems que cumplen filtros
+  page: number;       // Página actual
+  limit: number;      // Ítems por página
+  pages: number;      // Total de páginas
+}
+
+/**
+ * Permisos del usuario en el listado
+ */
+export interface ExpensePermissions {
+  canEdit: boolean;
+  canDelete: boolean;
+}
+
+/**
+ * Parámetros para listar egresos
+ */
+export interface ListExpensesParams {
+  page?: number;
+  limit?: number;
+  from?: string;           // YYYY-MM-DD
+  to?: string;             // YYYY-MM-DD
+  type?: ExpenseType | '';
+  category?: string;
+  paymentMethod?: PaymentMethod | '';
+  search?: string;
+  sort?: string;
+}
+
+/**
+ * Response del listado paginado (actualizado)
  */
 export interface ExpenseListResponse {
+  expenses: Expense[];
+  pagination: PaginationMetadata;
+  permissions: ExpensePermissions;
+}
+
+/**
+ * Response del listado paginado (legacy - mantener compatibilidad)
+ */
+export interface ExpenseLegacyListResponse {
   expenses: Expense[];
   total: number;
   skip: number;
