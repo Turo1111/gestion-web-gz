@@ -174,3 +174,34 @@ export const trackExpenseCreationError = (error: {
 
   console.error('Analytics: expense_creation_error', error);
 };
+
+/**
+ * Envía evento de cambio de filtro de fecha en listado de egresos
+ * EG05: Permite rastrear cómo los usuarios filtran los egresos
+ */
+export const trackFilterChange = (
+  tipo: 'quick_filter' | 'manual',
+  label: string,
+  rango: { from: string; to: string },
+  usuario: string
+) => {
+  if (typeof window !== 'undefined' && (window as any).gtag) {
+    (window as any).gtag('event', 'expense_filter_changed', {
+      event_category: 'Expenses',
+      event_label: label,
+      filter_type: tipo,
+      date_from: rango.from,
+      date_to: rango.to,
+      user: usuario,
+      timestamp: new Date().toISOString(),
+    });
+  }
+
+  console.log('Analytics: expense_filter_changed', {
+    tipo,
+    label,
+    rango,
+    usuario,
+    timestamp: new Date().toISOString(),
+  });
+};
