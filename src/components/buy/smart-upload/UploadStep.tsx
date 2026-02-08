@@ -33,6 +33,7 @@ export default function UploadStep() {
   // Cargar proveedores al montar
   useEffect(() => {
     loadProviders();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   
   const loadProviders = async () => {
@@ -110,6 +111,7 @@ export default function UploadStep() {
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFileChange(e.dataTransfer.files[0]);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   
   const handleProviderChange = (provider: Provider | null) => {

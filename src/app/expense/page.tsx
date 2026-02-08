@@ -461,7 +461,7 @@ export default function ExpenseScreen() {
           )}
           {filters.search.trim() && (
             <ActiveFilterChip>
-              Búsqueda: "{filters.search.trim()}"
+              Búsqueda: &quot;{filters.search.trim()}&quot;
               <MdClose 
                 size={16} 
                 onClick={() => removeFilter('search')} 

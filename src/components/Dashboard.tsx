@@ -65,6 +65,7 @@ export default function Dashboard({children}: {children: ReactNode} ) {
             }
         }
         
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router])
 
     useEffect(() => {
@@ -89,6 +90,7 @@ export default function Dashboard({children}: {children: ReactNode} ) {
         if (valueStorage !== undefined) {
             saveLogIn()
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user, valueStorage])
     
   return (

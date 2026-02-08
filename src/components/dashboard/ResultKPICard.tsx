@@ -114,6 +114,7 @@ const ResultKPICard: React.FC<ResultKPIProps> = ({ period, interval }) => {
 
   useEffect(() => {
     fetchResultKPI()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [period.from, period.to, operativosOnly])
 
   const handleToggleChange = (event: React.ChangeEvent<HTMLInputElement>) => {

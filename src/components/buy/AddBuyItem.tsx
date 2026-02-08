@@ -40,6 +40,7 @@ export default function AddBuyItem({open, handleClose, item, onClickItem}:{open:
     
     useEffect(()=>{
         formik && formik.setFieldValue('total', formik.values.cantidad * formik.values.precio)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     },[formik.values.cantidad, formik.values.precio])
 
   return (
