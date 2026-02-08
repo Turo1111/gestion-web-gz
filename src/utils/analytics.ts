@@ -205,3 +205,35 @@ export const trackFilterChange = (
     timestamp: new Date().toISOString(),
   });
 };
+
+/**
+ * Envía evento de búsqueda de egresos por descripción
+ * EG07: Permite rastrear cómo los usuarios buscan egresos
+ */
+export const trackExpenseSearch = (data: {
+  usuario: string;
+  timestamp: number;
+  termino: string;
+  longitud: number;
+  hay_resultados: boolean;
+}) => {
+  if (typeof window !== 'undefined' && (window as any).gtag) {
+    (window as any).gtag('event', 'expense_search_used', {
+      event_category: 'Expenses',
+      event_label: 'Search by description',
+      user: data.usuario,
+      search_term: data.termino,
+      term_length: data.longitud,
+      has_results: data.hay_resultados,
+      timestamp: new Date(data.timestamp).toISOString(),
+    });
+  }
+
+  console.log('Analytics: expense_search_used', {
+    usuario: data.usuario,
+    timestamp: new Date(data.timestamp).toISOString(),
+    termino: data.termino,
+    longitud: data.longitud,
+    hay_resultados: data.hay_resultados,
+  });
+};
