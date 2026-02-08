@@ -1,0 +1,204 @@
+'use client';
+
+import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
+import styled from 'styled-components';
+import { useRouter } from 'next/navigation';
+import { useAppDispatch } from '@/redux/hook';
+import {
+  getPurchaseDocState,
+  getAnalysis,
+  getItemLinks,
+  startConfirm,
+  confirmSuccess,
+  confirmFailure,
+  setDuplicateModalOpen,
+} from '@/redux/purchaseDocSlice';
+import { purchaseDocService } from '@/services/purchaseDoc.service';
+import { setAlert } from '@/redux/alertSlice';
+import { LinkingStatus, DuplicateDecision } from '@/interfaces/purchaseDoc.interface';
+import ProgressIndicator from './ProgressIndicator';
+import HeaderCard from './HeaderCard';
+import ItemsReviewTable from './ItemsReviewTable';
+import DuplicateWarningModal from './DuplicateWarningModal';
+import Loading from '@/components/Loading';
+import { MdWarning } from 'react-icons/md';
+
+export default function ReviewStep() {
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+  const { draftId, headerEdits, confirmLoading, duplicateCheck, duplicateDecision } = useSelector(getPurchaseDocState);
+  const analysis = useSelector(getAnalysis);
+  const itemLinks = useSelector(getItemLinks);
+  
+  if (!analysis) {
+    return <ErrorContainer>No hay datos de análisis</ErrorContainer>;
+  }
+  
+  // Validaciones
+  const itemsArray = Object.values(itemLinks);
+  const pendingItems = itemsArray.filter(link => link.status === LinkingStatus.PENDING);
+  const linkedItems = itemsArray.filter(link => link.status === LinkingStatus.LINKED);
+  const newProductItems = itemsArray.filter(link => link.status === LinkingStatus.NEW_PRODUCT);
+  
+  const allItemsResolved = pendingItems.length === 0;
+  const hasDuplicateWarning = duplicateCheck && duplicateCheck.isDuplicate;
+  
+  const canConfirm = allItemsResolved && (!hasDuplicateWarning || duplicateDecision !== null);
+  
+  const handleConfirm = async () => {
+    if (!canConfirm || !draftId) return;
+    
+    // Si hay duplicado y no se ha decidido, mostrar modal
+    if (hasDuplicateWarning && duplicateDecision === null) {
+      dispatch(setDuplicateModalOpen(true));
+      return;
+    }
+    
+    dispatch(startConfirm());
+    
+    try {
+      // Construir el payload de confirmación
+      const items = Object.entries(itemLinks).map(([lineId, link]) => {
+        if (link.status === LinkingStatus.LINKED && link.chosenProductId) {
+          return {
+            lineId,
+            chosenProductId: link.chosenProductId,
+          };
+        } else if (link.status === LinkingStatus.NEW_PRODUCT && link.newProduct) {
+          return {
+            lineId,
+            newProduct: link.newProduct,
+          };
+        }
+        throw new Error(`Item ${lineId} no tiene vinculación válida`);
+      });
+      
+      const result = await purchaseDocService.confirm(draftId, {
+        headerEdits: headerEdits || undefined,
+        items,
+        duplicateDecision: duplicateCheck?.checkId && duplicateDecision ? {
+          checkId: duplicateCheck.checkId,
+          decision: duplicateDecision,
+        } : undefined,
+      });
+      
+      dispatch(confirmSuccess({ purchaseId: result.buyId }));
+      
+      dispatch(setAlert({
+        message: `Compra creada exitosamente (ID: ${result.buyId})`,
+        type: 'success',
+      }));
+      
+      // Redirigir al detalle de la compra
+      router.push(`/buy/${result.buyId}`);
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || error.message || 'Error al confirmar la compra';
+      dispatch(confirmFailure(errorMessage));
+      dispatch(setAlert({
+        message: errorMessage,
+        type: 'error',
+      }));
+    }
+  };
+  
+  return (
+    <Container>
+      <ProgressIndicator />
+      
+      <HeaderCard />
+      
+      {pendingItems.length > 0 && (
+        <WarningBox>
+          <MdWarning size={24} />
+          <WarningText>
+            Hay {pendingItems.length} ítems sin vincular. Debes vincular todos los ítems antes de confirmar.
+          </WarningText>
+        </WarningBox>
+      )}
+      
+      {hasDuplicateWarning && duplicateDecision === null && (
+        <WarningBox warning>
+          <MdWarning size={24} />
+          <WarningText>
+            Se detectó un posible duplicado. Revisa la advertencia antes de confirmar.
+          </WarningText>
+        </WarningBox>
+      )}
+      
+      <ItemsReviewTable />
+      
+      <Actions>
+        <ConfirmButton onClick={handleConfirm} disabled={!canConfirm || confirmLoading}>
+          {confirmLoading ? 'Confirmando...' : 'Confirmar y Crear Compra'}
+        </ConfirmButton>
+      </Actions>
+      
+      <DuplicateWarningModal />
+    </Container>
+  );
+}
+
+// Styled Components
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+`;
+
+const WarningBox = styled.div<{ warning?: boolean }>`
+  background: ${props => props.warning ? '#fff3cd' : '#fff8e1'};
+  border: 1px solid ${props => props.warning ? '#ffc107' : '#ffb300'};
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  
+  svg {
+    color: ${props => props.warning ? '#ff9800' : '#ffa726'};
+    flex-shrink: 0;
+  }
+`;
+
+const WarningText = styled.span`
+  font-size: 14px;
+  color: #333;
+`;
+
+const Actions = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 16px;
+`;
+
+const ConfirmButton = styled.button`
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 14px 32px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  
+  &:hover:not(:disabled) {
+    background: #45a049;
+  }
+  
+  &:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+`;
+
+const ErrorContainer = styled.div`
+  background: #ffebee;
+  border: 1px solid #f44336;
+  border-radius: 8px;
+  padding: 24px;
+  text-align: center;
+  color: #c62828;
+  font-size: 16px;
+`;

@@ -5,6 +5,7 @@ import alertSlice from './alertSlice'
 import saleSlice from './saleSlice'
 import buySlice from './buySlice'
 import expenseSlice from './expenseSlice'
+import purchaseDocSlice from './purchaseDocSlice'
 
 export const store = configureStore({
     reducer: {
@@ -14,7 +15,16 @@ export const store = configureStore({
         sale: saleSlice,
         buy: buySlice,
         expense: expenseSlice,
-    }
+        purchaseDoc: purchaseDocSlice,
+    },
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware({
+            serializableCheck: {
+                // Ignorar File object en Redux (solo para uploadForm.file)
+                ignoredActions: ['purchaseDoc/setFile'],
+                ignoredPaths: ['purchaseDoc.uploadForm.file'],
+            },
+        }),
 })
 
 export type RootState = ReturnType<typeof store.getState>

@@ -63,6 +63,7 @@ export default function ModalProduct({open, handleClose, product}:{open: boolean
 
   useEffect(() => {
     formik.resetForm({ values: initialValues(product) })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product])
 
   return (

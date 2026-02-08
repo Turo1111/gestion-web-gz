@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { Suspense, useEffect, useState } from 'react'
 import styled from 'styled-components'
 import Button from '@/components/Button'
 import { useAppDispatch } from '@/redux/hook'
@@ -31,7 +31,7 @@ interface ExpenseFilters {
   sort: string;
 }
 
-export default function ExpenseScreen() {
+function ExpenseScreenContent() {
   const [valueStorage] = useLocalStorage("user", "")
   const router: AppRouterInstance = useRouter()
   const searchParams = useSearchParams()
@@ -461,7 +461,7 @@ export default function ExpenseScreen() {
           )}
           {filters.search.trim() && (
             <ActiveFilterChip>
-              Búsqueda: "{filters.search.trim()}"
+              Búsqueda: &quot;{filters.search.trim()}&quot;
               <MdClose 
                 size={16} 
                 onClick={() => removeFilter('search')} 
@@ -726,7 +726,32 @@ export default function ExpenseScreen() {
   )
 }
 
+export default function ExpenseScreen() {
+  return (
+    <Suspense fallback={
+      <LoadingContainer>
+        <LoadingText>Cargando egresos...</LoadingText>
+      </LoadingContainer>
+    }>
+      <ExpenseScreenContent />
+    </Suspense>
+  )
+}
+
 // Styled Components
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #f5f5f5;
+`
+
+const LoadingText = styled.div`
+  font-size: 16px;
+  color: #666;
+`
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;
