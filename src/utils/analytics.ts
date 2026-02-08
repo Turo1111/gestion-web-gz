@@ -262,3 +262,38 @@ export const trackExpenseDetailViewed = (data: {
     id_egreso: data.id_egreso,
   });
 };
+
+/**
+ * Envía evento de visualización de KPI de egresos en Dashboard
+ * EG09: Permite rastrear uso del KPI y filtros aplicados
+ */
+export const trackDashboardExpenseKPIViewed = (data: {
+  usuario: string;
+  periodo: {
+    from: string;  // YYYY-MM-DD
+    to: string;    // YYYY-MM-DD
+  };
+  tipo_egreso: 'todos' | 'operativo' | 'personal' | 'otro_negocio';
+  monto_total: number;
+}) => {
+  if (typeof window !== 'undefined' && (window as any).gtag) {
+    (window as any).gtag('event', 'dashboard_expense_kpi_viewed', {
+      event_category: 'Dashboard',
+      event_label: `Egresos ${data.tipo_egreso}`,
+      user: data.usuario,
+      period_from: data.periodo.from,
+      period_to: data.periodo.to,
+      expense_type: data.tipo_egreso,
+      total_amount: data.monto_total,
+      timestamp: new Date().toISOString(),
+    });
+  }
+
+  console.log('Analytics: dashboard_expense_kpi_viewed', {
+    usuario: data.usuario,
+    periodo: data.periodo,
+    tipo_egreso: data.tipo_egreso,
+    monto_total: data.monto_total,
+    timestamp: new Date().toISOString(),
+  });
+};
