@@ -297,3 +297,97 @@ export const trackDashboardExpenseKPIViewed = (data: {
     timestamp: new Date().toISOString(),
   });
 };
+
+/**
+ * Envía evento de visualización del KPI Resultado Simple en Dashboard
+ */
+export const trackDashboardResultKPIViewed = ({
+  usuario,
+  periodo,
+  operativosOnly,
+  ventas,
+  compras,
+  egresosUsados,
+  resultado,
+  gastosPersonales,
+}: {
+  usuario: string;
+  periodo: { from: string; to: string; interval?: string };
+  operativosOnly: boolean;
+  ventas: number;
+  compras: number;
+  egresosUsados: number;
+  resultado: number;
+  gastosPersonales: number;
+}) => {
+  if (typeof window !== 'undefined' && (window as any).gtag) {
+    (window as any).gtag('event', 'dashboard_result_kpi_viewed', {
+      event_category: 'Dashboard',
+      event_label: 'Resultado Simple',
+      user: usuario,
+      period_from: periodo.from,
+      period_to: periodo.to,
+      interval: periodo.interval || 'CUSTOM',
+      operativos_only: operativosOnly,
+      ventas,
+      compras,
+      egresos_usados: egresosUsados,
+      resultado_calculado: resultado,
+      gastos_personales: gastosPersonales,
+      timestamp: new Date().toISOString(),
+    });
+  }
+
+  console.log('Analytics: dashboard_result_kpi_viewed', {
+    usuario,
+    periodo_desde: periodo.from,
+    periodo_hasta: periodo.to,
+    intervalo: periodo.interval || 'CUSTOM',
+    operativos_only: operativosOnly,
+    ventas,
+    compras,
+    egresos_usados: egresosUsados,
+    resultado_calculado: resultado,
+    gastos_personales: gastosPersonales,
+    timestamp: new Date().toISOString(),
+  });
+};
+
+/**
+ * Envía evento de cambio de filtro en KPI Resultado Simple
+ */
+export const trackDashboardResultFilterChanged = ({
+  usuario,
+  valorAnterior,
+  valorNuevo,
+  periodo,
+}: {
+  usuario: string;
+  valorAnterior: boolean;
+  valorNuevo: boolean;
+  periodo: { from: string; to: string };
+}) => {
+  if (typeof window !== 'undefined' && (window as any).gtag) {
+    (window as any).gtag('event', 'dashboard_result_filter_changed', {
+      event_category: 'Dashboard',
+      event_label: 'Toggle Solo Operativos',
+      user: usuario,
+      filter: 'operativosOnly',
+      previous_value: valorAnterior,
+      new_value: valorNuevo,
+      period_from: periodo.from,
+      period_to: periodo.to,
+      timestamp: new Date().toISOString(),
+    });
+  }
+
+  console.log('Analytics: dashboard_result_filter_changed', {
+    usuario,
+    filtro: 'operativosOnly',
+    valor_anterior: valorAnterior,
+    valor_nuevo: valorNuevo,
+    periodo_desde: periodo.from,
+    periodo_hasta: periodo.to,
+    timestamp: new Date().toISOString(),
+  });
+};
