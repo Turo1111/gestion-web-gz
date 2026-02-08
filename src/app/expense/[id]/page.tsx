@@ -16,6 +16,7 @@ import { MdEdit, MdDelete, MdArrowBack } from 'react-icons/md'
 import Confirm from '@/components/Confirm'
 import { trackExpenseDeleted, trackExpenseDetailViewed } from '@/utils/analytics'
 import { removeExpense } from '@/redux/expenseSlice'
+import { usePermission } from '@/hooks/usePermission'
 
 export default function ExpenseDetailScreen() {
   const [valueStorage] = useLocalStorage("user", "")
@@ -23,6 +24,7 @@ export default function ExpenseDetailScreen() {
   const params = useParams()
   const dispatch = useAppDispatch()
   const user = useSelector(getUser)
+  const { canUpdateExpense, canDeleteExpense } = usePermission()
   
   const [expense, setExpense] = useState<Expense | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
@@ -189,14 +191,18 @@ export default function ExpenseDetailScreen() {
           Volver al listado
         </BackButton>
         <Actions>
-          <EditButton onClick={() => router.push(`/expense/${expense._id || (expense as any).id}/edit`)}>
-            <MdEdit size={18} />
-            Editar
-          </EditButton>
-          <DeleteButton onClick={openDeleteConfirm}>
-            <MdDelete size={18} />
-            Eliminar
-          </DeleteButton>
+          {canUpdateExpense && (
+            <EditButton onClick={() => router.push(`/expense/${expense._id || (expense as any).id}/edit`)}>
+              <MdEdit size={18} />
+              Editar
+            </EditButton>
+          )}
+          {canDeleteExpense && (
+            <DeleteButton onClick={openDeleteConfirm}>
+              <MdDelete size={18} />
+              Eliminar
+            </DeleteButton>
+          )}
         </Actions>
       </Header>
 
@@ -271,6 +277,27 @@ export default function ExpenseDetailScreen() {
               <Label>Última modificación</Label>
               <Value>{formatDate(expense.updatedAt)}</Value>
             </Field>
+            
+            {expense.deletedBy && (
+              <>
+                <Field>
+                  <Label>Eliminado por</Label>
+                  <Value>
+                    <DeletedInfo>
+                      {getUserInfo(expense.deletedBy).name}
+                      {getUserInfo(expense.deletedBy).email && <Email>{getUserInfo(expense.deletedBy).email}</Email>}
+                    </DeletedInfo>
+                  </Value>
+                </Field>
+                
+                <Field>
+                  <Label>Fecha de eliminación</Label>
+                  <Value>
+                    <DeletedInfo>{formatDate(expense.deletedAt)}</DeletedInfo>
+                  </Value>
+                </Field>
+              </>
+            )}
           </Grid>
         </Section>
 
@@ -482,6 +509,11 @@ const Email = styled.div`
   color: #888;
   font-style: italic;
   margin-top: 3px;
+`
+
+const DeletedInfo = styled.div`
+  color: #DC8686;
+  font-weight: 600;
 `
 
 const TypeBadge = styled.span<{ type: string }>`
