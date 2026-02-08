@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import styled from 'styled-components'
 import { useAppDispatch } from '@/redux/hook'
 import { useSelector } from 'react-redux'
@@ -14,7 +14,7 @@ import { expenseService } from '@/services/expense.service'
 import { setAlert } from '@/redux/alertSlice'
 import { MdEdit, MdDelete, MdArrowBack } from 'react-icons/md'
 import Confirm from '@/components/Confirm'
-import { trackExpenseDeleted } from '@/utils/analytics'
+import { trackExpenseDeleted, trackExpenseDetailViewed } from '@/utils/analytics'
 import { removeExpense } from '@/redux/expenseSlice'
 
 export default function ExpenseDetailScreen() {
@@ -26,6 +26,7 @@ export default function ExpenseDetailScreen() {
   
   const [expense, setExpense] = useState<Expense | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
+  const analyticsTrackedRef = useRef(false)
 
   useEffect(() => {
     if (!valueStorage || !valueStorage.token) {
@@ -34,6 +35,7 @@ export default function ExpenseDetailScreen() {
     }
 
     if (params?.id) {
+      analyticsTrackedRef.current = false // Resetear al cambiar ID
       fetchExpense(params.id as string)
     }
   }, [params?.id])
@@ -57,6 +59,16 @@ export default function ExpenseDetailScreen() {
       
       console.log('Processed expense:', expenseWithAmount)
       setExpense(expenseWithAmount)
+      
+      // Analytics EG08: Registrar visualización de detalle
+      if (!analyticsTrackedRef.current) {
+        trackExpenseDetailViewed({
+          usuario: user.nickname || 'unknown',
+          timestamp: Date.now(),
+          id_egreso: id,
+        })
+        analyticsTrackedRef.current = true
+      }
     } catch (error: any) {
       console.error('Error al cargar egreso:', error)
       
