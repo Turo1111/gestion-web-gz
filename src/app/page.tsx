@@ -32,11 +32,18 @@ export default function Home() {
     validationSchema: SignupSchema,
     onSubmit: (formValue: Auth) => {
       dispatch(setLoading(true))
-      apiClient.post('/auth/login', formValue )
-      .then((r)=>{
-        if (r.data === 'NOT_FOUND_USER' || r.data === 'PASSWORD_INCORRECT') {
-          setError(r.data)
+      apiClient.post('/auth/login', formValue)
+        .then(async (r) => {
+          if (r.data === 'NOT_FOUND_USER' || r.data === 'PASSWORD_INCORRECT') {
+            setError(r.data)
+            dispatch(setLoading(false))
+            return
+          }
+          setValue(r.data)
+          dispatch(setUser(r.data))
+          await router.push('/home')
           dispatch(setLoading(false))
+<<<<<<< HEAD
           return
         }
         
@@ -78,9 +85,13 @@ export default function Home() {
         dispatch(setLoading(false))
       })
       .catch(e=>{console.log(e);dispatch(setLoading(false))})
+=======
+        })
+        .catch(e => { console.log(e); dispatch(setLoading(false)) })
+>>>>>>> dfb96e2 (WIP: cambios locales)
     }
-  }) 
-  
+  })
+
 
   return (
     <Main>
@@ -89,18 +100,18 @@ export default function Home() {
         <div>
           <Input label={'Usuario'} name={'nickname'} value={formik.values.nickname} onChange={formik.handleChange} type='text' />
           {formik.errors.nickname && formik.touched.nickname && (
-            <p style={{color: 'red', textAlign: 'start'}}>{formik.errors.nickname}</p>
+            <p style={{ color: 'red', textAlign: 'start' }}>{formik.errors.nickname}</p>
           )}
           <Input label={'Contraseña'} name={'password'} value={formik.values.password} onChange={formik.handleChange} type='password' />
           {formik.errors.password && formik.touched.password && (
             <p>{formik.errors.password}</p>
           )}
-          <div style={{display: 'flex', alignItems: 'center', justifyContent: 'end', width: '100%'}}>
-            <div style={{display: "flex", alignItems: "center"}} >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'end', width: '100%' }}>
+            <div style={{ display: "flex", alignItems: "center" }} >
               {
-                error !== '' && <div style={{color: 'red', marginRight: 15}}>{error}</div>
+                error !== '' && <div style={{ color: 'red', marginRight: 15 }}>{error}</div>
               }
-              <Button text={'INGRESAR'} onClick={formik.handleSubmit} type='submit'/>
+              <Button text={'INGRESAR'} onClick={formik.handleSubmit} type='submit' />
             </div>
           </div>
         </div>
@@ -109,7 +120,7 @@ export default function Home() {
   );
 }
 
-const initialValues:Auth = {
+const initialValues: Auth = {
   nickname: '',
   password: ''
 };
@@ -119,7 +130,7 @@ const SignupSchema = Yup.object().shape({
   nickname: Yup.string().required('Required'),
 });
 
-const Main = styled.main `
+const Main = styled.main`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -134,7 +145,7 @@ const ContainerLogin = styled.div`
   min-width: 400px;
 `
 
-const Title = styled.h2 `
+const Title = styled.h2`
   margin: 15px 0;
   font-size: 32px;
 `

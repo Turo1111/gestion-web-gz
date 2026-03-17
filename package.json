@@ -2,6 +2,8 @@
   "name": "gestion-web-gz",
   "version": "0.1.0",
   "private": true,
+  "license": "UNLICENSED",
+  "description": "Panel web de gestión Golozur - ventas, compras, productos y reportes",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
